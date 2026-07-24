@@ -8,7 +8,6 @@ import org.octavius.form.control.base.ControlContext
  * wykorzystując strukturę drzewa [ControlContext].
  */
 object PathResolver {
-    //TODO lepsza logika oraz podróż w dół (zmiana pól we wszystkich wierszach repeatable)
     const val SEPARATOR = "/"
     const val PARENT = ".."
     const val CURRENT = "."

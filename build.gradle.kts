@@ -1,9 +1,10 @@
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.octavius.gradle.registerGenerateTranslationAccessorsTask
+import io.github.octaviusframework.translations.registerGenerateTranslationAccessorsTask
 
 plugins {
+    id("io.github.octaviusframework.translations") version "0.9.0"
     // this is necessary to avoid the plugins to be loaded multiple times
     // in each subproject's classloader
     alias(libs.plugins.composeMultiplatform) apply false
