@@ -70,7 +70,7 @@ tasks.named<ShadowJar>("shadowJar") {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 
-    exclude("translations_*.json")
+    exclude("i18n/*.json")
     manifest {
         attributes["Main-Class"] = "org.octavius.app.MainKt"
     }

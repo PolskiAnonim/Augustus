@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.octaviusI18n)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
@@ -23,12 +24,12 @@ kotlin {
 
 
                 // Inne współdzielone biblioteki
+                api(libs.octavius.i18n.core)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.octavius.database.api)
             }
-            kotlin.srcDir(layout.buildDirectory.dir("generated/kotlin/commonMain"))
         }
 
         val desktopMain by getting
@@ -36,11 +37,10 @@ kotlin {
     }
 }
 
-// Upewniamy się, że Tr.kt jest wygenerowane przed kompilacją i dokumentacją
-tasks.matching { it.name.startsWith("compileKotlin") }.configureEach {
-    dependsOn(rootProject.tasks.named("generateTranslationAccessors"))
-}
-
-tasks.matching { it.name.startsWith("dokka") }.configureEach {
-    dependsOn(rootProject.tasks.named("generateTranslationAccessors"))
+octaviusI18n {
+    generators {
+        create("main") {
+            targetPackage = "org.octavius.localization"
+        }
+    }
 }

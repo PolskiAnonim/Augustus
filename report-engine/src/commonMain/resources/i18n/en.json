@@ -94,8 +94,8 @@
     },
     "configuration": {
       "configuration": {
-        "many": "Report configurations",
-        "one": "Report configuration"
+        "_many": "Report configurations",
+        "_one": "Report configuration"
       },
       "defaultConfig": "Default",
       "description": "Description (optional)",

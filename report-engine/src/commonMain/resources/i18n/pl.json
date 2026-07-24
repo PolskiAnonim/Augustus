@@ -94,8 +94,8 @@
     },
     "configuration": {
       "configuration": {
-        "many": "Konfiguracje raportu",
-        "one": "Konfiguracja raportu"
+        "_many": "Konfiguracje raportu",
+        "_one": "Konfiguracja raportu"
       },
       "defaultConfig": "Domyślna",
       "description": "Opis (opcjonalny)",

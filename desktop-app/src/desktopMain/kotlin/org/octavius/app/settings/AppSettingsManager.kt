@@ -1,5 +1,6 @@
 package org.octavius.app.settings
 
+import io.github.octaviusframework.i18n.core.OctaviusI18n
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.octavius.app.settings.domain.AppSettings
@@ -44,7 +45,7 @@ class AppSettingsManager {
      * Applies current settings to the application state (e.g. updates Tr.currentLanguage).
      */
     fun applySettings() {
-        Tr.currentLanguage = _currentSettings.language
+        OctaviusI18n.currentLanguage = _currentSettings.language
     }
 
     private fun saveSettings(settings: AppSettings) {

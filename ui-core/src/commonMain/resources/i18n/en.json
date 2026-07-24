@@ -78,14 +78,14 @@
     "fieldRequired": "This field is required",
     "invalidNumberFormat": "Invalid number format",
     "minimumItems": {
-      "one": "Minimum {0} item required",
-      "few": "Minimum {0} items required",
-      "many": "Minimum {0} items required"
+      "_one": "Minimum {0} item required",
+      "_few": "Minimum {0} items required",
+      "_many": "Minimum {0} items required"
     },
     "maximumItems": {
-      "one": "Maximum {0} item",
-      "few": "Maximum {0} items",
-      "many": "Maximum {0} items"
+      "_one": "Maximum {0} item",
+      "_few": "Maximum {0} items",
+      "_many": "Maximum {0} items"
     }
   },
   "colorPicker": {

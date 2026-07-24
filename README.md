@@ -135,9 +135,9 @@ val books = dataAccess.select("id", "title", "author", "status")
 ## Localization
 
 - **Type-safe translation system** with auto-generated accessors (`Tr`)
-- JSON-based translations per module (`translations_pl.json`)
+- JSON-based translations per module (`i18n/pl.json`)
 - Plural forms support (one/few/many)
-- Build-time code generation: `./gradlew generateTranslationAccessors`
+- Build-time code generation: `./gradlew generateI18nAccessors`
 
 ```kotlin
 // Type-safe accessors instead of string keys

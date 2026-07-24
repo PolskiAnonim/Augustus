@@ -1,5 +1,6 @@
 [versions]
 octavius-database = "15.6.0"
+octavius-i18n = "1.0.0"
 dokka = "2.2.0"
 compose-multiplatform = "1.11.0"
 kotlin = "2.4.0"
@@ -22,6 +23,7 @@ shadow = "9.4.1"
 octavius-database-api = { group = "io.github.octavius-framework", name = "database-api", version.ref = "octavius-database" }
 octavius-database-core = { group = "io.github.octavius-framework", name = "database-core", version.ref = "octavius-database" }
 octavius-database-flyway-integration = { group = "io.github.octavius-framework", name = "database-flyway-integration", version.ref = "octavius-database" }
+octavius-i18n-core = { group = "io.github.octavius-framework", name = "i18n-core", version.ref = "octavius-i18n" }
 # kotlinx
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
@@ -62,3 +64,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+octaviusI18n = { id = "io.github.octavius-framework.i18n",  version.ref = "octavius-i18n" }

@@ -1,10 +1,8 @@
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import io.github.octaviusframework.translations.registerGenerateTranslationAccessorsTask
 
 plugins {
-    id("io.github.octaviusframework.translations") version "0.9.0"
+    id("io.github.octavius-framework.i18n") version "1.0.0"
     // this is necessary to avoid the plugins to be loaded multiple times
     // in each subproject's classloader
     alias(libs.plugins.composeMultiplatform) apply false
@@ -65,7 +63,10 @@ subprojects {
     }
 }
 
-// Rejestracja taska generującego type-safe accessory do tłumaczeń
-val generateTranslationAccessors = registerGenerateTranslationAccessorsTask(
-    coreProject = project(":ui-core")
-)
+octaviusI18n {
+    generators {
+        create("main") {
+            targetPackage = "org.octavius.localization"
+        }
+    }
+}
