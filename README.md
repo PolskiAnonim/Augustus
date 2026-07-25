@@ -1,4 +1,4 @@
-# Octavius Framework
+# Augustus
 
 <div align="center">
 
@@ -14,7 +14,7 @@
 
 ## Overview
 
-Octavius is a Kotlin Multiplatform desktop application for tracking manga, light novels, and game collections. What makes it unique is that it's built entirely on **custom-engineered frameworks** — a form engine, report engine, and database access layer — designed from scratch to solve real problems without the overhead of traditional solutions.
+Augustus is a Kotlin Multiplatform desktop application for tracking manga, light novels, and game collections. What makes it unique is that it's built entirely on **custom-engineered frameworks** — a form engine, report engine, and database access layer — designed from scratch to solve real problems without the overhead of traditional solutions.
 
 ## Highlights
 
@@ -55,7 +55,7 @@ Octavius is a Kotlin Multiplatform desktop application for tracking manga, light
 The project follows a modular distributed architecture. The Core Database layer is developed as a separate library.
 
 ```
-Octavius/
+Augustus/
 ├── desktop-app/             # Main application entry point
 │
 ├── form-engine/             # Declarative form framework

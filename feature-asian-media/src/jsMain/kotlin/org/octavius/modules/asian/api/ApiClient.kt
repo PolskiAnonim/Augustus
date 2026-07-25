@@ -35,7 +35,7 @@ object ApiClient {
             println("Błąd API: ${e.message}")
             PublicationAddResponse(
                 success = false,
-                message = "Nie można połączyć się z serwerem Octavius. Upewnij się, że aplikacja jest uruchomiona."
+                message = "Nie można połączyć się z serwerem Augustus. Upewnij się, że aplikacja jest uruchomiona."
             )
         }
     }

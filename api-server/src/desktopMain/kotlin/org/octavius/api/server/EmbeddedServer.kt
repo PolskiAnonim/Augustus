@@ -49,7 +49,7 @@ fun Application.configureRouting(apiModules: List<ApiModule>) {
     routing {
         // Podstawowy, powitalny endpoint
         get("/") {
-            call.respondText("Hello from Octavius Server!")
+            call.respondText("Hello from Augustus Server!")
         }
 
         // iterujemy po wszystkich modułach i prosimy je o instalację swoich ścieżek

@@ -26,7 +26,7 @@ import org.octavius.navigation.Screen
 
 /**
  * Ekran dedykowany do wyświetlania danych sparsowanych ze strony
- * i umożliwiający dodanie ich do bazy danych Octavius.
+ * i umożliwiający dodanie ich do bazy danych Augustus.
  */
 class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
     override val title = "asianMediaAddScreen"
@@ -55,7 +55,7 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
         ) {
             // Header
             Text(
-                "Octavius Helper",
+                "Augustus Helper",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -143,7 +143,7 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text("Dodaj do Octaviusa", fontWeight = FontWeight.Bold)
+                    Text("Dodaj do Augustusa", fontWeight = FontWeight.Bold)
                 }
             }
 

@@ -20,7 +20,7 @@ class AppSettingsManager {
 
     private val settingsFile: File by lazy {
         val appData = System.getenv("APPDATA") ?: System.getProperty("user.home")
-        val folder = File(appData, "Octavius")
+        val folder = File(appData, "Augustus")
         if (!folder.exists()) folder.mkdirs()
         File(folder, "settings.json")
     }

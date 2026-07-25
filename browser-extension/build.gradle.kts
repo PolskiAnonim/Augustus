@@ -7,7 +7,7 @@ plugins {
 
 // 2. Główny task do składania wtyczki
 tasks.register("assembleBrowserExtension") {
-    group = "Octavius Extension"
+    group = "Augustus Extension"
     description = "Assembles the final browser extension into build/extension"
 
     // Zależności: najpierw budujemy JS, potem mergujemy tłumaczenia

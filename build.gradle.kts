@@ -2,7 +2,6 @@ import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 plugins {
-    id("io.github.octavius-framework.i18n") version "1.0.0"
     // this is necessary to avoid the plugins to be loaded multiple times
     // in each subproject's classloader
     alias(libs.plugins.composeMultiplatform) apply false
@@ -13,7 +12,7 @@ plugins {
 
 // Konfiguracja Dokka - agregacja dokumentacji z wielu modułów
 dokka {
-    moduleName.set("Octavius Framework")
+    moduleName.set("Augustus")
 
     dokkaPublications.html {
         outputDirectory.set(layout.buildDirectory.dir("dokka/html"))
@@ -59,14 +58,6 @@ subprojects {
                 )
                 skipEmptyPackages.set(true)
             }
-        }
-    }
-}
-
-octaviusI18n {
-    generators {
-        create("main") {
-            targetPackage = "org.octavius.localization"
         }
     }
 }

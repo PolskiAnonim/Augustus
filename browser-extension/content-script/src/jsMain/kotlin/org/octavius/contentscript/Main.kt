@@ -14,7 +14,7 @@ import org.octavius.modules.asian.parser.NovelUpdatesParser
 
 @OptIn(DelicateCoroutinesApi::class)
 fun main() {
-    println("Octavius Content Script (z logiką) załadowany!")
+    println("Augustus Content Script (z logiką) załadowany!")
 
     val availableParsers: List<Parser<*>> = listOf(
         MangaUpdatesParser,
