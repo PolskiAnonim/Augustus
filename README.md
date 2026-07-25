@@ -4,7 +4,7 @@
 
 **A modular desktop application for managing media collections, built with custom-engineered frameworks**
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.3-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Compose Multiplatform](https://img.shields.io/badge/Compose-Multiplatform-4285F4?logo=jetpackcompose&logoColor=white)](https://www.jetbrains.com/lp/compose-multiplatform/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17+-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Octavius Database](https://img.shields.io/maven-central/v/io.github.octavius-framework/database-core.svg?label=Octavius%20Database&color=orange)](https://github.com/Octavius-Framework/octavius-database)
@@ -60,13 +60,16 @@ Octavius/
 │
 ├── form-engine/             # Declarative form framework
 ├── report-engine/           # Dynamic table framework
-├── ui-core/                 # Shared UI components & navigation, localization, utilities
+├── ui-core/                 # Shared UI components & navigation, utilities
 │
 ├── feature-asian-media/     # Manga, novels, manhwa tracking
+├── feature-books/           # Books and literature tracking
 ├── feature-games/           # Game collection management
-├── feature-settings/        # Application settings
+├── feature-sandbox/         # Sandbox testing environment
+├── feature-contract/        # Shared feature interfaces and models
 │
 ├── api-server/              # REST API for browser extension
+├── api-contract/            # Shared API models between server and extension
 └── browser-extension/       # Kotlin/JS Chrome extension
 ```
 
@@ -134,14 +137,4 @@ val books = dataAccess.select("id", "title", "author", "status")
 
 ## Localization
 
-- **Type-safe translation system** with auto-generated accessors (`Tr`)
-- JSON-based translations per module (`i18n/pl.json`)
-- Plural forms support (one/few/many)
-- Build-time code generation: `./gradlew generateI18nAccessors`
-
-```kotlin
-// Type-safe accessors instead of string keys
-Tr.Action.save()                     // → "Zapisz"
-Tr.Games.Form.category(5)            // → Plural form based on count
-Tr.currentLanguage = "en"            // Runtime language switching
-```
+Translations are managed using the [`octavius-i18n`](https://github.com/Octavius-Framework/octavius-i18n) Gradle plugin. Check its repository for detailed instructions on adding and configuring translations.
