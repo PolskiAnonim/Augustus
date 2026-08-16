@@ -8,6 +8,7 @@
 [![Compose Multiplatform](https://img.shields.io/badge/Compose-Multiplatform-4285F4?logo=jetpackcompose&logoColor=white)](https://www.jetbrains.com/lp/compose-multiplatform/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17+-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Octavius Database](https://img.shields.io/maven-central/v/io.github.octavius-framework/database-core.svg?label=Octavius%20Database&color=orange)](https://github.com/Octavius-Framework/octavius-database)
+[![KDoc](https://img.shields.io/badge/KDoc-Documentation-blue)](https://polskianonim.github.io/OctaviusFramework/)
 </div>
 
 ---
@@ -18,12 +19,12 @@ Augustus is a Kotlin Multiplatform desktop application for tracking manga, light
 
 ## Highlights
 
-| Component                                                                 | Description                                                                                                                        |
-|---------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
-| **[Octavius Database](https://github.com/PolskiAnonim/OctaviusDatabase)** | *External Library.* An "Anti-ORM" — SQL-first data access with automatic type mapping for PostgreSQL composites, enums, and arrays |
-| **[Form Engine](form-engine/)**                                           | Declarative form builder with dependencies, validation, and repeatable sections                                                    |
-| **[Report Engine](report-engine/)**                                       | Dynamic data tables with filtering, sorting, column management, and persistent layouts                                             |
-| **Browser Extension**                                                     | Kotlin/JS extension for importing data from external sources.                                                                      |
+| Component                                                                     | Description                                                                                                                             |
+|--------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| **[Octavius Database](https://github.com/Octavius-Framework/octavius-database)** | *External Library.* An "Anti-ORM" — SQL-first data access with automatic type mapping for PostgreSQL composites, enums, and arrays       |
+| **[Form Engine](form-engine/)**                                                | Declarative form builder: dependencies, cross-control actions, repeatable sections, three-level validation                              |
+| **[Report Engine](report-engine/)**                                            | Turns a SQL query into an interactive table — filters that write SQL, multi-column sorting, column management, saved layouts            |
+| **Browser Extension**                                                          | Kotlin/JS Chrome extension for importing data from external sources                                                                      |
 
 ## Tech Stack
 
@@ -79,23 +80,25 @@ Augustus/
 
 ### Form Engine
 
-A data-driven form framework supporting:
+Turns a schema — controls plus a display order — into a full CRUD form:
 
-- **Control types**: Primitives, dropdowns (enum/database), string lists, sections
-- **Repeatable sections**: Dynamic row management with add/remove
-- **Dependencies**: Show/hide controls based on other values
-- **Validation**: Multi-level validation with business rules
+- **Rich control types**: primitives, dropdowns (enum/database), dates/intervals, files, sections, repeatable rows
+- **Dependencies**: show/hide or require a control based on another control's value
+- **Cross-control actions**: a control action can read or write any other control by relative or wildcard path
+- **Three-level validation**: per-field, business rules, and per-action, each with its own error surface
+- **Diffed repeatable rows**: added/modified/deleted rows separated for you, not just a flat list
 
 [Learn more →](form-engine/)
 
 ### Report Engine
 
-Configurable data tables with:
+Turns a SQL query into an interactive table — the base query is never rewritten, just wrapped in a subquery:
 
-- **Column management**: Drag & drop, visibility toggles, reordering
-- **Type-specific filters**: String, number, enum, boolean, date
-- **Multi-column sorting** with state persistence
-- **Layout presets**: Save and load table configurations
+- **Filters that write SQL**: each column type builds its own parameterised query fragment, with explicit NULL semantics
+- **Multi-column sorting**: ordered, drag-reorderable sort chips
+- **Column management**: visibility and order, adjusted at runtime
+- **Saved layouts**: filters, sorting, visibility and page size persisted per report in the database
+- **Server-side pagination**: `COUNT` + `LIMIT`/`OFFSET`, never loads the full result set
 
 [Learn more →](report-engine/)
 
@@ -107,7 +110,7 @@ SQL-first approach with automatic mapping (imported as a library):
 // Your query shapes the result — not the ORM
 val books = dataAccess.select("id", "title", "author", "status")
     .from("books")
-    .where("status = :status")
+    .where("status = @status")
     .orderBy("title")
     .toListOf<Book>("status" to BookStatus.Reading)
 ```
@@ -118,7 +121,7 @@ val books = dataAccess.select("id", "title", "author", "status")
 
 ### Requirements
 
-- JDK 24+
+- JDK 25+
 - PostgreSQL 17+
 - Database `octavius` created locally
 
