@@ -16,6 +16,7 @@ import org.octavius.report.column.type.StringColumn
 import org.octavius.report.column.type.asList
 import org.octavius.report.component.ReportStructureBuilder
 import io.github.octaviusframework.db.api.withParam
+import org.octavius.report.localization.ReportTr
 
 class GameReportStructureBuilder(
     private val categoryId: Int? = null,
@@ -65,7 +66,7 @@ class GameReportStructureBuilder(
     )
 
     override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(
-        Tr.Report.Actions.edit()
+        ReportTr.Report.Actions.edit()
     ) {
         val id = rowData["id"] as? Int
         if (id != null) {

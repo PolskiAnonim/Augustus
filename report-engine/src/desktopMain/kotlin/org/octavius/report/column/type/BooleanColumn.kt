@@ -9,12 +9,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.octavius.localization.Tr
 import org.octavius.report.CellRendererUtils
 import org.octavius.report.ColumnWidth
 import org.octavius.report.column.ReportColumn
 import org.octavius.report.filter.Filter
 import org.octavius.report.filter.type.BooleanFilter
+import org.octavius.report.localization.ReportTr
 
 /**
  * Kolumna do wyświetlania wartości boolean w raporcie.
@@ -34,8 +34,8 @@ class BooleanColumn(
     width: Float = 1f,
     filterable: Boolean = true,
     sortable: Boolean = true,
-    private val trueText: String = Tr.Report.Column.Boolean.`true`(),
-    private val falseText: String = Tr.Report.Column.Boolean.`false`(),
+    private val trueText: String = ReportTr.Report.Column.Boolean.`true`(),
+    private val falseText: String = ReportTr.Report.Column.Boolean.`false`(),
     private val showIcon: Boolean = true
 ) : ReportColumn(header, ColumnWidth.Flexible(width), filterable, sortable) {
 

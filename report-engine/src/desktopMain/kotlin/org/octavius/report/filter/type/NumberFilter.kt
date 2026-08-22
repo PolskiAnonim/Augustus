@@ -16,7 +16,6 @@ import kotlinx.serialization.json.JsonObject
 import io.github.octaviusframework.db.api.QueryFragment
 import io.github.octaviusframework.db.api.withParam
 import io.github.octaviusframework.db.api.withParams
-import org.octavius.localization.Tr
 import org.octavius.report.FilterMode
 import org.octavius.report.NumberFilterDataType
 import org.octavius.report.ReportEvent
@@ -25,6 +24,7 @@ import org.octavius.report.filter.Filter
 import org.octavius.report.filter.FilterSpacer
 import org.octavius.report.filter.data.type.NumberFilterData
 import kotlin.reflect.KClass
+import org.octavius.report.localization.ReportTr
 
 class NumberFilter<T : Number>(
     private val numberClass: KClass<T>,
@@ -61,7 +61,7 @@ class NumberFilter<T : Number>(
                             onEvent.invoke(ReportEvent.FilterChanged(columnKey, data.copy(minValue = null)))
                         }
                     },
-                    label = { Text(Tr.Filter.Number.from()) },
+                    label = { Text(ReportTr.Filter.Number.from()) },
                     singleLine = true,
                     modifier = Modifier.weight(1f)
                 )
@@ -77,7 +77,7 @@ class NumberFilter<T : Number>(
                             onEvent.invoke(ReportEvent.FilterChanged(columnKey, data.copy(maxValue = null)))
                         }
                     },
-                    label = { Text(Tr.Filter.Number.to()) },
+                    label = { Text(ReportTr.Filter.Number.to()) },
                     singleLine = true,
                     modifier = Modifier.weight(1f)
                 )
@@ -94,7 +94,7 @@ class NumberFilter<T : Number>(
                         onEvent.invoke(ReportEvent.FilterChanged(columnKey, data.copy(minValue = null)))
                     }
                 },
-                label = { Text(Tr.Filter.Number.value()) },
+                label = { Text(ReportTr.Filter.Number.value()) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
@@ -107,7 +107,7 @@ class NumberFilter<T : Number>(
                                 )
                             )
                         }) {
-                            Icon(Icons.Default.Clear, Tr.Filter.General.clear())
+                            Icon(Icons.Default.Clear, ReportTr.Filter.General.clear())
                         }
                     }
                 }

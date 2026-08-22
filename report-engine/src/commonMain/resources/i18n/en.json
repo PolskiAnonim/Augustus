@@ -1,4 +1,17 @@
 {
+  "action": {
+    "add": "Add",
+    "cancel": "Cancel",
+    "close": "Close",
+    "load": "Load",
+    "overwrite": "Overwrite",
+    "remove": "Remove",
+    "save": "Save"
+  },
+  "expandable": {
+    "collapse": "Collapse",
+    "expand": "Expand"
+  },
   "filter": {
     "datetime": {
       "after": "After",
@@ -68,6 +81,13 @@
       "startsWith": "Starts with",
       "value": "Value"
     }
+  },
+  "pagination": {
+    "nextPage": "Next page",
+    "of": "of",
+    "page": "Page",
+    "previousPage": "Previous page",
+    "size": "Size:"
   },
   "report": {
     "actions": {

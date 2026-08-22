@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.JsonObject
 import io.github.octaviusframework.db.api.QueryFragment
-import org.octavius.localization.Tr
 import org.octavius.report.DateTimeFilterDataType
 import org.octavius.report.FilterMode
 import org.octavius.report.ReportEvent
@@ -16,6 +15,7 @@ import org.octavius.report.filter.EnumDropdownMenu
 import org.octavius.report.filter.Filter
 import org.octavius.report.filter.FilterSpacer
 import org.octavius.report.filter.data.type.DateTimeFilterData
+import org.octavius.report.localization.ReportTr
 import org.octavius.ui.datetime.DateTimePickerDialog
 import org.octavius.ui.datetime.PickerTextField
 import org.octavius.util.DateTimeAdapter
@@ -50,7 +50,7 @@ class DateTimeFilter<T : Any>(
             ) {
                 PickerTextField(
                     modifier = Modifier.weight(1f),
-                    label = Tr.Filter.Datetime.from(),
+                    label = ReportTr.Filter.Datetime.from(),
                     value = adapter.format(data.minValue),
                     onClick = {
                         isEditingMinOrValue = true
@@ -59,7 +59,7 @@ class DateTimeFilter<T : Any>(
                 )
                 PickerTextField(
                     modifier = Modifier.weight(1f),
-                    label = Tr.Filter.Datetime.to(),
+                    label = ReportTr.Filter.Datetime.to(),
                     value = adapter.format(data.maxValue),
                     onClick = {
                         isEditingMinOrValue = false
@@ -70,7 +70,7 @@ class DateTimeFilter<T : Any>(
         } else {
             PickerTextField(
                 modifier = Modifier.fillMaxWidth(),
-                label = Tr.Filter.Datetime.value(),
+                label = ReportTr.Filter.Datetime.value(),
                 value = adapter.format(data.value),
                 onClick = {
                     isEditingMinOrValue = true

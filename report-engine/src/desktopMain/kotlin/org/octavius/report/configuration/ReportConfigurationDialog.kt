@@ -15,9 +15,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import org.octavius.localization.Tr
 import org.octavius.report.ReportEvent
 import org.octavius.report.component.ReportState
+import org.octavius.report.localization.ReportTr
 
 @Composable
 fun ReportConfigurationDialog(
@@ -44,20 +44,20 @@ fun ReportConfigurationDialog(
                 .heightIn(min = 400.dp, max = 600.dp)
         ) {
             Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-                Text(Tr.Report.Configuration.management(), style = MaterialTheme.typography.headlineSmall)
+                Text(ReportTr.Report.Configuration.management(), style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = { showSaveDialog = true }, modifier = Modifier.fillMaxWidth()) {
                     Icon(Icons.Default.Bookmark, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
-                    Text(Tr.Report.Configuration.saveCurrent())
+                    Text(ReportTr.Report.Configuration.saveCurrent())
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider()
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(Tr.Report.Configuration.savedConfigurations(), style = MaterialTheme.typography.titleMedium)
+                Text(ReportTr.Report.Configuration.savedConfigurations(), style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
                 if (configurations.isEmpty()) {
                     Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text(Tr.Report.Configuration.noSavedConfigurations(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(ReportTr.Report.Configuration.noSavedConfigurations(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 } else {
                     LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -79,7 +79,7 @@ fun ReportConfigurationDialog(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onDismiss) { Text(Tr.Action.close()) }
+                    TextButton(onClick = onDismiss) { Text(ReportTr.Action.close()) }
                 }
             }
         }
@@ -113,7 +113,7 @@ fun ConfigurationItem(
                     Text(text = configuration.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                     if (configuration.isDefault) {
                         Surface(modifier = Modifier.padding(start = 8.dp), shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.primaryContainer) {
-                            Text(text = Tr.Report.Configuration.defaultConfig().uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                            Text(text = ReportTr.Report.Configuration.defaultConfig().uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
                         }
                     }
                 }
@@ -122,8 +122,8 @@ fun ConfigurationItem(
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                IconButton(onClick = onLoad) { Icon(Icons.Default.Download, contentDescription = Tr.Action.load()) }
-                IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = Tr.Action.remove(), tint = MaterialTheme.colorScheme.error) }
+                IconButton(onClick = onLoad) { Icon(Icons.Default.Download, contentDescription = ReportTr.Action.load()) }
+                IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = ReportTr.Action.remove(), tint = MaterialTheme.colorScheme.error) }
             }
         }
     }
@@ -156,7 +156,7 @@ private class SaveConfigurationDialogStateHolder(
 
     fun onSaveClick() {
         if (name.isBlank()) {
-            nameError = Tr.Report.Configuration.nameRequired()
+            nameError = ReportTr.Report.Configuration.nameRequired()
             return
         }
 
@@ -165,7 +165,7 @@ private class SaveConfigurationDialogStateHolder(
         if (configManager.saveConfiguration(newConfiguration)) {
             onSaved()
         } else {
-            generalError = Tr.Report.Configuration.errorSaving()
+            generalError = ReportTr.Report.Configuration.errorSaving()
         }
     }
 
@@ -200,7 +200,7 @@ fun SaveConfigurationDialog(
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Card(modifier = Modifier.width(400.dp)) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = Tr.Report.Configuration.saveConfiguration(), style = MaterialTheme.typography.headlineSmall)
+                Text(text = ReportTr.Report.Configuration.saveConfiguration(), style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // === Pola formularza ===
@@ -215,14 +215,14 @@ fun SaveConfigurationDialog(
                 OutlinedTextField(
                     value = state.description,
                     onValueChange = { state.description = it },
-                    label = { Text(Tr.Report.Configuration.description()) },
+                    label = { Text(ReportTr.Report.Configuration.description()) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Checkbox(checked = state.isDefault, onCheckedChange = { state.isDefault = it })
-                    Text(Tr.Report.Configuration.setAsDefault())
+                    Text(ReportTr.Report.Configuration.setAsDefault())
                 }
 
                 // === Błędy i przyciski ===
@@ -251,13 +251,13 @@ private fun ConfigurationNameInput(
     OutlinedTextField(
         value = name,
         onValueChange = onNameChange,
-        label = { Text(Tr.Report.Configuration.name() + "*") },
+        label = { Text(ReportTr.Report.Configuration.name() + "*") },
         modifier = Modifier.fillMaxWidth(),
         isError = nameError != null,
         singleLine = true,
         supportingText = {
             if (nameError != null) Text(nameError, color = MaterialTheme.colorScheme.error)
-            else if (isOverwriting) Text(Tr.Report.Configuration.overwriteWarning(), color = MaterialTheme.colorScheme.tertiary)
+            else if (isOverwriting) Text(ReportTr.Report.Configuration.overwriteWarning(), color = MaterialTheme.colorScheme.tertiary)
         }
     )
 }
@@ -269,13 +269,13 @@ private fun DialogActions(
     isOverwriting: Boolean
 ) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-        TextButton(onClick = onDismiss) { Text(Tr.Action.cancel()) }
+        TextButton(onClick = onDismiss) { Text(ReportTr.Action.cancel()) }
         Spacer(modifier = Modifier.width(8.dp))
         Button(
             onClick = onSaveClick,
             colors = if (isOverwriting) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary) else ButtonDefaults.buttonColors()
         ) {
-            Text(if (isOverwriting) Tr.Action.overwrite() else Tr.Action.save())
+            Text(if (isOverwriting) ReportTr.Action.overwrite() else ReportTr.Action.save())
         }
     }
 }

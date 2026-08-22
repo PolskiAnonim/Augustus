@@ -205,7 +205,7 @@ filtering, search or sorting resets to the first page.
 ```kotlin
 // Dropdown menu (⋮) on every row
 override fun buildRowActions(): List<ReportRowAction> = listOf(
-    ReportRowAction(Tr.Report.Actions.edit(), Icons.Default.Edit) {
+    ReportRowAction(ReportTr.Report.Actions.edit(), Icons.Default.Edit) {
         AppRouter.navigateTo(BookFormScreen.create(rowData["id"] as Int))
     },
     ReportRowAction(Tr.Action.remove(), Icons.Default.Delete) {
@@ -258,6 +258,33 @@ applied by `ReportHandler` at startup, so a report can open with filters already
 The table and its supporting PostgreSQL types (`filter_config`, `sort_direction`, `sort_configuration`)
 ship as a migration inside this module — no setup needed beyond running migrations.
 
+## Localization
+
+The engine owns its strings. `src/commonMain/resources/i18n/{en,pl}.json` are compiled by the
+[Octavius I18n](https://github.com/Octavius-Framework/octavius-i18n) plugin into
+`org.octavius.report.localization.ReportTr`, generated from this module alone:
+
+```kotlin
+octaviusI18n {
+    generators {
+        create("report") {
+            sourceProject = project(":report-engine")
+            targetPackage = "org.octavius.report.localization"
+            objectName = "ReportTr"
+        }
+    }
+}
+```
+
+Everything the engine renders on its own — filter popups, pagination, column management, the saved-layout
+dialog — resolves through `ReportTr`, never through the host application's translation object. `ReportTr`
+is public, so labels a report needs but should not have to spell out again can be reused from it:
+`ReportTr.Report.Actions.edit()` for the usual edit action, `ReportTr.Action.remove()` for a delete one.
+
+A new language is a new `<lang>.json` in the same directory. Keys are unioned across languages, so a
+partial file still builds: a key missing from the selected language renders as its raw path, and a
+language with no file at all falls back to English. The active language is global —
+`OctaviusI18n.currentLanguage` — and shared with every other translation object in the application.
 ## State and Data Flow
 
 The engine follows a unidirectional loop. `ReportState` is immutable and exposed as a `StateFlow`;
@@ -305,11 +332,12 @@ report-engine/
 ├── ui/                             # Search bar, pagination, table rendering
 │
 └── resources/
-    ├── i18n/                       # en/pl translations for engine-owned strings
+    ├── i18n/                       # en/pl translations, generated into `ReportTr`
     └── db/migration/               # report_configurations table and PG types
 ```
 
 The module targets the desktop JVM target only and depends on `ui-core` for navigation, dialogs and
-drag-and-drop, and on [Octavius Database](https://github.com/Octavius-Framework/octavius-database) for
-`DataAccess` and `QueryFragment`. `ReportStructureBuilder`, `ReportDataManager` and
+drag-and-drop, on [Octavius Database](https://github.com/Octavius-Framework/octavius-database) for
+`DataAccess` and `QueryFragment`, and on [Octavius I18n](https://github.com/Octavius-Framework/octavius-i18n)
+for its translations. `ReportStructureBuilder`, `ReportDataManager` and
 `ReportConfigurationManager` obtain `DataAccess` through Koin.

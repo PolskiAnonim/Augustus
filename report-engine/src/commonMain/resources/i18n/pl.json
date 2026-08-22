@@ -1,4 +1,17 @@
 {
+  "action": {
+    "add": "Dodaj",
+    "cancel": "Anuluj",
+    "close": "Zamknij",
+    "load": "Wczytaj",
+    "overwrite": "Nadpisz",
+    "remove": "Usuń",
+    "save": "Zapisz"
+  },
+  "expandable": {
+    "collapse": "Zwiń",
+    "expand": "Rozwiń"
+  },
   "filter": {
     "datetime": {
       "after": "Później niż",
@@ -68,6 +81,13 @@
       "startsWith": "Zaczyna się od",
       "value": "Wartość"
     }
+  },
+  "pagination": {
+    "nextPage": "Następna strona",
+    "of": "z",
+    "page": "Strona",
+    "previousPage": "Poprzednia strona",
+    "size": "Rozmiar:"
   },
   "report": {
     "actions": {

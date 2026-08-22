@@ -10,12 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import org.octavius.localization.Tr
 import org.octavius.report.ColumnWidth
 import org.octavius.report.ReportEvent
 import org.octavius.report.component.ReportState
 import org.octavius.report.filter.Filter
 import org.octavius.report.filter.data.FilterData
+import org.octavius.report.localization.ReportTr
 
 /**
  * Klasa bazowa dla wszystkich kolumn w systemie raportowania.
@@ -112,7 +112,7 @@ abstract class ReportColumn(
                 if (filterData?.isActive() ?: false) {
                     Icon(
                         imageVector = Icons.Default.FilterAlt,
-                        contentDescription = Tr.Filter.General.active(),
+                        contentDescription = ReportTr.Filter.General.active(),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(16.dp)
                     )
@@ -129,7 +129,7 @@ abstract class ReportColumn(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = Tr.Filter.General.label() + " $header",
+                            text = ReportTr.Filter.General.label() + " $header",
                             style = MaterialTheme.typography.titleSmall,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
@@ -148,13 +148,13 @@ abstract class ReportColumn(
                                         showColumnMenu = false
                                     }
                                 ) {
-                                    Text(Tr.Filter.General.clear())
+                                    Text(ReportTr.Filter.General.clear())
                                 }
 
                                 Button(
                                     onClick = { showColumnMenu = false }
                                 ) {
-                                    Text(Tr.Action.close())
+                                    Text(ReportTr.Action.close())
                                 }
                             }
                         }

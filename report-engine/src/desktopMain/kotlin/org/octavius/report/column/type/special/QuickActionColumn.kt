@@ -12,11 +12,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.octavius.localization.Tr
 import org.octavius.report.ReportActionContext
 import org.octavius.report.ReportEvent
 import org.octavius.report.ReportRowAction
 import org.octavius.report.component.ReportState
+import org.octavius.report.localization.ReportTr
 
 /**
  * Specjalna kolumna której kliknięcie umożliwia wykonanie wybranej akcji.
@@ -57,7 +57,7 @@ class QuickActionColumn(
             }) {
                 Icon(
                     imageVector = Icons.Default.Start,
-                    contentDescription = Tr.Report.Actions.menuDescription(),
+                    contentDescription = ReportTr.Report.Actions.menuDescription(),
                     modifier = Modifier.size(18.dp)
                 )
             }

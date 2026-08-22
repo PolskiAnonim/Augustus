@@ -41,6 +41,11 @@
     "previousPage": "Poprzednia strona",
     "size": "Rozmiar:"
   },
+  "search": {
+    "clear": "Wyczyść",
+    "placeholder": "Szukaj...",
+    "search": "Szukaj"
+  },
   "tabs": {
     "asianMedia": "Azjatyckie",
     "games": "Gry",

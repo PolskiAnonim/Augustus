@@ -12,6 +12,7 @@ import org.octavius.report.ReportRowAction
 import org.octavius.report.column.ReportColumn
 import org.octavius.report.column.type.*
 import org.octavius.report.component.ReportStructureBuilder
+import org.octavius.report.localization.ReportTr
 
 class SandboxReportStructureBuilder : ReportStructureBuilder() {
 
@@ -44,7 +45,7 @@ class SandboxReportStructureBuilder : ReportStructureBuilder() {
         "created_at" to InstantColumn(Tr.Sandbox.Report.createdAt())
     )
 
-    override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(Tr.Report.Actions.edit()) {
+    override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(ReportTr.Report.Actions.edit()) {
         AppRouter.navigateTo(SandboxFormScreen.create())
     }
 

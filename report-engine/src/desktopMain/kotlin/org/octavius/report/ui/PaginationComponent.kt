@@ -21,9 +21,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import org.octavius.localization.Tr
 import org.octavius.report.ReportEvent
 import org.octavius.report.ReportPaginationState
+import org.octavius.report.localization.ReportTr
 
 @Composable
 fun PaginationComponent(
@@ -62,7 +62,7 @@ fun PreviousPage(pagination: ReportPaginationState, onEvent: (ReportEvent) -> Un
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = Tr.Pagination.previousPage(),
+            contentDescription = ReportTr.Pagination.previousPage(),
             tint = MaterialTheme.colorScheme.onPrimaryContainer
         )
     }
@@ -81,7 +81,7 @@ fun NextPage(pagination: ReportPaginationState, onEvent: (ReportEvent) -> Unit) 
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-            contentDescription = Tr.Pagination.nextPage(),
+            contentDescription = ReportTr.Pagination.nextPage(),
             tint = MaterialTheme.colorScheme.onPrimaryContainer
         )
     }
@@ -95,7 +95,7 @@ fun PageSize(pagination: ReportPaginationState, onEvent: (ReportEvent) -> Unit) 
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = Tr.Pagination.size(),
+            text = ReportTr.Pagination.size(),
             color = MaterialTheme.colorScheme.onPrimaryContainer
         )
 
@@ -156,7 +156,7 @@ fun ActualPage(pagination: ReportPaginationState, onEvent: (ReportEvent) -> Unit
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
-            text = Tr.Pagination.page(),
+            text = ReportTr.Pagination.page(),
             color = MaterialTheme.colorScheme.onPrimaryContainer
         )
 
@@ -226,7 +226,7 @@ fun ActualPage(pagination: ReportPaginationState, onEvent: (ReportEvent) -> Unit
         }
 
         Text(
-            text = " " + Tr.Pagination.of() + " ${pagination.totalPages}",
+            text = " " + ReportTr.Pagination.of() + " ${pagination.totalPages}",
             color = MaterialTheme.colorScheme.onPrimaryContainer
         )
     }

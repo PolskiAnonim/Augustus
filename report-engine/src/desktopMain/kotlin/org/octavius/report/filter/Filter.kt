@@ -14,11 +14,11 @@ import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.JsonObject
 import io.github.octaviusframework.db.api.QueryFragment
 import io.github.octaviusframework.db.api.withParams
-import org.octavius.localization.Tr
 import org.octavius.report.FilterMode
 import org.octavius.report.NullHandling
 import org.octavius.report.ReportEvent
 import org.octavius.report.filter.data.FilterData
+import org.octavius.report.localization.ReportTr
 
 /**
  * Abstrakcyjna klasa bazowa dla wszystkich filtrów kolumn raportów.
@@ -127,7 +127,7 @@ abstract class Filter<T : FilterData> {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = Tr.Filter.Null.values(),
+                text = ReportTr.Filter.Null.values(),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(end = 8.dp)
             )
@@ -143,7 +143,7 @@ abstract class Filter<T : FilterData> {
                     )
                 }
             )
-            Text(Tr.Filter.Null.ignore(), modifier = Modifier.padding(end = 12.dp))
+            Text(ReportTr.Filter.Null.ignore(), modifier = Modifier.padding(end = 12.dp))
 
             RadioButton(
                 selected = filterData.nullHandling == NullHandling.Include,
@@ -156,7 +156,7 @@ abstract class Filter<T : FilterData> {
                     )
                 }
             )
-            Text(Tr.Filter.Null.include(), modifier = Modifier.padding(end = 12.dp))
+            Text(ReportTr.Filter.Null.include(), modifier = Modifier.padding(end = 12.dp))
 
             RadioButton(
                 selected = filterData.nullHandling == NullHandling.Exclude,
@@ -170,7 +170,7 @@ abstract class Filter<T : FilterData> {
 
                 }
             )
-            Text(Tr.Filter.Null.exclude())
+            Text(ReportTr.Filter.Null.exclude())
         }
     }
 
@@ -182,7 +182,7 @@ abstract class Filter<T : FilterData> {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = Tr.Filter.mode(),
+                text = ReportTr.Filter.mode(),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(end = 8.dp)
             )

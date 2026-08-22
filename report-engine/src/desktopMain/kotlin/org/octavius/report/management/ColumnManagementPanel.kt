@@ -11,8 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import org.octavius.localization.Tr
 import org.octavius.report.component.ReportState
+import org.octavius.report.localization.ReportTr
 
 @Composable
 fun ColumnManagementPanel(
@@ -36,13 +36,13 @@ fun ColumnManagementPanel(
             ) {
                 Button(onClick = { isExpanded = !isExpanded }, modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = Tr.Report.Management.columnManagement(),
+                        text = ReportTr.Report.Management.columnManagement(),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                        contentDescription = if (isExpanded) Tr.Expandable.collapse() else Tr.Expandable.expand()
+                        contentDescription = if (isExpanded) ReportTr.Expandable.collapse() else ReportTr.Expandable.expand()
                     )
                 }
 

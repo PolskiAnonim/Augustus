@@ -3,7 +3,7 @@ package org.octavius.report
 import androidx.compose.ui.unit.Dp
 import io.github.octaviusframework.db.api.exception.DatabaseException
 import org.octavius.domain.EnumWithFormatter
-import org.octavius.localization.Tr
+import org.octavius.report.localization.ReportTr
 
 
 data class ReportPaginationState(
@@ -26,13 +26,13 @@ enum class NumberFilterDataType: EnumWithFormatter<NumberFilterDataType> {
 
     override fun toDisplayString(): String {
         return when(this) {
-            Equals -> Tr.Filter.Number.equals()
-            NotEquals -> Tr.Filter.Number.notEquals()
-            LessThan -> Tr.Filter.Number.lessThan()
-            LessEquals -> Tr.Filter.Number.lessEqual()
-            GreaterThan -> Tr.Filter.Number.greaterThan()
-            GreaterEquals -> Tr.Filter.Number.greaterEqual()
-            Range -> Tr.Filter.Number.range()
+            Equals -> ReportTr.Filter.Number.equals()
+            NotEquals -> ReportTr.Filter.Number.notEquals()
+            LessThan -> ReportTr.Filter.Number.lessThan()
+            LessEquals -> ReportTr.Filter.Number.lessEqual()
+            GreaterThan -> ReportTr.Filter.Number.greaterThan()
+            GreaterEquals -> ReportTr.Filter.Number.greaterEqual()
+            Range -> ReportTr.Filter.Number.range()
         }
     }
 }
@@ -47,12 +47,12 @@ enum class StringFilterDataType: EnumWithFormatter<StringFilterDataType> {
 
     override fun toDisplayString(): String {
         return when(this) {
-            Exact -> Tr.Filter.String.exact()
-            StartsWith -> Tr.Filter.String.startsWith()
-            EndsWith -> Tr.Filter.String.endsWith()
-            Contains -> Tr.Filter.String.contains()
-            NotContains -> Tr.Filter.String.notContains()
-            NotExact -> Tr.Filter.String.notExact()
+            Exact -> ReportTr.Filter.String.exact()
+            StartsWith -> ReportTr.Filter.String.startsWith()
+            EndsWith -> ReportTr.Filter.String.endsWith()
+            Contains -> ReportTr.Filter.String.contains()
+            NotContains -> ReportTr.Filter.String.notContains()
+            NotExact -> ReportTr.Filter.String.notExact()
         }
     }
 }
@@ -68,13 +68,13 @@ enum class DateTimeFilterDataType : EnumWithFormatter<DateTimeFilterDataType> {
 
     override fun toDisplayString(): String {
         return when (this) {
-            Equals -> Tr.Filter.Datetime.equals()
-            NotEquals -> Tr.Filter.Datetime.notEquals()
-            Before -> Tr.Filter.Datetime.before()
-            BeforeEquals -> Tr.Filter.Datetime.beforeEqual()
-            After -> Tr.Filter.Datetime.after()
-            AfterEquals -> Tr.Filter.Datetime.afterEqual()
-            Range -> Tr.Filter.Datetime.range()
+            Equals -> ReportTr.Filter.Datetime.equals()
+            NotEquals -> ReportTr.Filter.Datetime.notEquals()
+            Before -> ReportTr.Filter.Datetime.before()
+            BeforeEquals -> ReportTr.Filter.Datetime.beforeEqual()
+            After -> ReportTr.Filter.Datetime.after()
+            AfterEquals -> ReportTr.Filter.Datetime.afterEqual()
+            Range -> ReportTr.Filter.Datetime.range()
         }
     }
 }
@@ -90,13 +90,13 @@ enum class IntervalFilterDataType : EnumWithFormatter<IntervalFilterDataType> {
 
     override fun toDisplayString(): String {
         return when (this) {
-            Equals -> Tr.Filter.Interval.equals()
-            NotEquals -> Tr.Filter.Interval.notEquals()
-            LessThan -> Tr.Filter.Interval.lessThan()
-            LessEquals -> Tr.Filter.Interval.lessEqual()
-            GreaterThan -> Tr.Filter.Interval.greaterThan()
-            GreaterEquals -> Tr.Filter.Interval.greaterEqual()
-            Range -> Tr.Filter.Interval.range()
+            Equals -> ReportTr.Filter.Interval.equals()
+            NotEquals -> ReportTr.Filter.Interval.notEquals()
+            LessThan -> ReportTr.Filter.Interval.lessThan()
+            LessEquals -> ReportTr.Filter.Interval.lessEqual()
+            GreaterThan -> ReportTr.Filter.Interval.greaterThan()
+            GreaterEquals -> ReportTr.Filter.Interval.greaterEqual()
+            Range -> ReportTr.Filter.Interval.range()
         }
     }
 }
@@ -115,8 +115,8 @@ enum class FilterMode: EnumWithFormatter<FilterMode> {
     override fun toDisplayString(): String {
         return when (this) {
             Single -> "" // Ta wartość jest niemożliwa do zmiany i jest niewidoczna
-            ListAny -> Tr.Filter.List.any()
-            ListAll -> Tr.Filter.List.all()
+            ListAny -> ReportTr.Filter.List.any()
+            ListAll -> ReportTr.Filter.List.all()
         }
     }
 }

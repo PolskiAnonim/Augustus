@@ -17,6 +17,7 @@ import org.octavius.report.column.type.EnumColumn
 import org.octavius.report.column.type.StringColumn
 import org.octavius.report.column.type.asList
 import org.octavius.report.component.ReportStructureBuilder
+import org.octavius.report.localization.ReportTr
 
 class AsianMediaReportStructureBuilder() : ReportStructureBuilder() {
 
@@ -56,7 +57,7 @@ class AsianMediaReportStructureBuilder() : ReportStructureBuilder() {
         ).asList(9)
     )
 
-    override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(Tr.Report.Actions.edit()) {
+    override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(ReportTr.Report.Actions.edit()) {
         val id = rowData["title_id"] as? Int
         if (id != null) {
             AppRouter.navigateTo(

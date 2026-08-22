@@ -41,6 +41,11 @@
     "previousPage": "Previous page",
     "size": "Size:"
   },
+  "search": {
+    "clear": "Clear",
+    "placeholder": "Search...",
+    "search": "Search"
+  },
   "tabs": {
     "asianMedia": "Asian",
     "games": "Games",

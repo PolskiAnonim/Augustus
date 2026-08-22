@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.octaviusI18n)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
@@ -16,6 +17,8 @@ kotlin {
 
             api(libs.octavius.database.api)
 
+            api(libs.octavius.i18n.core)
+
             implementation(libs.kotlinx.coroutines.core)
 
             implementation(libs.kotlinx.serialization.json)
@@ -28,6 +31,16 @@ kotlin {
 
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+        }
+    }
+}
+
+octaviusI18n {
+    generators {
+        create("report") {
+            sourceProject = project(":report-engine")
+            targetPackage = "org.octavius.report.localization"
+            objectName = "ReportTr"
         }
     }
 }

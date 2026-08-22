@@ -16,13 +16,13 @@ import kotlinx.serialization.json.JsonObject
 import io.github.octaviusframework.db.api.QueryFragment
 import io.github.octaviusframework.db.api.withParam
 import org.octavius.domain.EnumWithFormatter
-import org.octavius.localization.Tr
 import org.octavius.report.FilterMode
 import org.octavius.report.ReportEvent
 import org.octavius.report.filter.Filter
 import org.octavius.report.filter.FilterSpacer
 import org.octavius.report.filter.data.type.EnumFilterData
 import kotlin.reflect.KClass
+import org.octavius.report.localization.ReportTr
 
 class EnumFilter<E>(private val enumClass: KClass<E>): Filter<EnumFilterData<E>>()
     where E : Enum<E>, E : EnumWithFormatter<E>
@@ -37,7 +37,7 @@ class EnumFilter<E>(private val enumClass: KClass<E>): Filter<EnumFilterData<E>>
         val enumValues = remember { enumClass.java.enumConstants.toList() }
 
         Text(
-            text = Tr.Filter.Enum.selectValues(),
+            text = ReportTr.Filter.Enum.selectValues(),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
@@ -46,18 +46,18 @@ class EnumFilter<E>(private val enumClass: KClass<E>): Filter<EnumFilterData<E>>
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(Tr.Filter.Enum.selectionMode())
+            Text(ReportTr.Filter.Enum.selectionMode())
             RadioButton(
                 selected = data.include,
                 onClick = { onEvent.invoke(ReportEvent.FilterChanged(columnKey, data.copy(include = true))) }
             )
-            Text(Tr.Filter.Enum.includeSelected(), modifier = Modifier.padding(end = 8.dp))
+            Text(ReportTr.Filter.Enum.includeSelected(), modifier = Modifier.padding(end = 8.dp))
 
             RadioButton(
                 selected = !data.include,
                 onClick = { onEvent.invoke(ReportEvent.FilterChanged(columnKey, data.copy(include = false))) }
             )
-            Text(Tr.Filter.Enum.excludeSelected())
+            Text(ReportTr.Filter.Enum.excludeSelected())
         }
 
         FilterSpacer()

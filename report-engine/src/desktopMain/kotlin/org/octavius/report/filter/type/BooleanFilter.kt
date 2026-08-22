@@ -11,11 +11,11 @@ import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.JsonObject
 import io.github.octaviusframework.db.api.QueryFragment
 import io.github.octaviusframework.db.api.withParam
-import org.octavius.localization.Tr
 import org.octavius.report.FilterMode
 import org.octavius.report.ReportEvent
 import org.octavius.report.filter.Filter
 import org.octavius.report.filter.data.type.BooleanFilterData
+import org.octavius.report.localization.ReportTr
 
 class BooleanFilter(
     private val trueText: String,
@@ -29,7 +29,7 @@ class BooleanFilter(
     @Composable
     override fun RenderFilterUI(onEvent: (ReportEvent) -> Unit, columnKey: String, data: BooleanFilterData) {
         Text(
-            text = Tr.Filter.Boolean.filterByValue(),
+            text = ReportTr.Filter.Boolean.filterByValue(),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )

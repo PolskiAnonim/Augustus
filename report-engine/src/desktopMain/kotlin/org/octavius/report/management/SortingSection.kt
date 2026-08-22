@@ -16,10 +16,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import org.octavius.localization.Tr
 import org.octavius.report.component.LocalReportHandler
 import org.octavius.report.component.ReportState
 import org.octavius.report.configuration.SortDirection
+import org.octavius.report.localization.ReportTr
 import org.octavius.ui.draganddrop.DraggableChip
 import org.octavius.ui.draganddrop.DropZone
 import org.octavius.ui.draganddrop.DropZoneConstants
@@ -33,7 +33,7 @@ fun SortingSection(
 
     Column {
         Text(
-            text = Tr.Report.Columns.sorting(),
+            text = ReportTr.Report.Columns.sorting(),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Medium
         )
@@ -44,7 +44,7 @@ fun SortingSection(
         val currentSort = reportState.sortOrder
         if (currentSort.isNotEmpty()) {
             Text(
-                text = Tr.Report.Columns.activeSorting(),
+                text = ReportTr.Report.Columns.activeSorting(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -77,8 +77,8 @@ fun SortingSection(
                                     SortDirection.Descending -> Icons.Default.ArrowDownward
                                 },
                                 contentDescription = when (direction) {
-                                    SortDirection.Ascending -> Tr.Report.Columns.ascending()
-                                    SortDirection.Descending -> Tr.Report.Columns.descending()
+                                    SortDirection.Ascending -> ReportTr.Report.Columns.ascending()
+                                    SortDirection.Descending -> ReportTr.Report.Columns.descending()
                                 },
                                 tint = MaterialTheme.colorScheme.onTertiaryContainer,
                                 modifier = Modifier.clickable {
@@ -119,9 +119,9 @@ fun SortingSection(
             }
         ) { isHovered ->
             val text = if (reportState.sortOrder.isEmpty()) {
-                Tr.Report.Columns.dragColumnsHere()
+                ReportTr.Report.Columns.dragColumnsHere()
             } else {
-                Tr.Report.Columns.dragMoreColumns()
+                ReportTr.Report.Columns.dragMoreColumns()
             }
 
             Text(

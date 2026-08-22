@@ -11,6 +11,7 @@ import org.octavius.report.column.type.BooleanColumn
 import org.octavius.report.column.type.IntegerColumn
 import org.octavius.report.column.type.StringColumn
 import org.octavius.report.component.ReportStructureBuilder
+import org.octavius.report.localization.ReportTr
 
 class GameRatingsReportStructureBuilder : ReportStructureBuilder() {
 
@@ -68,7 +69,7 @@ class GameRatingsReportStructureBuilder : ReportStructureBuilder() {
     )
 
     override fun buildDefaultRowAction(): ReportRowAction =
-        ReportRowAction(Tr.Report.Actions.edit()) {
+        ReportRowAction(ReportTr.Report.Actions.edit()) {
             val id = rowData["id"] as? Int
             if (id != null) {
                 AppRouter.navigateTo(GameFormScreen.create(entityId = id))
