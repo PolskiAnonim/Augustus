@@ -6,8 +6,8 @@
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Compose Multiplatform](https://img.shields.io/badge/Compose-Multiplatform-4285F4?logo=jetpackcompose&logoColor=white)](https://www.jetbrains.com/lp/compose-multiplatform/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17+-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Octavius Database](https://img.shields.io/maven-central/v/io.github.octavius-framework/database-core.svg?label=Octavius%20Database&color=orange)](https://github.com/Octavius-Framework/octavius-database)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18+-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Octavius for PostgreSQL](https://img.shields.io/maven-central/v/io.github.octavius-framework/driver.svg?label=Octavius%20for%20PostgreSQL&color=orange)](https://github.com/Octavius-Framework/octavius-postgresql)
 [![KDoc](https://img.shields.io/badge/KDoc-Documentation-blue)](https://polskianonim.github.io/OctaviusFramework/)
 </div>
 
@@ -19,12 +19,12 @@ Augustus is a Kotlin Multiplatform desktop application for tracking manga, light
 
 ## Highlights
 
-| Component                                                                     | Description                                                                                                                             |
-|--------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| **[Octavius Database](https://github.com/Octavius-Framework/octavius-database)** | *External Library.* An "Anti-ORM" — SQL-first data access with automatic type mapping for PostgreSQL composites, enums, and arrays       |
-| **[Form Engine](form-engine/)**                                                | Declarative form builder: dependencies, cross-control actions, repeatable sections, three-level validation                              |
-| **[Report Engine](report-engine/)**                                            | Turns a SQL query into an interactive table — filters that write SQL, multi-column sorting, column management, saved layouts            |
-| **Browser Extension**                                                          | Kotlin/JS Chrome extension for importing data from external sources                                                                      |
+| Component                                                                                | Description                                                                                                                                   |
+|------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **[Octavius for PostgreSQL](https://github.com/Octavius-Framework/octavius-postgresql)** | *External Library.* A wire-protocol driver, a data access client over it, and a migrator — SQL-first, with type mapping read from the catalog |
+| **[Form Engine](form-engine/)**                                                          | Declarative form builder: dependencies, cross-control actions, repeatable sections, three-level validation                                    |
+| **[Report Engine](report-engine/)**                                                      | Turns a SQL query into an interactive table — filters that write SQL, multi-column sorting, column management, saved layouts                  |
+| **Browser Extension**                                                                    | Kotlin/JS Chrome extension for importing data from external sources                                                                           |
 
 ## Tech Stack
 
@@ -35,14 +35,14 @@ Augustus is a Kotlin Multiplatform desktop application for tracking manga, light
 **Core**
 - Kotlin Multiplatform
 - Compose Multiplatform
-- PostgreSQL 17+
+- PostgreSQL 18+
 - Material 3
 
 </td>
 <td>
 
 **Backend / Data**
-- Octavius Database (Custom JDBC wrapper)
+- Octavius for PostgreSQL (custom wire-protocol driver + client)
 - HikariCP
 - Ktor (API server)
 - kotlinx-serialization
@@ -102,28 +102,31 @@ Turns a SQL query into an interactive table — the base query is never rewritte
 
 [Learn more →](report-engine/)
 
-### Database Layer (Octavius Database)
+### Database Layer (Octavius for PostgreSQL)
 
 SQL-first approach with automatic mapping (imported as a library):
 
 ```kotlin
 // Your query shapes the result — not the ORM
-val books = dataAccess.select("id", "title", "author", "status")
+val books = db.select("id", "title", "author", "status")
     .from("books")
     .where("status = @status")
     .orderBy("title")
-    .toListOf<Book>("status" to BookStatus.Reading)
+    .fetchObjects<Book>("status" to BookStatus.Reading)
 ```
 
-[See Repository →](https://github.com/Octavius-Framework/octavius-database)
+The schema is kept up to date by the same library's migrator — `OctaviusMigrator(dataSource).migrate()` at
+startup, over the `V<version>__<description>.sql` files each module ships in its own resources.
+
+[See Repository →](https://github.com/Octavius-Framework/octavius-postgresql)
 
 ## Getting Started
 
 ### Requirements
 
 - JDK 25+
-- PostgreSQL 17+
-- Database `octavius` created locally
+- PostgreSQL 18+ — the driver speaks Wire Protocol v3.2, which no earlier server does
+- Database `augustus` created locally
 
 ### Run
 

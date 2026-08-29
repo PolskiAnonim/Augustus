@@ -337,7 +337,7 @@ report-engine/
 ```
 
 The module targets the desktop JVM target only and depends on `ui-core` for navigation, dialogs and
-drag-and-drop, on [Octavius Database](https://github.com/Octavius-Framework/octavius-database) for
-`DataAccess` and `QueryFragment`, and on [Octavius I18n](https://github.com/Octavius-Framework/octavius-i18n)
+drag-and-drop, on [Octavius for PostgreSQL](https://github.com/Octavius-Framework/octavius-postgresql) for
+`OctaviusClient` and `QueryFragment`, and on [Octavius I18n](https://github.com/Octavius-Framework/octavius-i18n)
 for its translations. `ReportStructureBuilder`, `ReportDataManager` and
-`ReportConfigurationManager` obtain `DataAccess` through Koin.
+`ReportConfigurationManager` obtain `OctaviusClient` through Koin.
