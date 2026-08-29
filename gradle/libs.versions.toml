@@ -17,7 +17,6 @@ assertj-core = "4.0.0-M1"
 mockk = "1.14.9"
 logback = "1.5.32"
 kotlin-logging = "7.0.14"
-shadow = "9.4.1"
 hikari = "7.1.0"
 [libraries]
 # octavius-postgresql
@@ -67,5 +66,4 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
-shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 octaviusI18n = { id = "io.github.octavius-framework.i18n",  version.ref = "octavius-i18n" }
