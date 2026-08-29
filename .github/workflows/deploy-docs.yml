@@ -1,65 +1,51 @@
-name: Deploy KDoc Documentation to GitHub Pages
+name: Deploy Dokka to GitHub Pages
 
-env:
-  GITHUB_ACTOR: ${{ github.actor }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 on:
-  # Uruchamiaj workflow przy pushu do gałęzi `main`
   push:
     branches:
       - main
-  # Pozwala na ręczne uruchomienie tego workflow z zakładki Actions na GitHubie
   workflow_dispatch:
 
-# Ustaw uprawnienia dla GITHUB_TOKEN, aby umożliwić wdrożenie na GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  build-and-deploy:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      # 1. Pobierz kod repozytorium
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      # 2. Ustaw środowisko Java
-      - name: Set up JDK 25
-        uses: actions/setup-java@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v5
         with:
           java-version: '25'
           distribution: 'temurin'
+          cache: 'gradle'
 
-      # 3. Ustaw cache dla Gradle, aby przyspieszyć budowanie
-      - name: Gradle Cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
 
-      # 4. Uruchom zadanie Dokka do wygenerowania dokumentacji HTML (agregacja z wszystkich modułów)
-      - name: Build KDoc with Dokka
-        # Użyj --no-daemon, aby upewnić się, że proces Gradle zakończy się poprawnie w CI
-        run: ./gradlew :dokkaGenerate --no-daemon
+      - name: Generate Dokka documentation
+        run: ./gradlew dokkaGenerateHtml
 
-      # 5. Przygotuj artefakt z wygenerowaną dokumentacją do wgrania na GitHub Pages
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
-      # 6. Wgraj artefakt (całą zawartość katalogu z dokumentacją)
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
-          # Ścieżka do zagregowanej dokumentacji z root projektu
-          path: './build/dokka/html'
+          path: build/dokka/html
 
-      # 7. Wdróż artefakt na GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
