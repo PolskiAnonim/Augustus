@@ -2,7 +2,7 @@ package org.octavius.modules.games.report
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import io.github.octaviusframework.db.api.QueryFragment
+import io.github.octaviusframework.client.query.QueryFragment
 import org.octavius.domain.game.GameStatus
 import org.octavius.localization.Tr
 import org.octavius.modules.games.form.game.ui.GameFormScreen
@@ -15,7 +15,7 @@ import org.octavius.report.column.type.EnumColumn
 import org.octavius.report.column.type.StringColumn
 import org.octavius.report.column.type.asList
 import org.octavius.report.component.ReportStructureBuilder
-import io.github.octaviusframework.db.api.withParam
+import io.github.octaviusframework.client.query.withParam
 import org.octavius.report.localization.ReportTr
 
 class GameReportStructureBuilder(
@@ -26,7 +26,7 @@ class GameReportStructureBuilder(
     override fun getReportName(): String = "games"
 
     override fun buildQuery(): QueryFragment {
-        val query = dataAccess.select(
+        val query = db.select(
             "games.id",
             "games.name AS game_name",
             "series.name AS series_name",

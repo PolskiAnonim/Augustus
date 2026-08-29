@@ -2,7 +2,7 @@ package org.octavius.form.component
 
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import io.github.octaviusframework.db.api.DataAccess
+import io.github.octaviusframework.client.OctaviusClient
 import org.octavius.form.control.base.FormResultData
 
 /**
@@ -24,10 +24,10 @@ abstract class FormDataManager: KoinComponent {
         this.errorManager = errorManager
     }
 
-    protected val dataAccess: DataAccess by inject()
+    protected val db: OctaviusClient by inject()
 
     fun loadData(id: Any?, block: DataLoaderBuilder.() -> Unit): Map<String, Any?> {
-        val builder = DataLoaderBuilder(dataAccess).apply(block)
+        val builder = DataLoaderBuilder(db).apply(block)
         return builder.execute(id)
     }
 

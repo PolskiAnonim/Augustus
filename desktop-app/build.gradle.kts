@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -6,7 +5,6 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.shadow)
 }
 
 kotlin {
@@ -23,8 +21,10 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
         }
         desktopMain.dependencies {
-            implementation(libs.octavius.database.core)
-            implementation(libs.octavius.database.flyway.integration)
+            implementation(libs.octavius.client)
+            implementation(libs.octavius.client.scanner)
+            implementation(libs.octavius.migrations)
+            implementation(libs.hikaricp)
             implementation(projects.featureContract)
             implementation(projects.formEngine)
             implementation(projects.reportEngine)
@@ -62,16 +62,5 @@ compose.desktop {
 //                iconFile.set(project.file("icon.ico"))
 //            }
         }
-    }
-}
-
-tasks.named<ShadowJar>("shadowJar") {
-    mergeServiceFiles {
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    }
-
-    exclude("i18n/*.json")
-    manifest {
-        attributes["Main-Class"] = "org.octavius.app.MainKt"
     }
 }

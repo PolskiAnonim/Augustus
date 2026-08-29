@@ -1,13 +1,12 @@
 package org.octavius.modules.games.form.game
 
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.execute
-import io.github.octaviusframework.db.api.builder.toField
-import io.github.octaviusframework.db.api.transaction.TransactionPlan
-import io.github.octaviusframework.db.api.transaction.TransactionValue
-import io.github.octaviusframework.db.api.transaction.toTransactionValue
-import io.github.octaviusframework.db.api.type.PgStandardType
-import io.github.octaviusframework.db.api.type.withPgType
+import io.github.octaviusframework.client.DataResult
+import io.github.octaviusframework.client.dbResult
+import io.github.octaviusframework.client.transaction.TransactionPlan
+import io.github.octaviusframework.client.transaction.TransactionValue
+import io.github.octaviusframework.client.transaction.toTransactionValue
+import io.github.octaviusframework.driver.type.PgStandardType
+import io.github.octaviusframework.driver.type.withPgType
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.domain.game.GameStatus
@@ -100,13 +99,13 @@ class GameFormDataManager : FormDataManager() {
         // Wykorzystanie CASCADE
         val plan = TransactionPlan()
         plan.add(
-            dataAccess.deleteFrom("games.games")
+            db.deleteFrom("games.games")
                 .where("id = @id")
                 .asStep()
-                .execute("id" to formResultData.getInitial("id"))
+                .update("id" to formResultData.getInitial("id"))
         )
 
-        return when (val result = dataAccess.executeTransactionPlan(plan)) {
+        return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
                 FormActionResult.Failure
@@ -139,21 +138,21 @@ class GameFormDataManager : FormDataManager() {
             gameIdRef = loadedId.toTransactionValue()
             // Zaktualizuj grę, przekazując wszystkie parametry
             plan.add(
-                dataAccess.update("games.games")
+                db.update("games.games")
                     .setValues(gameData)
                     .where("id = @id")
                     .asStep()
-                    .execute(gameData + mapOf("id" to gameIdRef))
+                    .update(gameData + mapOf("id" to gameIdRef))
             )
         } else {
             // Wstaw nową grę i pobierz jej ID jako referencję
             gameIdRef = plan.add(
-                dataAccess.insertInto("games.games")
+                db.insertInto("games.games")
                     .values(gameData)
                     .returning("id")
                     .asStep()
-                    .toField<Int>(gameData) // Używamy toField, bo chcemy pojedynczą wartość
-            ).field()
+                    .fetchField<Int>(gameData) // Używamy fetchField, bo chcemy pojedynczą wartość
+            ).value()
         }
 
         val status = formResultData.getCurrentAs<GameStatus>("status")
@@ -216,10 +215,10 @@ class GameFormDataManager : FormDataManager() {
         }
 
         plan.add(
-            dataAccess.deleteFrom("games.categories_to_games ctg")
+            db.deleteFrom("games.categories_to_games ctg")
                 .using("UNNEST(@ids_to_delete) AS t(id)")
                 .where("ctg.category_id = t.id AND ctg.game_id = @game_id")
-                .asStep().execute("ids_to_delete" to deletedCategories.withPgType(PgStandardType.INT4_ARRAY), "game_id" to gameIdRef)
+                .asStep().update("ids_to_delete" to deletedCategories.withPgType(PgStandardType.INT4_ARRAY), "game_id" to gameIdRef)
         )
 
         val insertedCategories = categoriesResult.addedRows.map { rowData ->
@@ -229,13 +228,13 @@ class GameFormDataManager : FormDataManager() {
         }
 
         plan.add(
-            dataAccess.insertInto("games.categories_to_games")
-                .fromSelect(dataAccess.select("category_id", "@game_id").from("UNNEST(@ids_to_insert) AS category_id").toSql())
-                .asStep().execute("ids_to_insert" to insertedCategories.withPgType(PgStandardType.INT4_ARRAY), "game_id" to gameIdRef)
+            db.insertInto("games.categories_to_games")
+                .fromSelect(db.select("category_id", "@game_id").from("UNNEST(@ids_to_insert) AS category_id").toSql())
+                .asStep().update("ids_to_insert" to insertedCategories.withPgType(PgStandardType.INT4_ARRAY), "game_id" to gameIdRef)
         )
 
         // Wykonanie całego planu
-        return when (val result = dataAccess.executeTransactionPlan(plan)) {
+        return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
                 FormActionResult.Failure
@@ -261,27 +260,27 @@ class GameFormDataManager : FormDataManager() {
             if (conditionMet) { // UPDATE
                 val allParams = data + mapOf("game_id" to gameIdRef)
                 plan.add(
-                    dataAccess.update(tableName)
+                    db.update(tableName)
                         .setValues(data)
                         .where("game_id = @game_id")
                         .asStep()
-                        .execute(allParams)
+                        .update(allParams)
                 )
             } else { // DELETE
                 plan.add(
-                    dataAccess.deleteFrom(tableName)
+                    db.deleteFrom(tableName)
                         .where("game_id = @game_id")
                         .asStep()
-                        .execute("game_id" to gameIdRef)
+                        .update("game_id" to gameIdRef)
                 )
             }
         } else if (conditionMet) { // INSERT
             val allParams = data + mapOf("game_id" to gameIdRef)
             plan.add(
-                dataAccess.insertInto(tableName)
+                db.insertInto(tableName)
                     .values(allParams)
                     .asStep()
-                    .execute(allParams)
+                    .update(allParams)
             )
         }
     }

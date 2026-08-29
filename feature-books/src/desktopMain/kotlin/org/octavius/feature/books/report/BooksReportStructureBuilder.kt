@@ -3,7 +3,7 @@ package org.octavius.feature.books.report
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
-import io.github.octaviusframework.db.api.QueryFragment
+import io.github.octaviusframework.client.query.QueryFragment
 import org.octavius.feature.books.domain.ReadingStatus
 import org.octavius.feature.books.form.book.ui.BookFormScreen
 import org.octavius.localization.Tr

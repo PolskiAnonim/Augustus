@@ -6,13 +6,12 @@ import io.ktor.server.routing.*
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.octavius.api.contract.ApiModule
-import io.github.octaviusframework.db.api.DataAccess
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.toField
-import io.github.octaviusframework.db.api.builder.toSingle
-import io.github.octaviusframework.db.api.transaction.TransactionPlan
-import io.github.octaviusframework.db.api.type.PgStandardType
-import io.github.octaviusframework.db.api.type.withPgType
+import io.github.octaviusframework.client.OctaviusClient
+import io.github.octaviusframework.client.DataResult
+import io.github.octaviusframework.client.dbResult
+import io.github.octaviusframework.client.transaction.TransactionPlan
+import io.github.octaviusframework.driver.type.PgStandardType
+import io.github.octaviusframework.driver.type.withPgType
 import org.octavius.domain.asian.PublicationStatus
 import org.octavius.modules.asian.AsianMediaFeature
 import org.octavius.modules.asian.model.PublicationAddRequest
@@ -25,10 +24,10 @@ import org.octavius.navigation.NavigationEventBus
 /**
  * Implementacja ApiModule dla funkcjonalności "Asian Media".
  * Definiuje endpointy do sprawdzania i dodawania publikacji.
- * Używa Koin do wstrzykiwania zależności (DataAccess, BatchExecutor).
+ * Używa Koin do wstrzykiwania zależności (OctaviusClient, BatchExecutor).
  */
 class AsianMediaApi : ApiModule, KoinComponent {
-    private val dataAccess: DataAccess by inject()
+    private val db: OctaviusClient by inject()
 
     override fun installRoutes(routing: Routing) {
         routing.route("/api/asian-media") {
@@ -52,7 +51,7 @@ class AsianMediaApi : ApiModule, KoinComponent {
                 return@post
             }
 
-            val result = dataAccess.select("v.id", "v.matched_title")
+            val result = db.select("v.id", "v.matched_title")
                 .from("""
                     unnest(@titles) it,
                     LATERAL (
@@ -64,7 +63,7 @@ class AsianMediaApi : ApiModule, KoinComponent {
                     ) v
                 """.trimIndent())
                 .limit(1)
-                .toSingle("titles" to request.titles.withPgType(PgStandardType.TEXT_ARRAY))
+                .asResult().fetchObject<Map<String, Any?>>("titles" to request.titles.withPgType(PgStandardType.TEXT_ARRAY))
 
             when (result) {
                 is DataResult.Failure -> {
@@ -109,11 +108,11 @@ class AsianMediaApi : ApiModule, KoinComponent {
                 "language" to request.language
             )
             val titleIdHandle = plan.add(
-                dataAccess.insertInto("asian_media.titles")
+                db.insertInto("asian_media.titles")
                     .values(titleData)
                     .returning("id")
                     .asStep()
-                    .toField<Int>(titleData)
+                    .fetchField<Int>(titleData)
             )
 
             // Krok 2: Wstaw publikację, używając referencji do ID z kroku 1
@@ -121,17 +120,17 @@ class AsianMediaApi : ApiModule, KoinComponent {
                 "publication_type" to request.type,
                 "status" to PublicationStatus.NotReading,
                 "track_progress" to false,
-                "title_id" to titleIdHandle.field()
+                "title_id" to titleIdHandle.value()
             )
             plan.add(
-                dataAccess.insertInto("asian_media.publications")
+                db.insertInto("asian_media.publications")
                     .values(publicationData)
                     .asStep()
-                    .execute(publicationData)
+                    .update(publicationData)
             )
 
             // Wykonanie planu
-            when (val result = dataAccess.executeTransactionPlan(plan)) {
+            when (val result = dbResult { db.executeTransactionPlan(plan) }) {
                 is DataResult.Failure -> {
                     call.respond(
                         PublicationAddResponse(

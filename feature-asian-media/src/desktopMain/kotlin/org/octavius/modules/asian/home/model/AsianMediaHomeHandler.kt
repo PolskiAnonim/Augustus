@@ -6,10 +6,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import io.github.octaviusframework.db.api.DataAccess
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.toSingleOf
-import io.github.octaviusframework.db.api.exception.DatabaseException
+import io.github.octaviusframework.client.OctaviusClient
+import io.github.octaviusframework.client.DataResult
+import io.github.octaviusframework.driver.exception.OctaviusException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -19,36 +18,36 @@ import org.octavius.dialog.GlobalDialogManager
 class AsianMediaHomeHandler(
     private val scope: CoroutineScope
 ) : KoinComponent {
-    private val dataAccess: DataAccess by inject()
+    private val db: OctaviusClient by inject()
 
     private val _state = MutableStateFlow(AsianMediaHomeState())
     val state = _state.asStateFlow()
 
     fun getSql(): String {
-        val totalTitlesSubquery = dataAccess.select("COUNT(*)").from("asian_media.titles").toSql()
+        val totalTitlesSubquery = db.select("COUNT(*)").from("asian_media.titles").toSql()
 
-        val readingCountSubquery = dataAccess.select("COUNT(DISTINCT title_id)")
+        val readingCountSubquery = db.select("COUNT(DISTINCT title_id)")
             .from("asian_media.publications")
             .where("status = 'READING'")
             .toSql()
 
-        val notExistsForCompleted = dataAccess.select("1")
+        val notExistsForCompleted = db.select("1")
             .from("asian_media.publications p2")
             .where("p2.title_id = p1.title_id AND p2.status = 'READING'")
             .toSql()
         val completedCountSubquery =
-            dataAccess.select("COUNT(DISTINCT p1.title_id)")
+            db.select("COUNT(DISTINCT p1.title_id)")
                 .from("asian_media.publications p1")
                 .where("p1.status = 'COMPLETED' AND NOT EXISTS ($notExistsForCompleted)")
                 .toSql()
 
-        val innerCurrentlyReading = dataAccess.select("t.id, t.titles")
+        val innerCurrentlyReading = db.select("t.id, t.titles")
             .from("asian_media.titles t")
             .where("EXISTS (SELECT 1 FROM asian_media.publications p WHERE p.title_id = t.id AND p.status = 'READING')")
             .orderBy("t.updated_at DESC")
             .limit(5)
             .toSql()
-        val currentlyReadingSubquery = dataAccess.select(
+        val currentlyReadingSubquery = db.select(
             """
             array_agg(
                 dynamic_dto('asian_media_dashboard_item', jsonb_build_object(
@@ -59,12 +58,12 @@ class AsianMediaHomeHandler(
         ).fromSubquery(innerCurrentlyReading)
             .toSql()
 
-        val innerRecentlyAdded = dataAccess.select("id, titles")
+        val innerRecentlyAdded = db.select("id, titles")
             .from("asian_media.titles")
             .orderBy("created_at DESC")
             .limit(5)
             .toSql()
-        val recentlyAddedSubquery = dataAccess.select(
+        val recentlyAddedSubquery = db.select(
             """
             array_agg(
                 dynamic_dto('asian_media_dashboard_item', jsonb_build_object(
@@ -90,8 +89,8 @@ class AsianMediaHomeHandler(
         scope.launch {
             val finalSelectClause = getSql()
             val result = withContext(Dispatchers.IO) {
-                dataAccess.select(finalSelectClause)
-                    .toSingleOf<DashboardData>()
+                db.select(finalSelectClause)
+                    .asResult().fetchObjectStrict<DashboardData>()
             }
 
             when (result) {
@@ -117,7 +116,7 @@ class AsianMediaHomeHandler(
         }
     }
 
-    private fun showError(error: DatabaseException) {
+    private fun showError(error: OctaviusException) {
         GlobalDialogManager.show(ErrorDialogConfig(error))
     }
 }

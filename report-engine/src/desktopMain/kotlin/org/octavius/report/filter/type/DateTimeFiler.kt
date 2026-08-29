@@ -7,7 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.JsonObject
-import io.github.octaviusframework.db.api.QueryFragment
+import io.github.octaviusframework.client.query.QueryFragment
 import org.octavius.report.DateTimeFilterDataType
 import org.octavius.report.FilterMode
 import org.octavius.report.ReportEvent

@@ -5,7 +5,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.List
-import io.github.octaviusframework.db.api.QueryFragment
+import io.github.octaviusframework.client.query.QueryFragment
 import org.octavius.localization.Tr
 import org.octavius.modules.games.form.game.ui.GameFormScreen
 import org.octavius.modules.games.form.series.ui.GameSeriesFormScreen

@@ -1,6 +1,6 @@
 package org.octavius.feature.books.form.author
 
-import io.github.octaviusframework.db.api.DataResult
+import io.github.octaviusframework.client.DataResult
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.component.FormActionResult
@@ -41,14 +41,14 @@ class BookAuthorDataManager : FormDataManager() {
         )
 
         val result = if (loadedId != null) {
-            dataAccess.update("books.authors")
+            db.update("books.authors")
                 .setValues(params)
                 .where("id = @id")
-                .execute(params + ("id" to loadedId))
+                .asResult().update(params + ("id" to loadedId))
         } else {
-            dataAccess.insertInto("books.authors")
+            db.insertInto("books.authors")
                 .values(params)
-                .execute(params)
+                .asResult().update(params)
         }
 
         return when (result) {
@@ -63,9 +63,9 @@ class BookAuthorDataManager : FormDataManager() {
     private fun processDelete(formResultData: FormResultData): FormActionResult {
         val loadedId = formResultData.getInitial("id") ?: return FormActionResult.CloseScreen
 
-        val result = dataAccess.deleteFrom("books.authors")
+        val result = db.deleteFrom("books.authors")
             .where("id = @id")
-            .execute(mapOf("id" to loadedId))
+            .asResult().update(mapOf("id" to loadedId))
 
         return when (result) {
             is DataResult.Failure -> {

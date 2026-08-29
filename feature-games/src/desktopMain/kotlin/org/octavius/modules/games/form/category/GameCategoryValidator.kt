@@ -1,7 +1,6 @@
 package org.octavius.modules.games.form.category
 
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.toField
+import io.github.octaviusframework.client.DataResult
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.component.FormValidator
@@ -20,14 +19,14 @@ class GameCategoryValidator: FormValidator() {
         val name = result.getCurrentAs<String>("name")
         val id = result.getCurrent("id")
         val params = mutableMapOf<String, Any?>("name" to name)
-        val builder = dataAccess.select("COUNT(*)").from("games.categories")
+        val builder = db.select("COUNT(*)").from("games.categories")
         if (id != null) {
             builder.where("id != @id AND name = @name")
             params["id"] = id
         } else {
             builder.where("name = @name")
         }
-        return when (val result = builder.toField<Long>(params)) {
+        return when (val result = builder.asResult().fetchField<Long>(params)) {
             is DataResult.Success -> {
                 if ((result.value) > 0) {
                     // Kategoria już istnieje. Ustawiamy błąd dla konkretnego pola 'name'.

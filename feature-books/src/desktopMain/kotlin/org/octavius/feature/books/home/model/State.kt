@@ -1,7 +1,7 @@
 package org.octavius.feature.books.home.model
 
 import kotlinx.serialization.Serializable
-import io.github.octaviusframework.db.api.annotation.DynamicallyMappable
+import io.github.octaviusframework.annotation.DynamicallyMappable
 
 
 sealed interface BooksHomeState {

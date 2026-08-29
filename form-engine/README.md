@@ -20,7 +20,7 @@ and lets one control's value drive another's visibility, requirement, or content
 
 A control never talks to the database directly. `FormDataManager` loads initial values with a declarative DSL,
 and every form action receives a `FormResultData` — each control's current *and* initial value — so `save` /
-`delete` / etc. can be written as a couple of `DataAccess` calls.
+`delete` / etc. can be written as a couple of `OctaviusClient` calls.
 
 ## Features
 
@@ -115,10 +115,10 @@ class BookFormDataManager : FormDataManager() {
         )
 
         val result = if (loadedId != null) {
-            dataAccess.update("books").setValues(params).where("id = @id")
-                .execute(params + ("id" to loadedId))
+            db.update("books").setValues(params).where("id = @id")
+                .asResult().update(params + ("id" to loadedId))
         } else {
-            dataAccess.insertInto("books").values(params).execute(params)
+            db.insertInto("books").values(params).asResult().update(params)
         }
 
         return when (result) {
@@ -192,7 +192,9 @@ override fun initData(payload: Map<String, Any?>): Map<String, Any?> {
 ```
 
 Everything compiles down to a single query: `mapOneToOne` becomes a `LEFT JOIN`, `mapRelatedList` becomes a
-correlated `ARRAY(...)` subquery. `id` is assumed as the main table's primary key; override it with `idColumn("uuid")`
+correlated `ARRAY(SELECT ROW(...))::record[]` subquery — an anonymous record read back as a
+`Map<String, Any?>` per row, keys and values alternating, which is what a repeatable control wants and what
+no declared type covers. `id` is assumed as the main table's primary key; override it with `idColumn("uuid")`
 if it's named differently. If `id` (the value passed to `loadData`) is `null`, loading is skipped and an empty
 map is returned — the natural path for a "new record" form.
 
@@ -302,7 +304,7 @@ class GameCategoryValidator : FormValidator() {
         val id = result.getCurrent("id")
         val params = mutableMapOf<String, Any?>("name" to name)
 
-        val builder = dataAccess.select("COUNT(*)").from("games.categories")
+        val builder = db.select("COUNT(*)").from("games.categories")
         if (id != null) {
             builder.where("id != @id AND name = @name")
             params["id"] = id
@@ -310,7 +312,7 @@ class GameCategoryValidator : FormValidator() {
             builder.where("name = @name")
         }
 
-        return when (val count = builder.toField<Long>(params)) {
+        return when (val count = builder.asResult().fetchField<Long>(params)) {
             is DataResult.Success -> if (count.value > 0) {
                 errorManager.setFieldErrors("name", listOf("Category already exists"))
                 false
@@ -321,7 +323,7 @@ class GameCategoryValidator : FormValidator() {
 }
 ```
 
-`FormValidator` is a `KoinComponent` with `dataAccess` and `errorManager` available directly, so business-rule
+`FormValidator` is a `KoinComponent` with `db` and `errorManager` available directly, so business-rule
 and action validators can query the database and attach errors to specific fields in one place.
 
 ## Architecture
@@ -355,5 +357,9 @@ form-engine/
 ```
 
 The module targets the desktop JVM only and depends on `ui-core` for navigation and dialogs, and on
-[Octavius Database](https://github.com/Octavius-Framework/octavius-database) for `DataAccess`.
-`FormValidator` and `FormDataManager` obtain `DataAccess` through Koin.
+[Octavius for PostgreSQL](https://github.com/Octavius-Framework/octavius-postgresql) for `OctaviusClient`.
+`FormValidator` and `FormDataManager` obtain `OctaviusClient` through Koin.
+
+Terminals throw by default there; the engine asks for the result style with `.asResult()`, so a failure the
+database reports arrives as a `DataResult.Failure` and reaches the user through `GlobalDialogManager` rather
+than unwinding the form.

@@ -1,9 +1,8 @@
 package org.octavius.modules.games.form.game
 
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.toField
-import io.github.octaviusframework.db.api.join
-import io.github.octaviusframework.db.api.withParam
+import io.github.octaviusframework.client.DataResult
+import io.github.octaviusframework.client.query.join
+import io.github.octaviusframework.client.query.withParam
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.component.FormValidator
@@ -34,7 +33,7 @@ class GameFormValidator : FormValidator() {
             id?.let { "id != @id" withParam ("id" to id) }
         ).join(" AND ")
 
-        val result = dataAccess.select("COUNT(*)").from("games").where(whereClause.sql).toField<Long>(whereClause.params)
+        val result = db.select("COUNT(*)").from("games").where(whereClause.sql).asResult().fetchField<Long>(whereClause.params)
 
         return when (result) {
             is DataResult.Success -> {

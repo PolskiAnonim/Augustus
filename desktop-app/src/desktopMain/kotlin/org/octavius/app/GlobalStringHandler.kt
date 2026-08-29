@@ -1,14 +1,20 @@
 package org.octavius.app
 
-import io.github.octaviusframework.db.api.type.GlobalTypeHandler
+import io.github.octaviusframework.driver.converter.parameter.mapper.ParameterConverter
+import io.github.octaviusframework.driver.converter.parameter.mapper.SerializationContext
 import kotlin.reflect.KClass
 
-class GlobalStringHandler: GlobalTypeHandler<String> {
-    override val pgTypeName: String = "text"
-    override val kotlinClass: KClass<String> = String::class
-    override val fromPgString: (String) -> String = { it }
-    override val toPgString: (String) -> String = { it.clean() }
-    override val isDefaultForKotlinType: Boolean = true
+/**
+ * Czyści każdy tekst wychodzący do bazy z apostrofów i cudzysłowów typograficznych.
+ *
+ * Rejestrowany na typeManagerze, więc łapie zarówno parametry pojedyncze, jak i teksty zagnieżdżone
+ * w kompozytach i tablicach - te ostatnie i tak przechodzą przez ten sam łańcuch konwerterów.
+ * Zwraca `String`, więc typ deklarowany zostaje `text` i `getDefaultTypeName` nie ma czego nadpisywać.
+ */
+object CleanStringParameterConverter : ParameterConverter<String> {
+    override val supportedClass: KClass<String> = String::class
+
+    override fun convert(source: String, expectedOid: Int, context: SerializationContext): Any = source.clean()
 }
 
 /**

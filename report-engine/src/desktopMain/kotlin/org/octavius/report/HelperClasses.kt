@@ -1,7 +1,7 @@
 package org.octavius.report
 
 import androidx.compose.ui.unit.Dp
-import io.github.octaviusframework.db.api.exception.DatabaseException
+import io.github.octaviusframework.driver.exception.OctaviusException
 import org.octavius.domain.EnumWithFormatter
 import org.octavius.report.localization.ReportTr
 
@@ -148,5 +148,5 @@ sealed class ReportDataResult {
     ) : ReportDataResult()
 
     /** Porażka - zawiera błąd */
-    data class Failure(val error: DatabaseException) : ReportDataResult()
+    data class Failure(val error: OctaviusException) : ReportDataResult()
 }

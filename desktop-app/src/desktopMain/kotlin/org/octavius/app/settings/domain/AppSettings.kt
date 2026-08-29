@@ -10,7 +10,7 @@ data class AppSettings(
 
 @Serializable
 data class DatabaseSettings(
-    val url: String = "jdbc:postgresql://localhost:5432/octavius",
+    val url: String = "jdbc:octavius://localhost:5432/augustus",
     val username: String = "postgres",
     val password: String = "1234"
 )

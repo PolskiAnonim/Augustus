@@ -1,6 +1,6 @@
 package org.octavius.modules.games.form.category
 
-import io.github.octaviusframework.db.api.DataResult
+import io.github.octaviusframework.client.DataResult
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.component.FormActionResult
@@ -36,11 +36,11 @@ class GameCategoryDataManager : FormDataManager() {
     private fun processSave(formResultData: FormResultData): FormActionResult {
         val loadedId = formResultData.getInitial("id")
         val result = if (loadedId != null) {
-            dataAccess.update("games.categories").setValue("name").where("id = @id")
-                .execute(mapOf("name" to formResultData.getCurrent("name"), "id" to loadedId))
+            db.update("games.categories").setValue("name").where("id = @id")
+                .asResult().update(mapOf("name" to formResultData.getCurrent("name"), "id" to loadedId))
         } else {
-            dataAccess.insertInto("games.categories").value("name")
-                .execute(mapOf("name" to formResultData.getCurrent("name")))
+            db.insertInto("games.categories").value("name")
+                .asResult().update(mapOf("name" to formResultData.getCurrent("name")))
         }
         return when (result) {
             is DataResult.Failure -> {

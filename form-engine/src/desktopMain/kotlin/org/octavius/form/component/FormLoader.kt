@@ -1,10 +1,9 @@
 package org.octavius.form.component
 
-import io.github.octaviusframework.db.api.DataAccess
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.toList
-import io.github.octaviusframework.db.api.builder.toSingle
-import io.github.octaviusframework.db.api.util.toSnakeCase
+import io.github.octaviusframework.client.OctaviusClient
+import io.github.octaviusframework.client.DataResult
+import io.github.octaviusframework.identifier.CaseConvention
+import io.github.octaviusframework.identifier.CaseConverter
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 
@@ -17,7 +16,8 @@ interface MappingContainer {
     val relations: MutableList<RelationMapping>
 
     fun map(controlName: String, dbColumn: String? = null) {
-        val finalDbColumn = dbColumn ?: controlName.toSnakeCase()
+        val finalDbColumn = dbColumn
+            ?: CaseConverter.convert(controlName, CaseConvention.CAMEL_CASE, CaseConvention.SNAKE_CASE_LOWER)
         relations.add(SimpleMapping(FieldMapping(controlName, finalDbColumn)))
     }
 
@@ -114,7 +114,7 @@ class QueryScope(
                     if (isTopLevel) {
                         fieldExpressions.add("${rel.mapping.dbColumn} AS ${rel.mapping.controlName}")
                     } else {
-                        fieldExpressions.add("'${rel.mapping.controlName}' ~> ${rel.mapping.dbColumn}")
+                        fieldExpressions.add("'${rel.mapping.controlName}', ${rel.mapping.dbColumn}")
                     }
                 }
                 is OneToOneMapping -> {
@@ -124,7 +124,7 @@ class QueryScope(
                         if (isTopLevel) {
                             fieldExpressions.add("$expr AS ${flag.controlName}")
                         } else {
-                            fieldExpressions.add("'${flag.controlName}' ~> $expr")
+                            fieldExpressions.add("'${flag.controlName}', $expr")
                         }
                     }
                     processRelations(rel.relations)
@@ -137,20 +137,23 @@ class QueryScope(
                     val mapEntries = subScope.fieldExpressions.joinToString(",\n                            ")
                     val subJoins = subScope.joins.joinToString(" ")
                     
+                    // ROW(klucz, wartość, ...) czyta się jako Map<String, Any?>, a tablica takich
+                    // rekordów jako List<Map<String, Any?>> - i wartości idą przez pełny łańcuch
+                    // konwerterów, więc enum wraca enumem, a nie tekstem.
                     val subquery = """
                         ARRAY(
-                            SELECT dynamic_map(
+                            SELECT ROW(
                                 $mapEntries
                             )
                             FROM ${builder.fromTable} $subJoins
                             WHERE ${builder.buildWhereClause()}
-                        )::public.dynamic_map[]
+                        )::record[]
                     """.trimIndent()
 
                     if (isTopLevel) {
                         fieldExpressions.add("($subquery) AS ${rel.controlName}")
                     } else {
-                        fieldExpressions.add("'${rel.controlName}' ~> ($subquery)")
+                        fieldExpressions.add("'${rel.controlName}', ($subquery)")
                     }
                 }
             }
@@ -161,7 +164,7 @@ class QueryScope(
 
 // --- Główny Builder ---
 
-class DataLoaderBuilder(private val dataAccess: DataAccess) : MappingContainer {
+class DataLoaderBuilder(private val db: OctaviusClient) : MappingContainer {
     private lateinit var mainTableName: String
     private lateinit var mainTableAlias: String
     private var idColumn: String = "id"
@@ -191,10 +194,10 @@ class DataLoaderBuilder(private val dataAccess: DataAccess) : MappingContainer {
         val joinsStr = topScope.joins.joinToString(" ")
 
         // SKŁADAMY OSTATECZNE, JEDNO ZAPYTANIE
-        val query = dataAccess.select(*topScope.fieldExpressions.toTypedArray())
+        val query = db.select(*topScope.fieldExpressions.toTypedArray())
             .from("$mainTable $joinsStr".trim())
             .where("$mainTableAlias.$idColumn = @id")
-            .toSingle("id" to id)
+            .asResult().fetchObject<Map<String, Any?>>("id" to id)
 
         return when (query) {
             is DataResult.Success -> query.value ?: emptyMap()

@@ -6,10 +6,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import io.github.octaviusframework.db.api.DataAccess
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.toSingleOf
-import io.github.octaviusframework.db.api.exception.DatabaseException
+import io.github.octaviusframework.client.OctaviusClient
+import io.github.octaviusframework.client.DataResult
+import io.github.octaviusframework.driver.exception.OctaviusException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -20,39 +19,39 @@ import kotlin.collections.orEmpty
 class BooksHomeHandler(
     private val scope: CoroutineScope
 ) : KoinComponent {
-    private val dataAccess: DataAccess by inject()
+    private val db: OctaviusClient by inject()
 
     private val _state: MutableStateFlow<BooksHomeState> = MutableStateFlow(BooksHomeState.Loading)
     val state = _state.asStateFlow()
 
     private fun getSql(): String {
         // Liczba wszystkich książek
-        val totalBooksSubquery = dataAccess.select("COUNT(*)").from("books.books").toSql()
+        val totalBooksSubquery = db.select("COUNT(*)").from("books.books").toSql()
 
         // Liczba wszystkich autorów
-        val totalAuthorsSubquery = dataAccess.select("COUNT(*)").from("books.authors").toSql()
+        val totalAuthorsSubquery = db.select("COUNT(*)").from("books.authors").toSql()
 
         // Liczba książek "W trakcie czytania"
-        val readingCountSubquery = dataAccess.select("COUNT(*)")
+        val readingCountSubquery = db.select("COUNT(*)")
             .from("books.books")
             .where("status = 'READING'")
             .toSql()
 
         // Liczba przeczytanych
-        val completedCountSubquery = dataAccess.select("COUNT(*)")
+        val completedCountSubquery = db.select("COUNT(*)")
             .from("books.books")
             .where("status = 'COMPLETED'")
             .toSql()
 
         // Lista: Aktualnie czytane (ostatnio aktualizowane)
-        val innerCurrentlyReading = dataAccess.select("id, title_pl")
+        val innerCurrentlyReading = db.select("id, title_pl")
             .from("books.books")
             .where("status = 'READING'")
             .orderBy("updated_at DESC")
             .limit(5)
             .toSql()
 
-        val currentlyReadingSubquery = dataAccess.select(
+        val currentlyReadingSubquery = db.select(
             """
             COALESCE(
                 array_agg(
@@ -67,13 +66,13 @@ class BooksHomeHandler(
         ).fromSubquery(innerCurrentlyReading).toSql()
 
         // Lista: Ostatnio dodane
-        val innerRecentlyAdded = dataAccess.select("id, title_pl")
+        val innerRecentlyAdded = db.select("id, title_pl")
             .from("books.books")
             .orderBy("created_at DESC")
             .limit(5)
             .toSql()
 
-        val recentlyAddedSubquery = dataAccess.select(
+        val recentlyAddedSubquery = db.select(
             """
             COALESCE(
                 array_agg(
@@ -102,8 +101,8 @@ class BooksHomeHandler(
         scope.launch {
             val finalSelectClause = getSql()
             val result = withContext(Dispatchers.IO) {
-                dataAccess.select(finalSelectClause)
-                    .toSingleOf<BooksDashboardData>()
+                db.select(finalSelectClause)
+                    .asResult().fetchObjectStrict<BooksDashboardData>()
             }
 
             when (result) {
@@ -122,7 +121,7 @@ class BooksHomeHandler(
         }
     }
 
-    private fun showError(error: DatabaseException) {
+    private fun showError(error: OctaviusException) {
         GlobalDialogManager.show(ErrorDialogConfig(error))
     }
 }
