@@ -57,11 +57,7 @@ val databaseModule = module {
             val report = OctaviusMigrator(dataSource).migrate()
             println("Octavius migrations: $report")
 
-            OctaviusClient.fromDataSource(
-                dataSource,
-                ownsDataSource = true,
-                dynamicJson = octaviusDynamicJson
-            ).apply {
+            OctaviusClient.fromDataSource(dataSource, ownsDataSource = true).apply {
                 // Tworzy public.dynamic_dto wraz z konstruktorami i przeładowuje katalog typów.
                 dynamicTypes.install()
 

@@ -21,7 +21,7 @@ shadow = "9.4.1"
 hikari = "7.1.0"
 [libraries]
 # octavius-postgresql
-octavius-annotations = { group = "io.github.octavius-framework", name = "annotations", version.ref = "octavius-postgresql" }
+octavius-pg-model = { group = "io.github.octavius-framework", name = "pg-model", version.ref = "octavius-postgresql" }
 octavius-driver = { group = "io.github.octavius-framework", name = "driver", version.ref = "octavius-postgresql" }
 octavius-client = { group = "io.github.octavius-framework", name = "client", version.ref = "octavius-postgresql" }
 octavius-client-scanner = { group = "io.github.octavius-framework", name = "client-scanner", version.ref = "octavius-postgresql" }

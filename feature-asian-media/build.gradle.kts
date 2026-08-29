@@ -23,7 +23,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
 
             implementation(projects.apiContract)
-            implementation(libs.octavius.annotations)
+            implementation(libs.octavius.pg.model)
         }
 
         desktopMain.dependencies {

@@ -3,7 +3,7 @@ package org.octavius.form.component
 import io.github.octaviusframework.client.OctaviusClient
 import io.github.octaviusframework.client.DataResult
 import io.github.octaviusframework.identifier.CaseConvention
-import io.github.octaviusframework.driver.identifier.CaseConverter
+import io.github.octaviusframework.identifier.CaseConverter
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 
