@@ -6,10 +6,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import io.github.octaviusframework.db.api.DataAccess
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.toSingleOf
-import io.github.octaviusframework.db.api.exception.DatabaseException
+import io.github.octaviusframework.client.OctaviusClient
+import io.github.octaviusframework.client.DataResult
+import io.github.octaviusframework.driver.exception.OctaviusException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -17,7 +16,7 @@ import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 
 class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
-    private val dataAccess: DataAccess by inject()
+    private val db: OctaviusClient by inject()
     private val _state = MutableStateFlow(GameStatisticsState())
     val state = _state.asStateFlow()
 
@@ -28,7 +27,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
     private fun buildGameStatisticsQuery(): String {
         // --- CTE 1: kpi_stats ---
         // Bez zmian, było idealnie.
-        val kpiStatsQuery = dataAccess.select(
+        val kpiStatsQuery = db.select(
             "COUNT(*) AS total_games",
             "(SELECT time_played FROM games.time_played) AS total_playtime_hours",
             "COUNT(*) FILTER (WHERE g.status = 'PLAYED') AS played_games_count",
@@ -38,7 +37,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
             .toSql()
 
         // --- CTE 2: status_distribution ---
-        val statusDistributionQuery = dataAccess.select(
+        val statusDistributionQuery = db.select(
             """
             array_agg(
                 dynamic_dto('game_dashboard_status', jsonb_build_object(
@@ -50,7 +49,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
         """
         )
             .fromSubquery(
-                dataAccess.select("status, COUNT(*) as count")
+                db.select("status, COUNT(*) as count")
                     .from("games.games")
                     .groupBy("status")
                     .toSql()
@@ -59,7 +58,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
 
         // --- CTE 3: rating_stats ---
         // Bez zmian.
-        val ratingStatsQuery = dataAccess.select(
+        val ratingStatsQuery = db.select(
             "AVG(story_rating)::numeric(10, 2) AS avg_story_rating",
             "AVG(gameplay_rating)::numeric(10, 2) AS avg_gameplay_rating",
             "AVG(atmosphere_rating)::numeric(10, 2) AS avg_atmosphere_rating"
@@ -68,7 +67,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
             .toSql()
 
         // --- CTE 4: most_played_games ---
-        val mostPlayedGamesQuery = dataAccess.select(
+        val mostPlayedGamesQuery = db.select(
             """
             array_agg(
                 dynamic_dto('game_dashboard_time', jsonb_build_object(
@@ -82,7 +81,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
             .from("games.play_time pt JOIN games.games g ON pt.game_id = g.id")
             .where(
                 "pt.game_id IN (${
-                    dataAccess.select("game_id").from("games.play_time").orderBy("play_time_hours DESC NULLS LAST")
+                    db.select("game_id").from("games.play_time").orderBy("play_time_hours DESC NULLS LAST")
                         .limit(5).toSql()
                 })"
             )
@@ -101,7 +100,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
         )::numeric(10, 2)
     """.trimIndent()
 
-        val highestRatedGamesQuery = dataAccess.select(
+        val highestRatedGamesQuery = db.select(
             """
             array_agg(
                 dynamic_dto('game_dashboard_rating', jsonb_build_object(
@@ -114,7 +113,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
         )
             .from(
                 "(${
-                    dataAccess.select("game_id, $avgRatingCalculation AS avg_rating")
+                    db.select("game_id, $avgRatingCalculation AS avg_rating")
                         .from("games.ratings")
                         .where("$avgRatingCalculation IS NOT NULL") // Wyrzucamy gry bez ocen od razu
                         .orderBy("avg_rating DESC")
@@ -126,7 +125,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
 
         // --- CTE 6: favorite_category ---
         val favoriteCategoryQuery = "SELECT (${
-            dataAccess.select("c.name")
+            db.select("c.name")
                 .from("games.categories_to_games ctg JOIN games.play_time pt ON ctg.game_id = pt.game_id JOIN games.categories c ON ctg.category_id = c.id")
                 .groupBy("c.id, c.name")
                 .orderBy("SUM(pt.play_time_hours) DESC")
@@ -136,7 +135,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
 
         // --- CTE 7: favorite_series ---
         val favoriteSeriesQuery = "SELECT (${
-            dataAccess.select("s.name")
+            db.select("s.name")
                 .from("games.games g JOIN games.series s ON g.series = s.id JOIN games.play_time pt ON g.id = pt.game_id")
                 .groupBy("s.id, s.name")
                 .orderBy("SUM(pt.play_time_hours) DESC")
@@ -144,7 +143,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
                 .toSql()
         }) AS name"
 
-        return dataAccess.select(
+        return db.select(
             """
             kpi.total_games,
             kpi.total_playtime_hours,
@@ -175,7 +174,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
         scope.launch {
             val query = buildGameStatisticsQuery()
             val result = withContext(Dispatchers.IO) {
-                dataAccess.rawQuery(query).toSingleOf<GameStatisticsData>()
+                db.rawQuery(query).asResult().fetchObjectStrict<GameStatisticsData>()
             }
             when (result) {
                 is DataResult.Success -> {
@@ -195,7 +194,7 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
         }
     }
 
-    private fun showError(error: DatabaseException) {
+    private fun showError(error: OctaviusException) {
         GlobalDialogManager.show(ErrorDialogConfig(error))
     }
 }

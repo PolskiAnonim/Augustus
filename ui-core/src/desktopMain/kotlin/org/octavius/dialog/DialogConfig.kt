@@ -1,7 +1,7 @@
 package org.octavius.dialog
 
 import androidx.compose.ui.graphics.Color
-import io.github.octaviusframework.db.api.exception.DatabaseException
+import io.github.octaviusframework.driver.exception.OctaviusException
 import org.octavius.localization.Tr
 
 /**
@@ -42,7 +42,7 @@ fun ErrorDialogConfig(title: String, message: String): DialogConfig {
 /**
  * Wyświetla dialog błędu na podstawie wyjątku z bazy danych.
  */
-fun ErrorDialogConfig(error: DatabaseException): DialogConfig {
+fun ErrorDialogConfig(error: OctaviusException): DialogConfig {
     val title = Tr.Error.Database.title()
     return DialogConfig(title,
         error.toString(),

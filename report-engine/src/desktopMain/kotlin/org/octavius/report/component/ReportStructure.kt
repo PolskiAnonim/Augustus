@@ -2,10 +2,10 @@ package org.octavius.report.component
 
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import io.github.octaviusframework.db.api.DataAccess
-import io.github.octaviusframework.db.api.QueryFragment
-import io.github.octaviusframework.db.api.join
-import io.github.octaviusframework.db.api.withParam
+import io.github.octaviusframework.client.OctaviusClient
+import io.github.octaviusframework.client.query.QueryFragment
+import io.github.octaviusframework.client.query.join
+import io.github.octaviusframework.client.query.withParam
 import org.octavius.report.ReportMainAction
 import org.octavius.report.ReportRowAction
 import org.octavius.report.column.ReportColumn
@@ -118,7 +118,7 @@ class ReportStructure(
  */
 abstract class ReportStructureBuilder: KoinComponent {
 
-    val dataAccess: DataAccess by inject()
+    val db: OctaviusClient by inject()
     /**
      * Główna metoda budująca. Orkiestruje proces i nie powinna być nadpisywana.
      */

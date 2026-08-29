@@ -2,8 +2,8 @@ package org.octavius.modules.asian.report
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import io.github.octaviusframework.db.api.QueryFragment
-import io.github.octaviusframework.db.api.withParam
+import io.github.octaviusframework.client.query.QueryFragment
+import io.github.octaviusframework.client.query.withParam
 import org.octavius.domain.asian.PublicationLanguage
 import org.octavius.domain.asian.PublicationStatus
 import org.octavius.domain.asian.PublicationType
@@ -24,7 +24,7 @@ class AsianMediaReportStructureBuilder() : ReportStructureBuilder() {
     override fun getReportName(): String = "asianMedia"
 
     override fun buildQuery(): QueryFragment {
-        val query = dataAccess.select(
+        val query = db.select(
             "t.id as title_id",
             "t.titles",
             "t.language",

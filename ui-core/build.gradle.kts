@@ -28,11 +28,14 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
-                implementation(libs.octavius.database.api)
             }
         }
 
-        val desktopMain by getting
+        val desktopMain by getting {
+            dependencies {
+                implementation(libs.octavius.driver)
+            }
+        }
         val jsMain by getting
     }
 }

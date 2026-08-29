@@ -2,11 +2,10 @@ package org.octavius.report.component
 
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import io.github.octaviusframework.db.api.DataAccess
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.QueryFragment
-import io.github.octaviusframework.db.api.builder.toField
-import io.github.octaviusframework.db.api.join
+import io.github.octaviusframework.client.OctaviusClient
+import io.github.octaviusframework.client.DataResult
+import io.github.octaviusframework.client.query.QueryFragment
+import io.github.octaviusframework.client.query.join
 import org.octavius.report.ReportDataResult
 import org.octavius.report.ReportPaginationState
 import org.octavius.report.configuration.SortDirection
@@ -21,7 +20,7 @@ import org.octavius.report.filter.data.FilterData
  * - Zarządza paginacją (oblicza całkowitą liczbę elementów)
  * - Łączy różne typy filtrów w spójne klauzule WHERE
  * - Obsługuje globalne wyszukiwanie po wszystkich kolumnach
- * - Wykorzystuje DataFetcher do bezpiecznego wykonywania zapytań
+ * - Wykonuje zapytania przez OctaviusClient, zwracając wynik jako DataResult
  *
  * Proces pobierania danych:
  * 1. Buduje klauzulę WHERE na podstawie filtrów i wyszukiwania
@@ -34,7 +33,7 @@ import org.octavius.report.filter.data.FilterData
 class ReportDataManager(
     val reportStructure: ReportStructure
 ) : KoinComponent {
-    val dataAccess: DataAccess by inject()
+    val db: OctaviusClient by inject()
     private fun <T : FilterData> getQueryFragment(
         columnName: String,
         filter: Filter<T>,
@@ -65,7 +64,7 @@ class ReportDataManager(
     ): DataResult<ReportPaginationState> {
 
         val countResult =
-            dataAccess.select("COUNT(*)").fromSubquery(sourceSql).where(filterClause).toField<Long>(params)
+            db.select("COUNT(*)").fromSubquery(sourceSql).where(filterClause).asResult().fetchField<Long>(params)
 
         return when (countResult) {
             is DataResult.Success -> {
@@ -119,11 +118,11 @@ class ReportDataManager(
             return ReportDataResult.Success(emptyList(), newPaginationState)
         }
 
-        val dataResult = dataAccess.select("*").fromSubquery(query.sql)
+        val dataResult = db.select("*").fromSubquery(query.sql)
             .where(filterClause.sql) // builder grzecznie nie weźmie pustych wartości
             .orderBy(orderClause)
             .page(reportState.pagination.currentPage, reportState.pagination.pageSize)
-            .toList(params)
+            .asResult().fetchObjects<Map<String, Any?>>(params)
 
         return when (dataResult) {
             is DataResult.Success -> {

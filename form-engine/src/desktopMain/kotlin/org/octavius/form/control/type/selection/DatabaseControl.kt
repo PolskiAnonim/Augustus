@@ -4,9 +4,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import io.github.octaviusframework.db.api.DataAccess
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.toField
+import io.github.octaviusframework.client.OctaviusClient
+import io.github.octaviusframework.client.DataResult
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.control.base.ControlAction
@@ -33,7 +32,7 @@ class DatabaseControl(
     label, required, dependencies, actions
 ), KoinComponent {
 
-    private val dataAccess: DataAccess by inject()
+    private val db: OctaviusClient by inject()
     private var cachedValue: DropdownOption<Int>? = null
 
     override fun getDisplayText(value: Int?): String? {
@@ -42,8 +41,10 @@ class DatabaseControl(
         // Próbuj użyć cache
         if (cachedValue?.value == value) return cachedValue!!.displayText
 
-        val result = dataAccess.select(displayColumn).from(relatedTable).where("id = @id")
-            .toField<String>("id" to value)
+        // Nullable T celowo: wiersz mógł zniknąć spod zapisanego id, a pod nienullowalnym typem
+        // brak wiersza i NULL lecą wyjątkiem, którego .asResult() nie zamienia na Failure.
+        val result = db.select(displayColumn).from(relatedTable).where("id = @id")
+            .asResult().fetchField<String?>("id" to value)
 
         return when (result) {
             is DataResult.Failure -> {
@@ -69,7 +70,7 @@ class DatabaseControl(
             val params = if (searchQuery.isNotBlank()) mapOf("search" to "%$searchQuery%") else emptyMap()
 
             // Krok 2: Pobierz całkowitą liczbę pasujących rekordów
-            val countResult = dataAccess.select("COUNT(*)").from(relatedTable).where(filter).toField<Long>(params)
+            val countResult = db.select("COUNT(*)").from(relatedTable).where(filter).asResult().fetchField<Long>(params)
 
             val totalCount = when (countResult) {
                 is DataResult.Success -> countResult.value
@@ -86,11 +87,11 @@ class DatabaseControl(
             val totalPages = (totalCount + pageSize - 1) / pageSize
 
 
-            val optionsResult = dataAccess.select("id, $displayColumn").from(relatedTable)
+            val optionsResult = db.select("id, $displayColumn").from(relatedTable)
                 .where(filter)
                 .orderBy(displayColumn)
                 .page(page, pageSize)
-                .toList(params = params)
+                .asResult().fetchObjects<Map<String, Any?>>(params = params)
             return@withContext when (optionsResult) {
                 is DataResult.Success -> {
                     val mappedOptions = optionsResult.value.map { row ->

@@ -1,11 +1,10 @@
 package org.octavius.modules.asian.form
 
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.execute
-import io.github.octaviusframework.db.api.builder.toField
-import io.github.octaviusframework.db.api.transaction.TransactionPlan
-import io.github.octaviusframework.db.api.transaction.TransactionValue
-import io.github.octaviusframework.db.api.transaction.toTransactionValue
+import io.github.octaviusframework.client.DataResult
+import io.github.octaviusframework.client.dbResult
+import io.github.octaviusframework.client.transaction.TransactionPlan
+import io.github.octaviusframework.client.transaction.TransactionValue
+import io.github.octaviusframework.client.transaction.toTransactionValue
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.component.FormActionResult
@@ -68,13 +67,13 @@ class AsianMediaFormDataManager : FormDataManager() {
         // Wykorzystanie CASCADE
         val plan = TransactionPlan()
         plan.add(
-            dataAccess.deleteFrom("asian_media.titles")
+            db.deleteFrom("asian_media.titles")
                 .where("id = @id")
                 .asStep()
-                .execute("id" to formResultData.getInitial("id"))
+                .update("id" to formResultData.getInitial("id"))
         )
 
-        return when (val result = dataAccess.executeTransactionPlan(plan)) {
+        return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
                 FormActionResult.Failure
@@ -100,20 +99,20 @@ class AsianMediaFormDataManager : FormDataManager() {
             // TRYB EDYCJI: ID jest znane.
             titleIdRef = formResultData.getInitialAs<Int>("id").toTransactionValue()
             plan.add(
-                dataAccess.update("asian_media.titles")
+                db.update("asian_media.titles")
                     .setValues(titleData)
                     .where("id = @id")
                     .asStep()
-                    .execute(titleData + mapOf("id" to titleIdRef))
+                    .update(titleData + mapOf("id" to titleIdRef))
             )
         } else {
             titleIdRef = plan.add(
-                dataAccess.insertInto("asian_media.titles")
+                db.insertInto("asian_media.titles")
                     .values(titleData)
                     .returning("id")
                     .asStep()
-                    .toField<Int>(titleData)
-            ).field()
+                    .fetchField<Int>(titleData)
+            ).value()
         }
 
         // =================================================================================
@@ -127,10 +126,10 @@ class AsianMediaFormDataManager : FormDataManager() {
             publicationsResult.deletedRows.forEach { rowData ->
                 val pubId = rowData.getInitialAs<Int>("id")
                 plan.add(
-                    dataAccess.deleteFrom("asian_media.publications")
+                    db.deleteFrom("asian_media.publications")
                         .where("id = @id")
                         .asStep()
-                        .execute("id" to pubId)
+                        .update("id" to pubId)
                 )
             }
 
@@ -145,11 +144,11 @@ class AsianMediaFormDataManager : FormDataManager() {
                 )
 
                 plan.add(
-                    dataAccess.update("asian_media.publications")
+                    db.update("asian_media.publications")
                         .setValues(publicationData)
                         .where("id = @id")
                         .asStep()
-                        .execute(publicationData + mapOf("id" to publicationIdRef))
+                        .update(publicationData + mapOf("id" to publicationIdRef))
                 )
 
                 // Warunkowo zaktualizuj powiązane 'publication_volumes'
@@ -170,18 +169,18 @@ class AsianMediaFormDataManager : FormDataManager() {
             )
 
             val newPublicationIdRef = plan.add(
-                dataAccess.insertInto("asian_media.publications")
+                db.insertInto("asian_media.publications")
                     .values(publicationData)
                     .returning("id")
                     .asStep()
-                    .toField<Int>(publicationData)
-            ).field()
+                    .fetchField<Int>(publicationData)
+            ).value()
 
             addPublicationVolumesUpdateOperation(plan, rowData, newPublicationIdRef)
         }
 
         // Wykonanie całego planu
-        return when (val result = dataAccess.executeTransactionPlan(plan)) {
+        return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
                 FormActionResult.Failure
@@ -205,11 +204,11 @@ class AsianMediaFormDataManager : FormDataManager() {
             )
 
             plan.add(
-                dataAccess.update("asian_media.publication_volumes")
+                db.update("asian_media.publication_volumes")
                     .setValues(volumesData)
                     .where("publication_id = @publication_id")
                     .asStep()
-                    .execute(volumesData + mapOf("publication_id" to publicationIdRef))
+                    .update(volumesData + mapOf("publication_id" to publicationIdRef))
             )
         }
     }

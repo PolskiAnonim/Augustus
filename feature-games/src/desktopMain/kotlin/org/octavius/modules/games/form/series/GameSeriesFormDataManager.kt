@@ -1,8 +1,8 @@
 package org.octavius.modules.games.form.series
 
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.execute
-import io.github.octaviusframework.db.api.transaction.TransactionPlan
+import io.github.octaviusframework.client.DataResult
+import io.github.octaviusframework.client.dbResult
+import io.github.octaviusframework.client.transaction.TransactionPlan
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.component.FormActionResult
@@ -37,15 +37,15 @@ class GameSeriesFormDataManager : FormDataManager() {
         val plan = TransactionPlan()
         if (loadedId != null) {
             plan.add(
-                dataAccess.update("games.series").setValues(listOf("name")).where("id = @id").asStep()
-                    .execute("name" to formResultData.getCurrent("name"), "id" to loadedId)
+                db.update("games.series").setValues(listOf("name")).where("id = @id").asStep()
+                    .update("name" to formResultData.getCurrent("name"), "id" to loadedId)
             )
         } else {
             plan.add(
-                dataAccess.insertInto("games.series").values(listOf("name")).asStep().execute("name" to formResultData.getCurrent("name"))
+                db.insertInto("games.series").values(listOf("name")).asStep().update("name" to formResultData.getCurrent("name"))
             )
         }
-        return when (val result = dataAccess.executeTransactionPlan(plan)) {
+        return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
                 FormActionResult.Failure

@@ -23,7 +23,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
 
             implementation(projects.apiContract)
-            implementation(libs.octavius.database.api)
+            implementation(libs.octavius.annotations)
         }
 
         desktopMain.dependencies {

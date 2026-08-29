@@ -1,13 +1,12 @@
 package org.octavius.feature.books.form.book
 
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.execute
-import io.github.octaviusframework.db.api.builder.toField
-import io.github.octaviusframework.db.api.transaction.TransactionPlan
-import io.github.octaviusframework.db.api.transaction.TransactionValue
-import io.github.octaviusframework.db.api.transaction.toTransactionValue
-import io.github.octaviusframework.db.api.type.PgStandardType
-import io.github.octaviusframework.db.api.type.withPgType
+import io.github.octaviusframework.client.DataResult
+import io.github.octaviusframework.client.dbResult
+import io.github.octaviusframework.client.transaction.TransactionPlan
+import io.github.octaviusframework.client.transaction.TransactionValue
+import io.github.octaviusframework.client.transaction.toTransactionValue
+import io.github.octaviusframework.driver.type.PgStandardType
+import io.github.octaviusframework.driver.type.withPgType
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.component.FormActionResult
@@ -78,21 +77,21 @@ class BookFormDataManager : FormDataManager() {
         if (loadedId != null) {
             bookIdRef = (loadedId as Int).toTransactionValue()
             plan.add(
-                dataAccess.update("books.books")
+                db.update("books.books")
                     .setValues(bookData)
                     .setExpression("updated_at", "NOW()")
                     .where("id = @id")
                     .asStep()
-                    .execute(bookData + mapOf("id" to bookIdRef))
+                    .update(bookData + mapOf("id" to bookIdRef))
             )
         } else {
             bookIdRef = plan.add(
-                dataAccess.insertInto("books.books")
+                db.insertInto("books.books")
                     .values(bookData)
                     .returning("id")
                     .asStep()
-                    .toField<Int>(bookData)
-            ).field()
+                    .fetchField<Int>(bookData)
+            ).value()
         }
 
         // =================================================================================
@@ -109,11 +108,11 @@ class BookFormDataManager : FormDataManager() {
 
         if (deletedAuthors.isNotEmpty()) {
             plan.add(
-                dataAccess.deleteFrom("books.book_to_authors bta")
+                db.deleteFrom("books.book_to_authors bta")
                     .using("UNNEST(@ids_to_delete) AS t(id)")
                     .where("bta.author_id = t.id AND bta.book_id = @book_id")
                     .asStep()
-                    .execute(
+                    .update(
                         "ids_to_delete" to deletedAuthors.withPgType(PgStandardType.INT4_ARRAY),
                         "book_id" to bookIdRef
                     )
@@ -129,21 +128,21 @@ class BookFormDataManager : FormDataManager() {
 
         if (insertedAuthors.isNotEmpty()) {
             plan.add(
-                dataAccess.insertInto("books.book_to_authors")
+                db.insertInto("books.book_to_authors")
                     .fromSelect(
-                        dataAccess.select("@book_id", "author_id")
+                        db.select("@book_id", "author_id")
                             .from("UNNEST(@ids_to_insert) AS author_id")
                             .toSql()
                     )
                     .asStep()
-                    .execute(
+                    .update(
                         "ids_to_insert" to insertedAuthors.withPgType(PgStandardType.INT4_ARRAY),
                         "book_id" to bookIdRef
                     )
             )
         }
 
-        return when (val result = dataAccess.executeTransactionPlan(plan)) {
+        return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
                 FormActionResult.Failure
@@ -156,9 +155,9 @@ class BookFormDataManager : FormDataManager() {
         val loadedId = formResultData.getInitial("id") ?: return FormActionResult.CloseScreen
 
         // CASCADE usunie powiązania w book_to_authors
-        val result = dataAccess.deleteFrom("books.books")
+        val result = db.deleteFrom("books.books")
             .where("id = @id")
-            .execute(mapOf("id" to loadedId))
+            .asResult().update(mapOf("id" to loadedId))
 
         return when (result) {
             is DataResult.Failure -> {

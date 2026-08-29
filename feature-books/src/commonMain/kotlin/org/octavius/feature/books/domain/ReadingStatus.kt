@@ -1,10 +1,10 @@
 package org.octavius.feature.books.domain
 
-import io.github.octaviusframework.db.api.annotation.PgEnum
+import io.github.octaviusframework.annotation.PgEnumType
 import org.octavius.domain.EnumWithFormatter
 import org.octavius.localization.Tr
 
-@PgEnum(name = "reading_status")
+@PgEnumType(name = "reading_status")
 enum class ReadingStatus : EnumWithFormatter<ReadingStatus> {
     NotReading,
     Reading,

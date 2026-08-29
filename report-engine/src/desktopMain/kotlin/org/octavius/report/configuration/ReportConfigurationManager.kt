@@ -2,22 +2,19 @@ package org.octavius.report.configuration
 
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import io.github.octaviusframework.db.api.DataAccess
-import io.github.octaviusframework.db.api.DataResult
-import io.github.octaviusframework.db.api.builder.execute
-import io.github.octaviusframework.db.api.builder.toListOf
-import io.github.octaviusframework.db.api.builder.toSingleOf
-import io.github.octaviusframework.db.api.toDataMap
-import io.github.octaviusframework.db.api.type.withPgType
+import io.github.octaviusframework.client.OctaviusClient
+import io.github.octaviusframework.client.DataResult
+import io.github.octaviusframework.driver.util.reflection.toDataMap
+import io.github.octaviusframework.driver.type.withPgType
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 
 class ReportConfigurationManager : KoinComponent {
 
-    val dataAccess: DataAccess by inject()
+    val db: OctaviusClient by inject()
     fun saveConfiguration(configuration: ReportConfiguration): Boolean {
         val flatValueMap = configuration.toDataMap("id") + ("sort_order" to configuration.sortOrder.withPgType("sort_configuration", "public", true))
-        val result = dataAccess.insertInto("report_configurations")
+        val result = db.insertInto("report_configurations")
             .values(flatValueMap).onConflict {
                 onColumns("name", "report_name")
                 doUpdate(
@@ -29,7 +26,7 @@ class ReportConfigurationManager : KoinComponent {
                     "is_default" to "EXCLUDED.is_default",
                     "filters" to "EXCLUDED.filters"
                 )
-            }.execute(flatValueMap)
+            }.asResult().update(flatValueMap)
 
         return when (result) {
             is DataResult.Failure -> {
@@ -37,16 +34,16 @@ class ReportConfigurationManager : KoinComponent {
                 false
             }
 
-            is DataResult.Success<Int> -> true
+            is DataResult.Success<Long> -> true
         }
     }
 
     fun loadDefaultConfiguration(reportName: String): ReportConfiguration? {
-        val result: DataResult<ReportConfiguration?> = dataAccess.select(
+        val result: DataResult<ReportConfiguration?> = db.select(
             "*"
         ).from(
             "public.report_configurations"
-        ).where("report_name = @report_name AND is_default = true").toSingleOf("report_name" to reportName)
+        ).where("report_name = @report_name AND is_default = true").asResult().fetchObject("report_name" to reportName)
 
         return when (result) {
             is DataResult.Failure -> {
@@ -59,11 +56,11 @@ class ReportConfigurationManager : KoinComponent {
     }
 
     fun listConfigurations(reportName: String): List<ReportConfiguration> {
-        val result: DataResult<List<ReportConfiguration>> = dataAccess.select(
+        val result: DataResult<List<ReportConfiguration>> = db.select(
             "*"
         ).from(
             "public.report_configurations"
-        ).where("report_name = @report_name").orderBy("is_default DESC, name ASC").toListOf("report_name" to reportName)
+        ).where("report_name = @report_name").orderBy("is_default DESC, name ASC").asResult().fetchObjects("report_name" to reportName)
 
         return when (result) {
             is DataResult.Failure -> {
@@ -77,8 +74,8 @@ class ReportConfigurationManager : KoinComponent {
 
     fun deleteConfiguration(name: String, reportName: String): Boolean {
 
-        val result = dataAccess.deleteFrom("report_configurations")
-            .where("name = @name AND report_name = @report_name").execute("name" to name, "report_name" to reportName)
+        val result = db.deleteFrom("report_configurations")
+            .where("name = @name AND report_name = @report_name").asResult().update("name" to name, "report_name" to reportName)
 
         return when (result) {
             is DataResult.Failure -> {
