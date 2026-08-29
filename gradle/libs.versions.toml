@@ -1,5 +1,5 @@
 [versions]
-octavius-database = "15.6.0"
+octavius-postgresql = "0.9.9"
 octavius-i18n = "1.0.0"
 dokka = "2.2.0"
 compose-multiplatform = "1.11.0"
@@ -18,11 +18,15 @@ mockk = "1.14.9"
 logback = "1.5.32"
 kotlin-logging = "7.0.14"
 shadow = "9.4.1"
+hikari = "7.1.0"
 [libraries]
-# octavius-database
-octavius-database-api = { group = "io.github.octavius-framework", name = "database-api", version.ref = "octavius-database" }
-octavius-database-core = { group = "io.github.octavius-framework", name = "database-core", version.ref = "octavius-database" }
-octavius-database-flyway-integration = { group = "io.github.octavius-framework", name = "database-flyway-integration", version.ref = "octavius-database" }
+# octavius-postgresql
+octavius-annotations = { group = "io.github.octavius-framework", name = "annotations", version.ref = "octavius-postgresql" }
+octavius-driver = { group = "io.github.octavius-framework", name = "driver", version.ref = "octavius-postgresql" }
+octavius-client = { group = "io.github.octavius-framework", name = "client", version.ref = "octavius-postgresql" }
+octavius-client-scanner = { group = "io.github.octavius-framework", name = "client-scanner", version.ref = "octavius-postgresql" }
+octavius-migrations = { group = "io.github.octavius-framework", name = "migrations", version.ref = "octavius-postgresql" }
+hikaricp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikari" }
 octavius-i18n-core = { group = "io.github.octavius-framework", name = "i18n-core", version.ref = "octavius-i18n" }
 # kotlinx
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }

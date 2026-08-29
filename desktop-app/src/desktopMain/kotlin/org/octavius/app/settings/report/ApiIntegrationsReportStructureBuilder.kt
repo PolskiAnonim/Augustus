@@ -1,6 +1,6 @@
 package org.octavius.app.settings.report
 
-import io.github.octaviusframework.db.api.QueryFragment
+import io.github.octaviusframework.client.query.QueryFragment
 import org.octavius.localization.Tr
 import org.octavius.report.column.ReportColumn
 import org.octavius.report.column.type.BooleanColumn

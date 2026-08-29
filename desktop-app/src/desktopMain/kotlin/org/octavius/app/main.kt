@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
-import io.github.octaviusframework.db.api.DataAccess
+import io.github.octaviusframework.client.OctaviusClient
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.core.Koin
@@ -109,7 +109,7 @@ private fun ApplicationScope.AppLoadingScreen(onLoaded: () -> Unit, onError: () 
     LaunchedEffect(Unit) {
         val success = withContext(Dispatchers.IO) {
             try {
-                koin.get<DataAccess>()
+                koin.get<OctaviusClient>()
                 true
             } catch (e: Exception) {
                 e.printStackTrace()

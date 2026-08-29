@@ -23,8 +23,10 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
         }
         desktopMain.dependencies {
-            implementation(libs.octavius.database.core)
-            implementation(libs.octavius.database.flyway.integration)
+            implementation(libs.octavius.client)
+            implementation(libs.octavius.client.scanner)
+            implementation(libs.octavius.migrations)
+            implementation(libs.hikaricp)
             implementation(projects.featureContract)
             implementation(projects.formEngine)
             implementation(projects.reportEngine)
