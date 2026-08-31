@@ -1,6 +1,9 @@
 package org.octavius.app.settings
 
 import io.github.octaviusframework.i18n.core.OctaviusI18n
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.octavius.app.settings.domain.AppSettings
@@ -25,18 +28,24 @@ class AppSettingsManager {
         File(folder, "settings.json")
     }
 
-    private var _currentSettings: AppSettings = loadSettings()
-    
+    private val _settings = MutableStateFlow(loadSettings())
+
+    /**
+     * Observable settings. Collect this in composables that must react to a change
+     * without an app restart (e.g. the light/dark theme mode).
+     */
+    val settings: StateFlow<AppSettings> = _settings.asStateFlow()
+
     /**
      * Currently active settings.
      */
-    val currentSettings: AppSettings get() = _currentSettings
+    val currentSettings: AppSettings get() = _settings.value
 
     /**
      * Updates settings, saves them to file, and applies changes (like language).
      */
     fun updateSettings(newSettings: AppSettings) {
-        _currentSettings = newSettings
+        _settings.value = newSettings
         saveSettings(newSettings)
         applySettings()
     }
@@ -45,7 +54,7 @@ class AppSettingsManager {
      * Applies current settings to the application state (e.g. updates Tr.currentLanguage).
      */
     fun applySettings() {
-        OctaviusI18n.currentLanguage = _currentSettings.language
+        OctaviusI18n.currentLanguage = currentSettings.language
     }
 
     private fun saveSettings(settings: AppSettings) {

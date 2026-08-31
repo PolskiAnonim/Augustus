@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Api
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -21,6 +22,7 @@ import org.koin.core.component.inject
 import org.octavius.localization.Tr
 import org.octavius.app.settings.form.database.DatabaseSettingsFormScreen
 import org.octavius.app.settings.form.language.LanguageSettingsFormScreen
+import org.octavius.app.settings.form.theme.ThemeSettingsFormScreen
 import org.octavius.app.settings.report.ui.ApiIntegrationsReportScreen
 import org.octavius.navigation.AppRouter
 import org.octavius.navigation.Screen
@@ -49,6 +51,14 @@ class SettingsScreen() : Screen, KoinComponent {
                 icon = Icons.Default.Language,
                 onClick = {
                     AppRouter.navigateTo(LanguageSettingsFormScreen.create(settingsManager))
+                }
+            ),
+            SettingOption(
+                title = Tr.Settings.Theme.title(),
+                description = Tr.Settings.Theme.description(),
+                icon = Icons.Default.Palette,
+                onClick = {
+                    AppRouter.navigateTo(ThemeSettingsFormScreen.create(settingsManager))
                 }
             ),
             SettingOption(

@@ -34,7 +34,15 @@
       "en": "English",
       "save": "Save language"
     },
+    "theme": {
+      "description": "Choose light or dark interface colors",
+      "title": "Appearance",
+      "select": "Color theme",
+      "system": "Follow system",
+      "light": "Light",
+      "dark": "Dark",
+      "save": "Save theme"
+    },
     "title": "Settings"
   }
 }
-

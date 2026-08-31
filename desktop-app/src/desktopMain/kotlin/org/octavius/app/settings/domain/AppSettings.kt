@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AppSettings(
     val language: String = "en",
+    val theme: AppThemeMode = AppThemeMode.SYSTEM,
     val database: DatabaseSettings = DatabaseSettings()
 )
 

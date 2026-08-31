@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,7 +64,7 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
             Text(
                 "Źródło: ${data.source}",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -80,7 +79,7 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
             // Main Content Card
             Card(
                 modifier = Modifier.weight(1f).fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column(
@@ -149,7 +148,7 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
 
             // Status Message
             statusMessage?.let { (message, isSuccess) ->
-                val color = if (isSuccess) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
+                val color = if (isSuccess) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                 Text(
                     message,
                     color = color,
@@ -167,14 +166,14 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color(0xFFFFF3E0))
+                .background(MaterialTheme.colorScheme.tertiaryContainer)
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.Default.Warning,
                 contentDescription = "Ostrzeżenie",
-                tint = Color(0xFFEF6C00),
+                tint = MaterialTheme.colorScheme.onTertiaryContainer,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
@@ -182,13 +181,13 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
                 Text(
                     "Podobny tytuł w bazie!",
                     style = MaterialTheme.typography.labelLarge,
-                    color = Color(0xFFE65100),
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     "Znaleziono: \"$matchedTitle\"",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFFEF6C00)
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
                 )
             }
         }
@@ -200,7 +199,7 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.outline)
+            Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
         }
     }

@@ -34,7 +34,15 @@
       "en": "Angielski",
       "save": "Zapisz język"
     },
+    "theme": {
+      "description": "Wybierz jasne lub ciemne kolory interfejsu",
+      "title": "Wygląd",
+      "select": "Motyw kolorystyczny",
+      "system": "Zgodnie z systemem",
+      "light": "Jasny",
+      "dark": "Ciemny",
+      "save": "Zapisz motyw"
+    },
     "title": "Ustawienia"
   }
 }
-

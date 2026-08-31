@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import org.octavius.form.control.base.ControlContext
@@ -93,7 +92,7 @@ class FormScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.4f))
+                            .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f))
                             .pointerInput(Unit) { /* zjada wszystkie eventy */ },
                         contentAlignment = Alignment.Center
                     ) {

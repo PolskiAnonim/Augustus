@@ -59,7 +59,7 @@ fun <T: Any> DropZone(
             )
             // Wygląd może zależeć od stanu 'isHovered'
             .background(
-                color = if (isHovered) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                color = if (isHovered) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
                 shape = RoundedCornerShape(8.dp)
             )
             .border(

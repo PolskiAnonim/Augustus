@@ -31,7 +31,6 @@ import org.octavius.navigation.AppRouter
 import org.octavius.navigation.NavigationEvent
 import org.octavius.navigation.NavigationEventBus
 import org.octavius.navigation.Tab
-import org.octavius.theme.AppTheme
 import java.awt.Frame
 
 // Prosty enum do zarządzania stanem aplikacji
@@ -62,7 +61,8 @@ fun main() {
                 AppLoadingScreen(
                     onLoaded = { appState = AppState.Ready },
                     onError = { appState = AppState.DatabaseError },
-                    koin = koin
+                    koin = koin,
+                    settingsManager = settingsManager
                 )
             }
 
@@ -79,7 +79,7 @@ fun main() {
             }
 
             AppState.Ready -> {
-                MainAppScreen(onCloseRequest = ::exitApplication)
+                MainAppScreen(onCloseRequest = ::exitApplication, settingsManager = settingsManager)
             }
         }
     }
@@ -88,7 +88,12 @@ fun main() {
 }
 
 @Composable
-private fun ApplicationScope.AppLoadingScreen(onLoaded: () -> Unit, onError: () -> Unit, koin: Koin) {
+private fun ApplicationScope.AppLoadingScreen(
+    onLoaded: () -> Unit,
+    onError: () -> Unit,
+    koin: Koin,
+    settingsManager: AppSettingsManager
+) {
     Window(
         onCloseRequest = ::exitApplication,
         title = Tr.App.loading(),
@@ -96,11 +101,15 @@ private fun ApplicationScope.AppLoadingScreen(onLoaded: () -> Unit, onError: () 
         undecorated = true,
         resizable = false
     ) {
-        AppTheme(isDarkTheme = true) {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator()
-                    Text(Tr.App.loading())
+        AppThemeFromSettings(settingsManager) {
+            // Okno jest undecorated i bez Surface miałoby domyślne tło AWT (białe),
+            // niezależnie od wybranego motywu.
+            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator()
+                        Text(Tr.App.loading())
+                    }
                 }
             }
         }
@@ -132,7 +141,7 @@ private fun ApplicationScope.DatabaseErrorWindow(
         title = Tr.Settings.Database.title(),
         state = rememberWindowState(position = WindowPosition(Alignment.Center), size = DpSize(600.dp, 500.dp))
     ) {
-        AppTheme(isDarkTheme = true) {
+        AppThemeFromSettings(settingsManager) {
             Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                 Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
                     Text(
@@ -162,7 +171,7 @@ private fun ApplicationScope.DatabaseErrorWindow(
 }
 
 @Composable
-private fun ApplicationScope.MainAppScreen(onCloseRequest: () -> Unit) {
+private fun ApplicationScope.MainAppScreen(onCloseRequest: () -> Unit, settingsManager: AppSettingsManager) {
     // ==============================================================================
     //  GŁÓWNA APLIKACJA (komponowana tylko raz, gdy stan jest Ready)
     // ==============================================================================
@@ -186,7 +195,7 @@ private fun ApplicationScope.MainAppScreen(onCloseRequest: () -> Unit) {
         NavigationHandler(screenFactories)
 
         // Renderowanie UI aplikacji
-        App(tabs)
+        App(tabs, settingsManager)
     }
 }
 

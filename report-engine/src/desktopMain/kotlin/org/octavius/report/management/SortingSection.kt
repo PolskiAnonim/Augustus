@@ -127,7 +127,7 @@ fun SortingSection(
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isHovered) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (isHovered) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.align(Alignment.Center)
             )
         }

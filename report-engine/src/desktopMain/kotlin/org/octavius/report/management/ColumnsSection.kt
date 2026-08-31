@@ -52,9 +52,7 @@ fun ColumnsSection(
                 DraggableChip(
                     text = reportHandler.reportStructure.getColumn(columnKey).header,
                     dragData = ColumnDragData(columnKey, index, false),
-                    backgroundColor = if (isVisible) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(
-                        alpha = 0.8f
-                    ),
+                    backgroundColor = if (isVisible) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
                     textColor = if (isVisible) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(
                         alpha = 0.8f
                     ),

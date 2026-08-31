@@ -1,114 +1,115 @@
 package org.octavius.theme
 
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material3.ripple
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 
 /**
- * Główny system motywów aplikacji.
- * 
- * Zapewnia centralizowany dostęp do wszystkich elementów motywu:
- * kolory, typografia, odstępy oraz konfiguracja Material 3.
+ * Motyw aplikacji.
+ *
+ * Jedyne miejsce, w którym konfigurowany jest Material 3. Cała reszta aplikacji
+ * sięga po kolory i typografię wyłącznie przez `MaterialTheme.colorScheme`
+ * i `MaterialTheme.typography` - nie ma równoległego, własnego systemu kolorów.
+ *
+ * Typografia to domyślna typografia Material 3 (tak jak w eksporcie z MTB);
+ * jeśli kiedyś dojdzie własny font, wystarczy przekazać go tutaj jako `typography`.
  */
 
+private val lightScheme = lightColorScheme(
+    primary = primaryLight,
+    onPrimary = onPrimaryLight,
+    primaryContainer = primaryContainerLight,
+    onPrimaryContainer = onPrimaryContainerLight,
+    secondary = secondaryLight,
+    onSecondary = onSecondaryLight,
+    secondaryContainer = secondaryContainerLight,
+    onSecondaryContainer = onSecondaryContainerLight,
+    tertiary = tertiaryLight,
+    onTertiary = onTertiaryLight,
+    tertiaryContainer = tertiaryContainerLight,
+    onTertiaryContainer = onTertiaryContainerLight,
+    error = errorLight,
+    onError = onErrorLight,
+    errorContainer = errorContainerLight,
+    onErrorContainer = onErrorContainerLight,
+    background = backgroundLight,
+    onBackground = onBackgroundLight,
+    surface = surfaceLight,
+    onSurface = onSurfaceLight,
+    surfaceVariant = surfaceVariantLight,
+    onSurfaceVariant = onSurfaceVariantLight,
+    outline = outlineLight,
+    outlineVariant = outlineVariantLight,
+    scrim = scrimLight,
+    inverseSurface = inverseSurfaceLight,
+    inverseOnSurface = inverseOnSurfaceLight,
+    inversePrimary = inversePrimaryLight,
+    surfaceDim = surfaceDimLight,
+    surfaceBright = surfaceBrightLight,
+    surfaceContainerLowest = surfaceContainerLowestLight,
+    surfaceContainerLow = surfaceContainerLowLight,
+    surfaceContainer = surfaceContainerLight,
+    surfaceContainerHigh = surfaceContainerHighLight,
+    surfaceContainerHighest = surfaceContainerHighestLight,
+)
+
+private val darkScheme = darkColorScheme(
+    primary = primaryDark,
+    onPrimary = onPrimaryDark,
+    primaryContainer = primaryContainerDark,
+    onPrimaryContainer = onPrimaryContainerDark,
+    secondary = secondaryDark,
+    onSecondary = onSecondaryDark,
+    secondaryContainer = secondaryContainerDark,
+    onSecondaryContainer = onSecondaryContainerDark,
+    tertiary = tertiaryDark,
+    onTertiary = onTertiaryDark,
+    tertiaryContainer = tertiaryContainerDark,
+    onTertiaryContainer = onTertiaryContainerDark,
+    error = errorDark,
+    onError = onErrorDark,
+    errorContainer = errorContainerDark,
+    onErrorContainer = onErrorContainerDark,
+    background = backgroundDark,
+    onBackground = onBackgroundDark,
+    surface = surfaceDark,
+    onSurface = onSurfaceDark,
+    surfaceVariant = surfaceVariantDark,
+    onSurfaceVariant = onSurfaceVariantDark,
+    outline = outlineDark,
+    outlineVariant = outlineVariantDark,
+    scrim = scrimDark,
+    inverseSurface = inverseSurfaceDark,
+    inverseOnSurface = inverseOnSurfaceDark,
+    inversePrimary = inversePrimaryDark,
+    surfaceDim = surfaceDimDark,
+    surfaceBright = surfaceBrightDark,
+    surfaceContainerLowest = surfaceContainerLowestDark,
+    surfaceContainerLow = surfaceContainerLowDark,
+    surfaceContainer = surfaceContainerDark,
+    surfaceContainerHigh = surfaceContainerHighDark,
+    surfaceContainerHighest = surfaceContainerHighestDark,
+)
+
 /**
- * Centralny obiekt zapewniający dostęp do elementów motywu.
- * 
- * Użycie w komponentach Composable:
- * ```kotlin
- * Text(
- *     color = AppTheme.colors.primary,
- *     style = AppTheme.typography.h1,
- *     modifier = Modifier.padding(AppTheme.spacing.large)
- * )
- * ```
- */
-object AppTheme {
-    /** Aktualny schemat kolorów */
-    val colors: Colors
-        @ReadOnlyComposable @Composable
-        get() = LocalColors.current
-
-    /** Aktualny system typografii */
-    val typography: Typography
-        @ReadOnlyComposable @Composable
-        get() = LocalTypography.current
-
-    /** Aktualny system odstępów */
-    val spacing: Spacing
-        @ReadOnlyComposable @Composable
-        get() = LocalSpacing.current
-}
-
-/**
- * Główny Composable konfigurujący motyw aplikacji.
- * 
- * Ustawia wszystkie CompositionLocal providers dla:
- * - Schemat kolorów (jasny/ciemny)
- * - System typografii z dynamicznymi czcionkami
- * - System odstępów
- * - Material 3 ripple effects
- * - Kolory zaznaczania tekstu
- * 
- * @param isDarkTheme Czy użyć ciemnego motywu (domyślnie wykrywa systemowe ustawienie)
- * @param content Treść do wyświetlenia z zastosowanym motywem
+ * Konfiguruje Material 3 dla całego drzewa kompozycji.
+ *
+ * Musi opakowywać każdy niezależny root UI - każde okno desktopowe osobno
+ * oraz `ComposeViewport` we wtyczce przeglądarkowej. Bez tego Compose użyje
+ * domyślnego, fioletowego schematu baseline Material 3.
+ *
+ * @param isDarkTheme Czy użyć ciemnego schematu (domyślnie ustawienie systemowe)
+ * @param content Treść renderowana z zastosowanym motywem
  */
 @Composable
 fun AppTheme(
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    val rippleIndication = ripple()
-    val selectionColors = rememberTextSelectionColors(LightColors)
-    val typography = provideTypography()
-    val colors = if (isDarkTheme) DarkColors else LightColors
-
-    CompositionLocalProvider(
-        LocalColors provides colors,
-        LocalTypography provides typography,
-        LocalSpacing provides Spacing(),
-        LocalIndication provides rippleIndication,
-        LocalTextSelectionColors provides selectionColors,
-        LocalContentColor provides colors.contentColorFor(colors.background),
-        LocalTextStyle provides typography.body1,
+    MaterialTheme(
+        colorScheme = if (isDarkTheme) darkScheme else lightScheme,
         content = content,
     )
 }
-
-/**
- * Zwraca odpowiedni kolor tekstu dla podanego koloru tła.
- * 
- * @param color Kolor tła
- * @return Odpowiedni kolor tekstu
- */
-@Composable
-fun contentColorFor(color: Color): Color {
-    return AppTheme.colors.contentColorFor(color)
-}
-
-/**
- * Tworzy kolory zaznaczania tekstu na podstawie schematu kolorów.
- * 
- * @param colorScheme Schemat kolorów do użycia
- * @return TextSelectionColors z odpowiednimi kolorami
- */
-@Composable
-internal fun rememberTextSelectionColors(colorScheme: Colors): TextSelectionColors {
-    val primaryColor = colorScheme.primary
-    return remember(primaryColor) {
-        TextSelectionColors(
-            handleColor = primaryColor,
-            backgroundColor = primaryColor.copy(alpha = TextSelectionBackgroundOpacity),
-        )
-    }
-}
-
-/** Przezroczystość tła zaznaczanego tekstu */
-internal const val TextSelectionBackgroundOpacity = 0.4f
