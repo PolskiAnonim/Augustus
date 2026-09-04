@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import io.github.octaviusframework.client.OctaviusClient
 import io.github.octaviusframework.client.scanner.registerAnnotatedTypes
 import io.github.octaviusframework.driver.exception.findOctaviusCause
+import io.github.octaviusframework.migrations.MigratorConfig
 import io.github.octaviusframework.migrations.OctaviusMigrator
 import org.koin.dsl.module
 import org.koin.dsl.onClose
@@ -54,15 +55,13 @@ val databaseModule = module {
         // Cokolwiek pójdzie nie tak przed oddaniem klienta, pula zostaje bez właściciela - a ekran
         // błędu bazy pozwala spróbować ponownie, więc nieodebrana pula zostawałaby przy każdej próbie.
         try {
-            val report = OctaviusMigrator(dataSource).migrate()
+            val report = OctaviusMigrator(dataSource, MigratorConfig(placeholders = mapOf("databaseName" to "augustus"))).migrate()
             println("Octavius migrations: $report")
 
             OctaviusClient.fromDataSource(dataSource, ownsDataSource = true).apply {
                 // Tworzy public.dynamic_dto wraz z konstruktorami i przeładowuje katalog typów.
                 dynamicTypes.install()
 
-                // Stara biblioteka wyszukiwała GlobalTypeHandler-y skanerem i sama mapowała interval na
-                // Duration. Nowa nie robi ani jednego, ani drugiego, więc rejestrujemy je wprost.
                 execute {
                     typeManager.registerParameterConverter(CleanStringParameterConverter)
                     typeManager.registerResultConverter(PgIntervalAsDurationConverter)
