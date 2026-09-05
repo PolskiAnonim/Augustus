@@ -6,7 +6,6 @@ import org.octavius.feature.books.form.book.BookFormValidator
 import org.octavius.form.component.FormHandler
 import org.octavius.form.component.FormView
 import org.octavius.localization.Tr
-import org.octavius.navigation.AppRouter
 import org.octavius.navigation.ComponentScreen
 import org.octavius.navigation.Screen
 
@@ -21,7 +20,6 @@ class BookFormScreen {
             val formHandler = FormHandler(
                 formSchemaBuilder = BookFormSchemaBuilder(),
                 formDataManager = BookFormDataManager(),
-                onClose = { AppRouter.goBack() },
                 formValidator = BookFormValidator(),
                 payload = mapOf("id" to entityId)
             )

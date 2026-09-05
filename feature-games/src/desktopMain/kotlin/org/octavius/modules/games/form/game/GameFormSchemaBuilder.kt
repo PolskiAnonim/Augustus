@@ -17,6 +17,7 @@ import org.octavius.form.control.type.repeatable.RepeatableControl
 import org.octavius.form.control.type.selection.DatabaseControl
 import org.octavius.form.control.type.selection.EnumControl
 import org.octavius.localization.Tr
+import org.octavius.navigation.AppRouter
 
 class GameFormSchemaBuilder : FormSchemaBuilder() {
 
@@ -169,7 +170,7 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
             text = Tr.Action.save(),
             actions = listOf(
                 ControlAction {
-                    trigger.triggerAction("save", true)
+                    if (trigger.triggerAction("save", true)) AppRouter.goBack()
                 }
             ),
             buttonType = ButtonType.Filled
@@ -195,7 +196,7 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
                             confirmButtonText = Tr.Dialog.yes(),
                             onConfirm = {
                                 coroutineScope.launch {
-                                    trigger.triggerAction("delete", false)
+                                    if (trigger.triggerAction("delete", false)) AppRouter.goBack()
                                     GlobalDialogManager.dismiss()
                                 }
                             }
@@ -208,7 +209,7 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
             text = Tr.Action.cancel(),
             actions = listOf(
                 ControlAction {
-                    trigger.triggerAction("cancel", false)
+                    AppRouter.goBack()
                 }
             ),
             buttonType = ButtonType.Outlined

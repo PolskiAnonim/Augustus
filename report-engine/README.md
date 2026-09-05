@@ -112,23 +112,26 @@ are simply not rendered.
 
 ### 2. Create the screen
 
-`ReportScreen` is a `Screen` implementation, not a composable:
+`ReportView` is a plain composable taking a `ReportHandler` — the engine knows nothing about screens, titles or
+navigation. The application wraps it in whatever its own router expects:
 
 ```kotlin
 class BooksReportScreen {
     companion object {
-        fun create(): ReportScreen = ReportScreen(
-            title = Tr.Books.Report.title(),
-            reportHandler = ReportHandler(BooksReportStructureBuilder())
-        )
+        fun create(): Screen {
+            val reportHandler = ReportHandler(BooksReportStructureBuilder())
+            return ComponentScreen(Tr.Books.Report.title()) { ReportView(reportHandler) }
+        }
     }
 }
 
 AppRouter.navigateTo(BooksReportScreen.create())
 ```
 
-`ReportHandler` builds the structure, restores the saved default layout, and owns the state. The screen
-emits `ReportEvent.Initialize` on first composition and cancels pending queries when it leaves the stack.
+`ComponentScreen` and `AppRouter` come from the host application's navigation module, not from this engine.
+
+`ReportHandler` builds the structure, restores the saved default layout, and owns the state. `ReportView`
+emits `ReportEvent.Initialize` on first composition and cancels pending queries when it leaves composition.
 
 ## Column Width
 
@@ -315,7 +318,7 @@ report-engine/
 │   ├── ReportState.kt              # Immutable runtime state
 │   ├── ReportHandler.kt            # Event reduction, data fetching, configuration
 │   ├── ReportDataManager.kt        # WHERE/ORDER BY building, COUNT + paged query
-│   └── ReportScreen.kt             # Screen implementation wiring the UI together
+│   └── ReportView.kt               # Composable wiring the UI together
 │
 ├── column/
 │   ├── ReportColumn.kt             # Base class: header rendering, filter popup
@@ -336,8 +339,11 @@ report-engine/
     └── db/migration/               # report_configurations table and PG types
 ```
 
-The module targets the desktop JVM target only and depends on `ui-core` for navigation, dialogs and
+The module targets the desktop JVM target only and depends on `ui-core` for theme, dialogs and
 drag-and-drop, on [Octavius for PostgreSQL](https://github.com/Octavius-Framework/octavius-postgresql) for
 `OctaviusClient` and `QueryFragment`, and on [Octavius I18n](https://github.com/Octavius-Framework/octavius-i18n)
 for its translations. `ReportStructureBuilder`, `ReportDataManager` and
 `ReportConfigurationManager` obtain `OctaviusClient` through Koin.
+
+It does **not** depend on the application's navigation module. Row actions that navigate — `AppRouter.navigateTo(...)`
+in the examples above — are lambdas written in application code; the engine only invokes them.

@@ -1,7 +1,6 @@
 package org.octavius.app.settings.form.language
 
 import org.octavius.form.component.FormDataManager
-import org.octavius.form.component.FormActionResult
 import org.octavius.form.control.base.FormResultData
 import org.octavius.form.control.base.getCurrentAs
 import org.octavius.app.settings.AppSettingsManager
@@ -18,14 +17,14 @@ class LanguageSettingsDataManager(
         )
     }
 
-    override fun definedFormActions(): Map<String, (FormResultData) -> FormActionResult> = mapOf(
+    override fun definedFormActions(): Map<String, (FormResultData) -> Boolean> = mapOf(
         "save" to { data ->
             val selectedLang = data.getCurrentAs<AppLanguage>("language")
             val newSettings = settingsManager.currentSettings.copy(
                 language = selectedLang.code
             )
             settingsManager.updateSettings(newSettings)
-            FormActionResult.Success
+            true
         }
     )
 }

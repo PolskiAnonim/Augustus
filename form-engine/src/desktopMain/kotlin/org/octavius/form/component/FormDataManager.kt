@@ -40,16 +40,21 @@ abstract class FormDataManager: KoinComponent {
     abstract fun initData(payload: Map<String, Any?>): Map<String, Any?>
 
     /**
-    * Definiuje logikę dla wszystkich akcji formularza (Zapisz, Anuluj, Usuń, etc.).
-    * Klucz mapy odpowiada `actionKey` w `SubmitButtonControl`.
-    * Wartość to lambda, która otrzymuje:
-    * - formData: aktualne dane z formularza
-    * - loadedId: ID edytowanego rekordu
-    * Powinna zwrócić `FormActionResult`, aby FormHandler wiedział, czy operacja się udała.
+    * Definiuje logikę dla akcji formularza operujących na danych (Zapisz, Usuń, etc.).
+    * Klucz mapy odpowiada `actionKey` w `FormActionTrigger.triggerAction`.
+    * Wartość to lambda, która otrzymuje aktualne dane z formularza i zwraca `true`, jeśli
+    * operacja się powiodła.
+    *
+    * Lambda odpowiada za pokazanie błędu (dialog, `errorManager`) przy niepowodzeniu - `false`
+    * niesie sam fakt niepowodzenia, nie jego treść.
+    *
+    * Nie ma tu miejsca na akcje, które nie dotykają danych. Kiedyś siedziało tu `"cancel"`
+    * zwracające `CloseScreen`; zamknięcie ekranu jest sprawą przycisku w schema builderze,
+    * nie warstwy danych.
     *
     * @return Mapa akcji formularza.
     */
-    open fun definedFormActions(): Map<String, (formResultData: FormResultData) -> FormActionResult> {
+    open fun definedFormActions(): Map<String, (formResultData: FormResultData) -> Boolean> {
         return emptyMap()
     }
 }

@@ -69,12 +69,15 @@ class BookFormSchemaBuilder : FormSchemaBuilder() {
         "save_button" to ButtonControl(
             text = "Save",
             buttonType = ButtonType.Filled,
-            actions = listOf(ControlAction { trigger.triggerAction("save", validates = true) })
+            actions = listOf(ControlAction {
+                if (trigger.triggerAction("save", validates = true)) AppRouter.goBack()
+            })
         ),
         "cancel_button" to ButtonControl(
             text = "Cancel",
             buttonType = ButtonType.Outlined,
-            actions = listOf(ControlAction { trigger.triggerAction("cancel", validates = false) })
+            // Cancel touches no data, so it never reaches the data manager
+            actions = listOf(ControlAction { AppRouter.goBack() })
         )
     )
 
@@ -100,12 +103,11 @@ class BookFormDataManager : FormDataManager() {
         }
     }
 
-    override fun definedFormActions(): Map<String, (FormResultData) -> FormActionResult> = mapOf(
-        "save" to { formData -> processSave(formData) },
-        "cancel" to { _ -> FormActionResult.CloseScreen }
+    override fun definedFormActions(): Map<String, (FormResultData) -> Boolean> = mapOf(
+        "save" to { formData -> processSave(formData) }
     )
 
-    private fun processSave(formResultData: FormResultData): FormActionResult {
+    private fun processSave(formResultData: FormResultData): Boolean {
         val loadedId = formResultData.getInitial("id")
         val params = mapOf(
             "title" to formResultData.getCurrent("title"),
@@ -122,8 +124,12 @@ class BookFormDataManager : FormDataManager() {
         }
 
         return when (result) {
-            is DataResult.Success<*> -> FormActionResult.CloseScreen
-            is DataResult.Failure -> FormActionResult.Failure
+            is DataResult.Success<*> -> true
+            is DataResult.Failure -> {
+                // `false` carries the fact of failure, not its content — surface the error here
+                GlobalDialogManager.show(ErrorDialogConfig(result.error))
+                false
+            }
         }
     }
 }
@@ -134,19 +140,20 @@ class BookFormDataManager : FormDataManager() {
 
 ### 3. Create the Screen
 
-`FormScreen` is a `Screen` implementation, not a composable — build it behind a factory and hand it to the router:
+`FormView` is a plain composable taking a `FormHandler` — the engine knows nothing about screens, titles or
+navigation. The application wraps it in whatever its own router expects:
 
 ```kotlin
 class BookFormScreen {
     companion object {
-        fun create(bookId: Int? = null): FormScreen {
+        fun create(bookId: Int? = null): Screen {
             val formHandler = FormHandler(
                 formSchemaBuilder = BookFormSchemaBuilder(),
                 formDataManager = BookFormDataManager(),
                 formValidator = BookFormValidator(),
                 payload = mapOf("id" to bookId)
             )
-            return FormScreen(title = "Books", formHandler)
+            return ComponentScreen(title = "Books") { FormView(formHandler) }
         }
     }
 }
@@ -154,9 +161,16 @@ class BookFormScreen {
 AppRouter.navigateTo(BookFormScreen.create(bookId))
 ```
 
+`ComponentScreen` and `AppRouter` come from the host application's navigation module, not from this engine.
+Anything that can render a composable works just as well — a dialog, a second window, a tab host.
+
 `FormHandler` loads the initial data asynchronously and owns `FormState`, `ErrorManager` and the wiring between
-controls; `FormScreen` shows a spinner while `isLoading` is true and blocks input behind an overlay while an
+controls; `FormView` shows a spinner while `isLoading` is true and blocks input behind an overlay while an
 action is running (`actionTriggered`).
+
+`triggerAction` returns `true` when the action ran and reported success. That single boolean is everything the
+engine hands back — what happens next (closing the screen, going somewhere else) is decided by the button's
+lambda, which is application code and already knows the router.
 
 ## Data Loading DSL
 
@@ -290,7 +304,8 @@ Validation runs in three stages, in order, each gating the next:
    checks that span multiple fields.
 3. **Action-specific validation** — `FormValidator.defineActionValidations()`, keyed by the same `actionKey`
    passed to `triggerAction`. Runs *after* the first two and always runs for that action, regardless of the
-   button's `validates` flag — the natural place for a uniqueness check that only matters on `save`, not `cancel`.
+   button's `validates` flag — the natural place for a uniqueness check that only matters on `save`, not on
+   `delete`.
 
 ```kotlin
 class GameCategoryValidator : FormValidator() {
@@ -333,8 +348,9 @@ form-engine/
 ├── component/
 │   ├── FormSchema.kt          # FormSchema + FormSchemaBuilder (template method)
 │   ├── FormState.kt           # Reactive per-control state, keyed by hierarchical path
-│   ├── FormHandler.kt         # Orchestrates load → validate → action → navigate
-│   ├── FormScreen.kt          # Screen implementation rendering content + action bar
+│   ├── FormHandler.kt         # Orchestrates load → validate → action
+│   ├── FormActionTrigger.kt   # triggerAction(actionKey, validates): Boolean — the whole outward contract
+│   ├── FormView.kt            # Composable rendering content + action bar
 │   ├── FormDataManager.kt     # initData() / definedFormActions() contract
 │   ├── FormLoader.kt          # loadData DSL: from/map/mapOneToOne/mapRelatedList
 │   ├── FormValidator.kt       # Field / business-rule / action validation contract
@@ -356,9 +372,13 @@ form-engine/
 └── resources/i18n/            # Engine-owned translation strings
 ```
 
-The module targets the desktop JVM only and depends on `ui-core` for navigation and dialogs, and on
+The module targets the desktop JVM only and depends on `ui-core` for theme, dialogs and snackbars, and on
 [Octavius for PostgreSQL](https://github.com/Octavius-Framework/octavius-postgresql) for `OctaviusClient`.
 `FormValidator` and `FormDataManager` obtain `OctaviusClient` through Koin.
+
+It does **not** depend on the application's navigation module, and deliberately so: nothing here knows what a
+screen or a router is. `FormView` renders, `triggerAction` reports success, and every decision that follows
+belongs to the caller.
 
 Terminals throw by default there; the engine asks for the result style with `.asResult()`, so a failure the
 database reports arrives as a `DataResult.Failure` and reaches the user through `GlobalDialogManager` rather

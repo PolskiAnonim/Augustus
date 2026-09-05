@@ -10,7 +10,6 @@ import io.github.octaviusframework.driver.type.withPgType
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.domain.game.GameStatus
-import org.octavius.form.component.FormActionResult
 import org.octavius.form.component.FormDataManager
 import org.octavius.form.control.base.FormResultData
 import org.octavius.form.control.base.getCurrent
@@ -87,15 +86,14 @@ class GameFormDataManager : FormDataManager() {
         return defaultData + loadedData + payload
     }
 
-    override fun definedFormActions(): Map<String, (FormResultData) -> FormActionResult> {
+    override fun definedFormActions(): Map<String, (FormResultData) -> Boolean> {
         return mapOf(
             "save" to { formData -> processSave(formData) },
-            "delete" to { formData -> processDelete(formData) /* Istnienie ID zapewnia logika ukrywania przycisku */ },
-            "cancel" to { _ -> FormActionResult.CloseScreen }
+            "delete" to { formData -> processDelete(formData) /* Istnienie ID zapewnia logika ukrywania przycisku */ }
         )
     }
 
-    fun processDelete(formResultData: FormResultData): FormActionResult {
+    fun processDelete(formResultData: FormResultData): Boolean {
         // Wykorzystanie CASCADE
         val plan = TransactionPlan()
         plan.add(
@@ -108,13 +106,13 @@ class GameFormDataManager : FormDataManager() {
         return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
-                FormActionResult.Failure
+                false
             }
-            is DataResult.Success -> FormActionResult.CloseScreen
+            is DataResult.Success -> true
         }
     }
 
-    fun processSave(formResultData: FormResultData): FormActionResult {
+    fun processSave(formResultData: FormResultData): Boolean {
         val plan = TransactionPlan()
         val statusesWithDetails = listOf(GameStatus.WithoutTheEnd, GameStatus.Playing, GameStatus.Played)
         val loadedId = formResultData.getInitialAs<Int?>("id")
@@ -237,10 +235,10 @@ class GameFormDataManager : FormDataManager() {
         return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
-                FormActionResult.Failure
+                false
             }
 
-            is DataResult.Success -> FormActionResult.CloseScreen
+            is DataResult.Success -> true
         }
     }
 

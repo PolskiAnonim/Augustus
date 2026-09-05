@@ -1,7 +1,6 @@
 package org.octavius.app.settings.form.database
 
 import org.octavius.form.component.FormDataManager
-import org.octavius.form.component.FormActionResult
 import org.octavius.form.control.base.FormResultData
 import org.octavius.form.control.base.getCurrentAs
 import org.octavius.app.settings.AppSettingsManager
@@ -20,7 +19,7 @@ class DatabaseSettingsDataManager(
         )
     }
 
-    override fun definedFormActions(): Map<String, (FormResultData) -> FormActionResult> = mapOf(
+    override fun definedFormActions(): Map<String, (FormResultData) -> Boolean> = mapOf(
         "save" to { data ->
             val currentSettings = settingsManager.currentSettings
             val newSettings = currentSettings.copy(
@@ -31,7 +30,7 @@ class DatabaseSettingsDataManager(
                 )
             )
             settingsManager.updateSettings(newSettings)
-            FormActionResult.Success
+            true
         }
     )
 }

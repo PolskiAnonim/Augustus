@@ -5,7 +5,6 @@ import io.github.octaviusframework.client.dbResult
 import io.github.octaviusframework.client.transaction.TransactionPlan
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
-import org.octavius.form.component.FormActionResult
 import org.octavius.form.component.FormDataManager
 import org.octavius.form.control.base.FormResultData
 import org.octavius.form.control.base.getCurrent
@@ -25,14 +24,13 @@ class GameSeriesFormDataManager : FormDataManager() {
         return loadedData + payload
     }
 
-    override fun definedFormActions(): Map<String, (FormResultData) -> FormActionResult> {
+    override fun definedFormActions(): Map<String, (FormResultData) -> Boolean> {
         return mapOf(
-            "save" to { formData -> processSave(formData) },
-            "cancel" to { _ -> FormActionResult.CloseScreen }
+            "save" to { formData -> processSave(formData) }
         )
     }
 
-    private fun processSave(formResultData: FormResultData): FormActionResult {
+    private fun processSave(formResultData: FormResultData): Boolean {
         val loadedId = formResultData.getInitial("id")
         val plan = TransactionPlan()
         if (loadedId != null) {
@@ -48,10 +46,10 @@ class GameSeriesFormDataManager : FormDataManager() {
         return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
-                FormActionResult.Failure
+                false
             }
 
-            is DataResult.Success<*> -> FormActionResult.CloseScreen
+            is DataResult.Success<*> -> true
         }
     }
 }

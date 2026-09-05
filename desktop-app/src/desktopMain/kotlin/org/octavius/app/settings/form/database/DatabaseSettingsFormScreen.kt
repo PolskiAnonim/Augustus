@@ -4,7 +4,6 @@ import org.octavius.app.settings.AppSettingsManager
 import org.octavius.form.component.FormHandler
 import org.octavius.form.component.FormView
 import org.octavius.localization.Tr
-import org.octavius.navigation.AppRouter
 import org.octavius.navigation.ComponentScreen
 import org.octavius.navigation.Screen
 
@@ -14,8 +13,7 @@ class DatabaseSettingsFormScreen {
             val title = Tr.Settings.Database.title()
             val formHandler = FormHandler(
                 formSchemaBuilder = DatabaseSettingsSchemaBuilder(),
-                formDataManager = DatabaseSettingsDataManager(settingsManager),
-                onClose = { AppRouter.goBack() }
+                formDataManager = DatabaseSettingsDataManager(settingsManager)
             )
             return ComponentScreen(title) { FormView(formHandler) }
         }

@@ -6,7 +6,6 @@ import org.octavius.localization.Tr
 import org.octavius.modules.asian.form.AsianMediaFormDataManager
 import org.octavius.modules.asian.form.AsianMediaFormSchemaBuilder
 import org.octavius.modules.asian.form.AsianMediaValidator
-import org.octavius.navigation.AppRouter
 import org.octavius.navigation.ComponentScreen
 import org.octavius.navigation.Screen
 
@@ -22,7 +21,6 @@ class AsianMediaFormScreen {
             val formHandler = FormHandler(
                 formSchemaBuilder = AsianMediaFormSchemaBuilder(),
                 formDataManager = AsianMediaFormDataManager(),
-                onClose = { AppRouter.goBack() },
                 formValidator = AsianMediaValidator(),
                 payload = payload + ("id" to entityId)
             )

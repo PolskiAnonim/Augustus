@@ -15,6 +15,7 @@ import org.octavius.form.control.type.repeatable.RepeatableControl
 import org.octavius.form.control.type.selection.DatabaseControl
 import org.octavius.form.control.type.selection.EnumControl
 import org.octavius.localization.Tr
+import org.octavius.navigation.AppRouter
 
 class BookFormSchemaBuilder : FormSchemaBuilder() {
 
@@ -71,7 +72,7 @@ class BookFormSchemaBuilder : FormSchemaBuilder() {
             buttonType = ButtonType.Filled,
             actions = listOf(
                 ControlAction {
-                    trigger.triggerAction("save", true)
+                    if (trigger.triggerAction("save", true)) AppRouter.goBack()
                 }
             )
         ),
@@ -96,7 +97,7 @@ class BookFormSchemaBuilder : FormSchemaBuilder() {
                             confirmButtonText = Tr.Action.confirm(),
                             onConfirm = {
                                 coroutineScope.launch {
-                                    trigger.triggerAction("delete", false)
+                                    if (trigger.triggerAction("delete", false)) AppRouter.goBack()
                                     GlobalDialogManager.dismiss()
                                 }
                             }
@@ -110,7 +111,7 @@ class BookFormSchemaBuilder : FormSchemaBuilder() {
             buttonType = ButtonType.Outlined,
             actions = listOf(
                 ControlAction {
-                    trigger.triggerAction("cancel", false)
+                    AppRouter.goBack()
                 }
             )
         )

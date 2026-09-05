@@ -8,6 +8,7 @@ import org.octavius.form.control.type.button.ButtonType
 import org.octavius.form.control.type.number.IntegerControl
 import org.octavius.form.control.type.primitive.StringControl
 import org.octavius.localization.Tr
+import org.octavius.navigation.AppRouter
 
 class GameCategorySchemaBuilder : FormSchemaBuilder() {
 
@@ -27,14 +28,14 @@ class GameCategorySchemaBuilder : FormSchemaBuilder() {
             "save_button" to ButtonControl(
                 text = Tr.Action.save(), actions = listOf(
                     ControlAction {
-                        trigger.triggerAction("save", true)
+                        if (trigger.triggerAction("save", true)) AppRouter.goBack()
                     }
                 ), buttonType = ButtonType.Filled
             ),
             "cancel_button" to ButtonControl(
                 text = Tr.Action.cancel(), buttonType = ButtonType.Outlined, actions = listOf(
                     ControlAction {
-                        trigger.triggerAction("cancel", false)
+                        AppRouter.goBack()
                     }
                 )
             )

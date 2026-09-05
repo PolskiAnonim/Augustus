@@ -7,7 +7,6 @@ import io.github.octaviusframework.client.transaction.TransactionValue
 import io.github.octaviusframework.client.transaction.toTransactionValue
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
-import org.octavius.form.component.FormActionResult
 import org.octavius.form.component.FormDataManager
 import org.octavius.form.control.base.FormResultData
 import org.octavius.form.control.base.getCurrent
@@ -55,15 +54,14 @@ class AsianMediaFormDataManager : FormDataManager() {
         return loadedData + payload
     }
 
-    override fun definedFormActions(): Map<String, (formResultData: FormResultData) -> FormActionResult> {
+    override fun definedFormActions(): Map<String, (formResultData: FormResultData) -> Boolean> {
         return mapOf(
             "save" to { formData -> processSave(formData) },
-            "delete" to { formData -> processDelete(formData) /* Istnienie ID zapewnia logika ukrywania przycisku */ },
-            "cancel" to { _ -> FormActionResult.CloseScreen }
+            "delete" to { formData -> processDelete(formData) /* Istnienie ID zapewnia logika ukrywania przycisku */ }
         )
     }
 
-    fun processDelete(formResultData: FormResultData): FormActionResult {
+    fun processDelete(formResultData: FormResultData): Boolean {
         // Wykorzystanie CASCADE
         val plan = TransactionPlan()
         plan.add(
@@ -76,13 +74,13 @@ class AsianMediaFormDataManager : FormDataManager() {
         return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
-                FormActionResult.Failure
+                false
             }
-            is DataResult.Success -> FormActionResult.CloseScreen
+            is DataResult.Success -> true
         }
     }
 
-    fun processSave(formResultData: FormResultData): FormActionResult {
+    fun processSave(formResultData: FormResultData): Boolean {
         val plan = TransactionPlan()
 
         // =================================================================================
@@ -183,9 +181,9 @@ class AsianMediaFormDataManager : FormDataManager() {
         return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
-                FormActionResult.Failure
+                false
             }
-            is DataResult.Success -> FormActionResult.CloseScreen
+            is DataResult.Success -> true
         }
     }
 

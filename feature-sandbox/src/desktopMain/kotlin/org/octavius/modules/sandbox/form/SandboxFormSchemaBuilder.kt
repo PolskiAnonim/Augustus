@@ -22,6 +22,7 @@ import org.octavius.form.control.type.selection.RadioGroupControl
 import org.octavius.form.control.type.selection.SelectionOption
 import org.octavius.localization.Tr
 import org.octavius.modules.sandbox.domain.SandboxPriority
+import org.octavius.navigation.AppRouter
 
 class SandboxFormSchemaBuilder : FormSchemaBuilder() {
 
@@ -138,7 +139,7 @@ class SandboxFormSchemaBuilder : FormSchemaBuilder() {
             text = Tr.Action.save(),
             actions = listOf(
                 ControlAction {
-                    trigger.triggerAction("save", true)
+                    if (trigger.triggerAction("save", true)) AppRouter.goBack()
                 }
             ),
             buttonType = ButtonType.Filled
@@ -147,7 +148,7 @@ class SandboxFormSchemaBuilder : FormSchemaBuilder() {
             text = Tr.Action.cancel(),
             actions = listOf(
                 ControlAction {
-                    trigger.triggerAction("cancel", false)
+                    AppRouter.goBack()
                 }
             ),
             buttonType = ButtonType.Outlined

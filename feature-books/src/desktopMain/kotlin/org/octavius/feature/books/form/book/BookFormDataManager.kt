@@ -9,7 +9,6 @@ import io.github.octaviusframework.driver.type.PgStandardType
 import io.github.octaviusframework.driver.type.withPgType
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
-import org.octavius.form.component.FormActionResult
 import org.octavius.form.component.FormDataManager
 import org.octavius.form.control.base.FormResultData
 import org.octavius.form.control.base.getCurrent
@@ -51,15 +50,14 @@ class BookFormDataManager : FormDataManager() {
         return defaultData + loadedData + payload
     }
 
-    override fun definedFormActions(): Map<String, (FormResultData) -> FormActionResult> {
+    override fun definedFormActions(): Map<String, (FormResultData) -> Boolean> {
         return mapOf(
             "save" to { formData -> processSave(formData) },
-            "delete" to { formData -> processDelete(formData) },
-            "cancel" to { _ -> FormActionResult.CloseScreen }
+            "delete" to { formData -> processDelete(formData) }
         )
     }
 
-    private fun processSave(formResultData: FormResultData): FormActionResult {
+    private fun processSave(formResultData: FormResultData): Boolean {
         val plan = TransactionPlan()
         val loadedId = formResultData.getInitial("id")
 
@@ -145,14 +143,16 @@ class BookFormDataManager : FormDataManager() {
         return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
-                FormActionResult.Failure
+                false
             }
-            is DataResult.Success -> FormActionResult.CloseScreen
+            is DataResult.Success -> true
         }
     }
 
-    private fun processDelete(formResultData: FormResultData): FormActionResult {
-        val loadedId = formResultData.getInitial("id") ?: return FormActionResult.CloseScreen
+    private fun processDelete(formResultData: FormResultData): Boolean {
+        // Brak id oznacza, ze nie ma czego usuwac - nie jest to blad, wiec formularz
+        // ma sie normalnie zamknac. Przycisk usuwania i tak jest ukryty gdy id == null.
+        val loadedId = formResultData.getInitial("id") ?: return true
 
         // CASCADE usunie powiązania w book_to_authors
         val result = db.deleteFrom("books.books")
@@ -162,9 +162,9 @@ class BookFormDataManager : FormDataManager() {
         return when (result) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
-                FormActionResult.Failure
+                false
             }
-            is DataResult.Success<*> -> FormActionResult.CloseScreen
+            is DataResult.Success<*> -> true
         }
     }
 }

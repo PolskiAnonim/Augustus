@@ -22,13 +22,12 @@ import org.octavius.ui.snackbar.SnackbarManager
  * 1. Inicjalizacja komponentów i ustawienie referencji między nimi
  * 2. Ładowanie danych (dla edycji) lub ustawienie wartości domyślnych (nowy rekord)
  * 3. Obsługa akcji użytkownika (walidacja + wykonanie akcji)
- * 4. Zgłoszenie zamknięcia formularza (`onClose`) na podstawie wyniku akcji
+ *
+ * Handler nie wie nic o nawigacji ani o tym, co dzieje się po akcji - oddaje tylko `true`/`false`
+ * z [triggerAction]. Decyzję "zapis zamyka ekran" podejmuje lambda przycisku w schema builderze.
  *
  * @param formSchemaBuilder Builder dostarczający definicję struktury formularza.
  * @param formDataManager Manager odpowiedzialny za operacje na danych.
- * @param onClose Reakcja na [FormActionResult.CloseScreen]. Silnik nie zna nawigacji - referencję
- *   dostaje z zewnątrz, od modułu, który ją zna (zwykle `{ AppRouter.goBack() }`). Parametr jest
- *   wymagany celowo: wartość domyślna `{}` cicho psułaby zamykanie formularza.
  * @param formValidator Validator do sprawdzania poprawności danych.
  * @param payload Dodatkowe dane przekazane do formularza (np. ID rodzica).
  * @param handlerScope CoroutineScope do operacji asynchronicznych.
@@ -36,7 +35,6 @@ import org.octavius.ui.snackbar.SnackbarManager
 class FormHandler(
     formSchemaBuilder: FormSchemaBuilder,
     val formDataManager: FormDataManager,
-    private val onClose: () -> Unit,
     val formValidator: FormValidator = FormValidator(),
     private val payload: Map<String, Any?> = emptyMap(),
     private val handlerScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -93,12 +91,12 @@ class FormHandler(
         }
     }
 
-    override suspend fun triggerAction(actionKey: String, validates: Boolean): FormActionResult {
+    override suspend fun triggerAction(actionKey: String, validates: Boolean): Boolean {
         return withContext(handlerScope.coroutineContext) {
             val formActions = formDataManager.definedFormActions()
             val action = formActions[actionKey] ?: run {
                 GlobalDialogManager.show(ErrorDialogConfig("Exception", "No form action defined for key: $actionKey"))
-                return@withContext handleActionResult(FormActionResult.Failure)
+                return@withContext false
             }
 
             formState.actionTriggered.value = true
@@ -107,9 +105,8 @@ class FormHandler(
 
             if (validates && !formValidator.validateFields()) {
                 SnackbarManager.showMessage(Tr.Form.Actions.containsErrors())
-                val result = handleActionResult(FormActionResult.ValidationFailed)
                 formState.actionTriggered.value = false
-                return@withContext result
+                return@withContext false
             }
 
             val rawFormData = formState.collectFormData(formSchema)
@@ -117,36 +114,21 @@ class FormHandler(
             // Walidacja reguł biznesowych (może odpytywać bazę)
             if (validates && !formValidator.validateBusinessRules(rawFormData)) {
                 SnackbarManager.showMessage(Tr.Form.Actions.containsErrors())
-                val result = handleActionResult(FormActionResult.ValidationFailed)
                 formState.actionTriggered.value = false
-                return@withContext result
+                return@withContext false
             }
 
             // Walidacja specyficzna dla akcji (zawsze uruchamiana, niezależnie od flagi 'validates')
             val actionValidator = formValidator.defineActionValidations()[actionKey]
             if (actionValidator != null && !actionValidator.invoke(rawFormData)) {
                 SnackbarManager.showMessage(Tr.Form.Actions.containsErrors())
-                val result = handleActionResult(FormActionResult.ValidationFailed)
                 formState.actionTriggered.value = false
-                return@withContext result
+                return@withContext false
             }
 
-            val actionResult = action.invoke(rawFormData)
+            val succeeded = action.invoke(rawFormData)
             formState.actionTriggered.value = false
-            return@withContext handleActionResult(actionResult)
+            succeeded
         }
-    }
-
-    private fun handleActionResult(result: FormActionResult): FormActionResult {
-        when (result) {
-            is FormActionResult.CloseScreen -> {
-                onClose()
-            }
-
-            is FormActionResult.Failure, is FormActionResult.Success, is FormActionResult.ValidationFailed -> {
-                //no op
-            }
-        }
-        return result
     }
 }

@@ -6,7 +6,6 @@ import org.octavius.localization.Tr
 import org.octavius.modules.games.form.series.GameSeriesFormDataManager
 import org.octavius.modules.games.form.series.GameSeriesFormSchemaBuilder
 import org.octavius.modules.games.form.series.GameSeriesFormValidator
-import org.octavius.navigation.AppRouter
 import org.octavius.navigation.ComponentScreen
 import org.octavius.navigation.Screen
 
@@ -22,7 +21,6 @@ class GameSeriesFormScreen {
             val formHandler = FormHandler(
                 formSchemaBuilder = GameSeriesFormSchemaBuilder(),
                 formDataManager = GameSeriesFormDataManager(),
-                onClose = { AppRouter.goBack() },
                 formValidator = GameSeriesFormValidator(),
                 payload = mapOf("id" to entityId)
             )

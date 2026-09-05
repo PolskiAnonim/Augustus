@@ -1,6 +1,5 @@
 package org.octavius.modules.sandbox.form
 
-import org.octavius.form.component.FormActionResult
 import org.octavius.form.component.FormDataManager
 import org.octavius.form.control.base.FormResultData
 import org.octavius.localization.Tr
@@ -24,14 +23,11 @@ class SandboxFormDataManager : FormDataManager() {
         ) + payload
     }
 
-    override fun definedFormActions(): Map<String, (formResultData: FormResultData) -> FormActionResult> {
+    override fun definedFormActions(): Map<String, (formResultData: FormResultData) -> Boolean> {
         return mapOf(
             "save" to { res ->
                 SnackbarManager.showMessage(Tr.Sandbox.Form.savedMessage())
-                FormActionResult.CloseScreen
-            },
-            "cancel" to { _ ->
-                FormActionResult.CloseScreen
+                true
             }
         )
     }
