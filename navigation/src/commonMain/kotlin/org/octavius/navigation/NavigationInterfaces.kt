@@ -47,19 +47,26 @@ import androidx.compose.ui.graphics.painter.Painter
  * - **Content()** - metoda renderująca UI ekranu
  *
  * ## Przykład implementacji
- * 
+ *
  * ```kotlin
- * class MyFormScreen : Screen {
+ * class MyScreen : Screen {
  *     override val title = "Edycja danych"
  *
  *     @Composable
  *     override fun Content() {
- *         MyFormComponent()
+ *         MyComponent()
  *     }
  * }
- * 
+ *
  * // Nawigacja do ekranu
- * AppRouter.navigateTo(MyFormScreen())
+ * AppRouter.navigateTo(MyScreen())
+ * ```
+ *
+ * Dla ekranów budowanych z gotowych komponentów (formularz, raport) nie trzeba pisać własnej
+ * klasy - wystarczy [ComponentScreen]:
+ *
+ * ```kotlin
+ * AppRouter.navigateTo(ComponentScreen(title) { FormView(formHandler) })
  * ```
  */
 interface Screen {

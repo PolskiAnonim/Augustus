@@ -152,7 +152,6 @@ private fun ApplicationScope.DatabaseErrorWindow(
                     )
 
                     Box(modifier = Modifier.weight(1f)) {
-                        println("Rendering DatabaseErrorWindow Content, isLoading: ${formScreen.formHandler.isLoading.value}")
                         formScreen.Content()
                     }
 

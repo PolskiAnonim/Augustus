@@ -7,7 +7,6 @@ import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.control.base.Control
 import org.octavius.form.control.base.ControlState
 import org.octavius.localization.Tr
-import org.octavius.navigation.AppRouter
 import org.octavius.ui.snackbar.SnackbarManager
 
 /**
@@ -23,10 +22,13 @@ import org.octavius.ui.snackbar.SnackbarManager
  * 1. Inicjalizacja komponentów i ustawienie referencji między nimi
  * 2. Ładowanie danych (dla edycji) lub ustawienie wartości domyślnych (nowy rekord)
  * 3. Obsługa akcji użytkownika (walidacja + wykonanie akcji)
- * 4. Nawigacja lub zamknięcie formularza na podstawie wyniku akcji
+ * 4. Zgłoszenie zamknięcia formularza (`onClose`) na podstawie wyniku akcji
  *
  * @param formSchemaBuilder Builder dostarczający definicję struktury formularza.
  * @param formDataManager Manager odpowiedzialny za operacje na danych.
+ * @param onClose Reakcja na [FormActionResult.CloseScreen]. Silnik nie zna nawigacji - referencję
+ *   dostaje z zewnątrz, od modułu, który ją zna (zwykle `{ AppRouter.goBack() }`). Parametr jest
+ *   wymagany celowo: wartość domyślna `{}` cicho psułaby zamykanie formularza.
  * @param formValidator Validator do sprawdzania poprawności danych.
  * @param payload Dodatkowe dane przekazane do formularza (np. ID rodzica).
  * @param handlerScope CoroutineScope do operacji asynchronicznych.
@@ -34,6 +36,7 @@ import org.octavius.ui.snackbar.SnackbarManager
 class FormHandler(
     formSchemaBuilder: FormSchemaBuilder,
     val formDataManager: FormDataManager,
+    private val onClose: () -> Unit,
     val formValidator: FormValidator = FormValidator(),
     private val payload: Map<String, Any?> = emptyMap(),
     private val handlerScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -66,7 +69,7 @@ class FormHandler(
 
 
     /**
-     * Publiczne API dla FormScreen - metody dostępu do komponentów formularza
+     * Publiczne API dla FormView - metody dostępu do komponentów formularza
      */
     internal fun getContentControlsInOrder(): List<String> = formSchema.contentOrder
     internal fun getActionBarControlsInOrder(): List<String> = formSchema.actionBarOrder
@@ -92,11 +95,11 @@ class FormHandler(
 
     override suspend fun triggerAction(actionKey: String, validates: Boolean): FormActionResult {
         return withContext(handlerScope.coroutineContext) {
-        val formActions = formDataManager.definedFormActions()
-        val action = formActions[actionKey] ?: run {
-            GlobalDialogManager.show(ErrorDialogConfig("Exception", "No form action defined for key: $actionKey"))
-            return@withContext handleActionResult(FormActionResult.Failure)
-        }
+            val formActions = formDataManager.definedFormActions()
+            val action = formActions[actionKey] ?: run {
+                GlobalDialogManager.show(ErrorDialogConfig("Exception", "No form action defined for key: $actionKey"))
+                return@withContext handleActionResult(FormActionResult.Failure)
+            }
 
             formState.actionTriggered.value = true
 
@@ -137,11 +140,7 @@ class FormHandler(
     private fun handleActionResult(result: FormActionResult): FormActionResult {
         when (result) {
             is FormActionResult.CloseScreen -> {
-                AppRouter.goBack()
-            }
-
-            is FormActionResult.Navigate -> {
-                AppRouter.navigateTo(result.screen)
+                onClose()
             }
 
             is FormActionResult.Failure, is FormActionResult.Success, is FormActionResult.ValidationFailed -> {

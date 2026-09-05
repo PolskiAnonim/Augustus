@@ -13,6 +13,7 @@ kotlin {
 
         commonMain.dependencies {
             implementation(projects.uiCore)
+            implementation(projects.navigation)
             implementation(composeLibs.components.resources)
 
             implementation(libs.kotlinx.coroutines.core)

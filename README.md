@@ -61,7 +61,8 @@ Augustus/
 │
 ├── form-engine/             # Declarative form framework
 ├── report-engine/           # Dynamic table framework
-├── ui-core/                 # Shared UI components & navigation, utilities
+├── ui-core/                 # Shared UI components, theme, utilities
+├── navigation/              # Tab/screen stack router — app side, engines do not depend on it
 │
 ├── feature-asian-media/     # Manga, novels, manhwa tracking
 ├── feature-books/           # Books and literature tracking

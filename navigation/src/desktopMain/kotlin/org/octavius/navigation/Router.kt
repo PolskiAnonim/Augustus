@@ -40,8 +40,7 @@ data class AppNavigationState(
  *
  * ### Nawigacja do nowego ekranu
  * ```kotlin
- * val formScreen = GameFormScreen(gameId = 123)
- * AppRouter.navigateTo(formScreen)
+ * AppRouter.navigateTo(GameFormScreen.create(entityId = 123))
  * ```
  *
  * ### Powrót do poprzedniego ekranu

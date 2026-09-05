@@ -15,6 +15,7 @@ kotlin {
 
         commonMain.dependencies {
             implementation(projects.uiCore)
+            implementation(projects.navigation)
 
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)

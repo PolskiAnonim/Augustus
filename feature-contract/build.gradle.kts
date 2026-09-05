@@ -12,7 +12,7 @@ kotlin {
         val desktopMain by getting
 
         commonMain.dependencies {
-            implementation(projects.uiCore)
+            implementation(projects.navigation)
             implementation(projects.apiContract)
         }
     }

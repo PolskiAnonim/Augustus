@@ -16,6 +16,7 @@ kotlin {
                 implementation(projects.browserExtension.chromeApi)
                 implementation(projects.apiContract)
                 implementation(projects.uiCore)
+                implementation(projects.navigation)
                 implementation(composeLibs.runtime)
                 implementation(composeLibs.foundation)
                 implementation(composeLibs.ui)

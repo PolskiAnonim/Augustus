@@ -44,6 +44,7 @@ include(
     ":report-engine",
     ":api-server",
     ":ui-core",
+    ":navigation",
     ":api-contract",
     ":feature-contract",
     // Features

@@ -14,7 +14,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(libs.ktor.server.core)
-                implementation(projects.uiCore)
+                implementation(projects.navigation)
             }
         }
         val desktopMain by getting
