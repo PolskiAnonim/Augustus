@@ -23,7 +23,7 @@
 
     <!-- Ustawienia logowania dla KONKRETNYCH PAKIETÓW -->
     <logger name="org.octavius" level="DEBUG"/>
-    <logger name="io.github.octaviusframework" level="DEBUG"/>
+    <logger name="io.github.octaviusframework" level="TRACE"/>
 
     <!-- Ucisz gadatliwe biblioteki, żeby nie zaśmiecały logów -->
     <logger name="com.zaxxer.hikari" level="INFO"/>

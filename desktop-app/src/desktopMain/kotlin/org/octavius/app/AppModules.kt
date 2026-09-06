@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import io.github.octaviusframework.client.OctaviusClient
 import io.github.octaviusframework.client.scanner.registerAnnotatedTypes
 import io.github.octaviusframework.driver.exception.findOctaviusCause
+import io.github.octaviusframework.driver.jdbc.OctaviusDataSource
 import io.github.octaviusframework.migrations.MigratorConfig
 import io.github.octaviusframework.migrations.OctaviusMigrator
 import org.koin.dsl.module
@@ -41,10 +42,15 @@ val databaseModule = module {
 
         val dataSource: DataSource
         try {
-            dataSource = HikariDataSource(HikariConfig().apply {
-                jdbcUrl = settings.url.withSearchPath()
-                username = settings.username
+            val octavius = OctaviusDataSource().apply {
+                url = settings.url
+                user = settings.username
                 password = settings.password
+                logParameterValues = true
+                setProperty("search_path", appSchemas.joinToString(","))
+            }
+            dataSource = HikariDataSource(HikariConfig().apply {
+                this.dataSource = octavius
                 poolName = "octavius-app"
             })
         } catch (e: Exception) {
