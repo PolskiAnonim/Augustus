@@ -17,7 +17,7 @@ class BookFormValidator : FormValidator() {
     }
 
     private fun validateTitleUniqueness(formResultData: FormResultData): Boolean {
-        val titlePl = formResultData.getCurrentAs<String>("titlePl")
+        val titlePl = formResultData.getCurrentAs<String>("title_pl")
         val id = formResultData.getCurrentAs<Int?>("id")
 
         val whereClause = listOfNotNull(
