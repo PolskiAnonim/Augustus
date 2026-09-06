@@ -49,7 +49,9 @@ data class ActionContext<T>(
             @Suppress("UNCHECKED_CAST")
             val typedState = state as ControlState<V>
             typedState.value.value = newValue
-            typedState.revision.value++ // ZAWSZE inkrementuj rewizję
+            // Tekst opisywał starą wartość, więc przestaje obowiązywać. Kontrolka wyznaczy go
+            // ponownie - liczba od razu, dropdown zapytaniem.
+            typedState.displayText.value = null
         }
     }
 
@@ -63,7 +65,7 @@ data class ActionContext<T>(
                 @Suppress("UNCHECKED_CAST")
                 val typedState = state as ControlState<V>
                 typedState.value.value = newValue
-                typedState.revision.value++
+                typedState.displayText.value = null
             }
         }
     }

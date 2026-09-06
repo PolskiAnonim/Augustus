@@ -29,17 +29,27 @@ abstract class DropdownControlBase<T : Any>(
     actions = actions
 ) {
 
-    protected abstract fun getDisplayText(value: T?): String?
+    /**
+     * Wyznacza tekst dla wybranej wartości. Wołane **raz na wartość**, poza ścieżką renderowania,
+     * a wynik ląduje w `ControlState.displayText` - dlatego wolno tu odpytać bazę albo API.
+     *
+     * Zwrócenie `null` znaczy "nie ma czego pokazać" (np. wiersz zniknął spod zapisanego id);
+     * kontrolka pokaże wtedy tekst zastępczy.
+     */
+    protected abstract suspend fun resolveDisplayText(value: T): String?
 
     /**
      * Podklasy muszą zaimplementować tę metodę, aby wyrenderować
      * zawartość menu rozwijanego.
+     *
+     * Dostają cały [ControlState], nie samą wartość, bo wybór pozycji ustawia wartość **i** tekst -
+     * menu zna już etykietę, więc nie ma powodu wyznaczać jej drugi raz.
      */
     @Composable
     protected abstract fun ColumnScope.RenderMenuItems(
         controlContext: ControlContext,
         scope: CoroutineScope,
-        controlState: MutableState<T?>,
+        controlState: ControlState<T>,
         closeMenu: () -> Unit
     )
 
@@ -48,6 +58,24 @@ abstract class DropdownControlBase<T : Any>(
     override fun Display(controlContext: ControlContext, controlState: ControlState<T>, isRequired: Boolean) {
         var expanded by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
+
+        // Wartość mamy z bazy, tekstu do niej nie - i jego wyznaczenie potrafi kosztować zapytanie
+        // albo round-trip po sieci, więc nie może się dziać przy każdej rekompozycji. Rozwiązujemy
+        // go raz, tutaj, a wynik siedzi w stanie kluczowanym ścieżką, czyli osobno dla każdego
+        // wiersza repeatable.
+        //
+        // Trzy stany tekstu: `null` - jeszcze nierozwiązany, `""` - rozwiązany i nie ma czego
+        // pokazać (wiersz zniknął spod zapisanego id), reszta - etykieta. Bez tego rozróżnienia
+        // nieudane rozwiązanie zostawiałoby pole na "ładowanie" na zawsze.
+        val resolvedText = controlState.displayText.value
+        val unresolved = controlState.value.value != null && resolvedText == null
+
+        LaunchedEffect(controlState.value.value, resolvedText) {
+            val value = controlState.value.value
+            if (value != null && controlState.displayText.value == null) {
+                controlState.displayText.value = resolveDisplayText(value) ?: ""
+            }
+        }
 
         Column(modifier = Modifier.fillMaxWidth()) {
             RenderNormalLabel(label, isRequired)
@@ -58,8 +86,11 @@ abstract class DropdownControlBase<T : Any>(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 OutlinedTextField(
-                    value = getDisplayText(controlState.value.value)
-                        ?: (if (!isRequired) Tr.Form.Dropdown.noSelection() else Tr.Form.Dropdown.selectOption()),
+                    value = resolvedText?.takeIf { it.isNotEmpty() } ?: when {
+                        unresolved -> Tr.App.loading()
+                        !isRequired -> Tr.Form.Dropdown.noSelection()
+                        else -> Tr.Form.Dropdown.selectOption()
+                    },
                     onValueChange = {},
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -76,7 +107,7 @@ abstract class DropdownControlBase<T : Any>(
                     RenderMenuItems(
                         controlContext = controlContext,
                         scope = scope,
-                        controlState = controlState.value,
+                        controlState = controlState,
                         closeMenu = { expanded = false }
                     )
                 }

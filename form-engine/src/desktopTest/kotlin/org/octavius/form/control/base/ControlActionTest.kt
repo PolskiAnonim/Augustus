@@ -25,9 +25,10 @@ class ControlActionTest {
         
         val sourceContext = ControlContext(localName = "triggerSource", statePath = "triggerSource")
         
-        val state1 = ControlState<String>(value = mutableStateOf("old1"))
-        val state2 = ControlState<String>(value = mutableStateOf("old2"))
-        val stateOther = ControlState<String>(value = mutableStateOf("other"))
+        // displayText zasiane celowo: zapis wartości ma je unieważnić, bo opisuje starą wartość.
+        val state1 = ControlState(value = mutableStateOf("old1"), displayText = mutableStateOf("tekst 1"))
+        val state2 = ControlState(value = mutableStateOf("old2"), displayText = mutableStateOf("tekst 2"))
+        val stateOther = ControlState(value = mutableStateOf("other"), displayText = mutableStateOf("tekst obcy"))
 
         val allStates = mapOf(
             "items[1]/value" to state1,
@@ -57,8 +58,8 @@ class ControlActionTest {
         assertThat(state2.value.value).isEqualTo("new")
         assertThat(stateOther.value.value).isEqualTo("other")
         
-        assertThat(state1.revision.value).isEqualTo(1)
-        assertThat(state2.revision.value).isEqualTo(1)
-        assertThat(stateOther.revision.value).isEqualTo(0)
+        assertThat(state1.displayText.value).isNull()
+        assertThat(state2.displayText.value).isNull()
+        assertThat(stateOther.displayText.value).isEqualTo("tekst obcy")
     }
 }

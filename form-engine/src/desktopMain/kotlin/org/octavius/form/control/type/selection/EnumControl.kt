@@ -11,6 +11,7 @@ import org.octavius.domain.EnumWithFormatter
 import org.octavius.form.control.base.ControlAction
 import org.octavius.form.control.base.ControlContext
 import org.octavius.form.control.base.ControlDependency
+import org.octavius.form.control.base.ControlState
 import org.octavius.form.control.type.selection.dropdown.DropdownControlBase
 import org.octavius.form.control.type.selection.dropdown.DropdownOption
 import org.octavius.localization.Tr
@@ -33,15 +34,15 @@ class EnumControl<T>(
     label, required, dependencies, actions
 ) where T : Enum<T>, T : EnumWithFormatter<T> {
 
-    override fun getDisplayText(value: T?): String? {
-        return value?.toDisplayString()
-    }
+    // Enum nosi swoją etykietę ze sobą, więc "rozwiązanie" jest natychmiastowe - suspend bierze się
+    // z kontraktu bazowego, gdzie DatabaseControl musi odpytać bazę.
+    override suspend fun resolveDisplayText(value: T): String = value.toDisplayString()
 
     @Composable
     override fun ColumnScope.RenderMenuItems(
         controlContext: ControlContext,
         scope: CoroutineScope,
-        controlState: MutableState<T?>,
+        controlState: ControlState<T>,
         closeMenu: () -> Unit
     ) {
         val options = enumClass.java.enumConstants.map {
@@ -53,7 +54,8 @@ class EnumControl<T>(
             DropdownMenuItem(
                 text = { Text(Tr.Form.Dropdown.noSelection()) },
                 onClick = {
-                    controlState.value = null
+                    controlState.value.value = null
+                    controlState.displayText.value = null
                     executeActions(controlContext, null, scope)
                     closeMenu()
                 }
@@ -66,7 +68,8 @@ class EnumControl<T>(
             DropdownMenuItem(
                 text = { Text(option.displayText) },
                 onClick = {
-                    controlState.value = option.value
+                    controlState.value.value = option.value
+                    controlState.displayText.value = option.displayText
                     executeActions(controlContext, option.value, scope)
                     closeMenu()
                 }

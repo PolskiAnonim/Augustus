@@ -33,33 +33,27 @@ class DatabaseControl(
 ), KoinComponent {
 
     private val db: OctaviusClient by inject()
-    private var cachedValue: DropdownOption<Int>? = null
 
-    override fun getDisplayText(value: Int?): String? {
-        if (value == null) return null
-
-        // Próbuj użyć cache
-        if (cachedValue?.value == value) return cachedValue!!.displayText
-
+    /**
+     * Wołane raz na wartość, poza renderowaniem, a wynik zapisuje się w `ControlState.displayText`.
+     *
+     * Nie ma tu cache'a i nie powinno być: jedna instancja kontrolki obsługuje wszystkie wiersze
+     * repeatable (patrz `RepeatableControl.registerChildrenInGlobalMap`), więc pole na instancji
+     * mieszałoby wiersze ze sobą. Właściwym cache'em jest stan kluczowany ścieżką.
+     */
+    override suspend fun resolveDisplayText(value: Int): String? = withContext(Dispatchers.IO) {
         // Nullable T celowo: wiersz mógł zniknąć spod zapisanego id, a pod nienullowalnym typem
         // brak wiersza i NULL lecą wyjątkiem, którego .asResult() nie zamienia na Failure.
         val result = db.select(displayColumn).from(relatedTable).where("id = @id")
             .asResult().fetchField<String?>("id" to value)
 
-        return when (result) {
+        when (result) {
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(result.error))
                 null
             }
-            is DataResult.Success<String?> -> {
-                when (result.value) {
-                    null -> null
-                    else -> {
-                        cachedValue = DropdownOption(value, result.value!!)
-                        result.value
-                    }
-                }
-            }
+
+            is DataResult.Success<String?> -> result.value
         }
     }
 

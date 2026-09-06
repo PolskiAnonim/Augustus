@@ -37,24 +37,25 @@ abstract class PrimitiveNumberControl<T : Number>(
 
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<T>, isRequired: Boolean) {
-        // Stan widoku, który jest synchronizowany z modelem.
-        var textValue by remember { mutableStateOf(controlState.value.value?.toString() ?: "") }
         val scope = rememberCoroutineScope()
 
-        // EFEKT SYNCHRONIZUJĄCY dla zmian z zewnątrz
-        // Odpali się za każdym razem, gdy akcja wywoła `updateControl`.
-        LaunchedEffect(controlState.revision.value) {
-            // Zawsze, gdy dostajemy sygnał z zewnątrz, bezwarunkowo synchronizujemy stan
-            // widoku (textValue) ze stanem modelu (controlState.value).
-            // To kasuje błędne wpisy użytkownika i czyści błędy.
-            textValue = controlState.value.value?.toString() ?: ""
-            errorManager.setFormatError(controlContext.fullStatePath, null)
+        // Bufor tekstowy musi być osobny od wartości, bo "1." ani "007" nie wracają z toString()
+        // sparsowanej liczby. Żyje w ControlState, a nie w remember, żeby updateControl z zewnątrz
+        // mógł go unieważnić - null znaczy "nieaktualny", więc wyprowadzamy tekst z wartości.
+        val textValue = controlState.displayText.value ?: (controlState.value.value?.toString() ?: "")
+
+        // Unieważnienie tekstu z zewnątrz kasuje też błąd formatu - inaczej użytkownik zostaje
+        // z komunikatem o wpisie, którego już nie widzi.
+        LaunchedEffect(controlState.displayText.value) {
+            if (controlState.displayText.value == null) {
+                errorManager.setFormatError(controlContext.fullStatePath, null)
+            }
         }
 
         OutlinedTextField(
             value = textValue,
             onValueChange = { newText ->
-                textValue = newText
+                controlState.displayText.value = newText
 
                 if (newText.isEmpty()) {
                     if (controlState.value.value != null) {

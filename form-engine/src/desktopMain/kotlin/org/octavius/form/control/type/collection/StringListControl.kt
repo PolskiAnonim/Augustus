@@ -39,7 +39,9 @@ class StringListControl(
 
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<List<String>>, isRequired: Boolean) {
-        var currentList by remember { mutableStateOf(controlState.value.value ?: listOf()) }
+        // Czytamy prosto z modelu, bez lokalnej kopii w remember. Kopia sprawiała, że zapis przez
+        // `updateControl` z akcji trafiał do stanu, a UI dalej pokazywało poprzednią listę.
+        val currentList = controlState.value.value ?: listOf()
         var newItemText by remember { mutableStateOf("") }
 
         val minItems = (validationOptions as? StringListValidation)?.minItems ?: 0
@@ -51,7 +53,6 @@ class StringListControl(
                 val itemsToAdd = minItems - currentList.size
                 val updatedList = currentList.toMutableList()
                 repeat(itemsToAdd) { updatedList.add("") }
-                currentList = updatedList
                 controlState.value.value = updatedList
             }
         }
@@ -93,7 +94,6 @@ class StringListControl(
                         onClick = {
                             val updatedList = currentList.toMutableList()
                             updatedList.add("")
-                            currentList = updatedList
                             controlState.value.value = updatedList
                         },
                         modifier = Modifier.size(24.dp)
@@ -136,7 +136,6 @@ class StringListControl(
                             onValueChange = { newValue ->
                                 val updatedList = currentList.toMutableList()
                                 updatedList[index] = newValue
-                                currentList = updatedList
                                 controlState.value.value = updatedList
                             },
                             modifier = Modifier.weight(1f).padding(horizontal = FormSpacing.fieldPaddingHorizontal),
@@ -160,7 +159,6 @@ class StringListControl(
                                     onClick = {
                                         val updatedList = currentList.toMutableList()
                                         updatedList.removeAt(index)
-                                        currentList = updatedList
                                         controlState.value.value = updatedList
                                     },
                                     modifier = Modifier.size(32.dp)

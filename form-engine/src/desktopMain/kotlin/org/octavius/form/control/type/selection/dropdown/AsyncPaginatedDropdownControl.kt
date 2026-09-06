@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import org.octavius.form.control.base.ControlAction
 import org.octavius.form.control.base.ControlContext
 import org.octavius.form.control.base.ControlDependency
+import org.octavius.form.control.base.ControlState
 import org.octavius.localization.Tr
 import org.octavius.theme.FormSpacing
 
@@ -39,7 +40,7 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
     override fun ColumnScope.RenderMenuItems(
         controlContext: ControlContext,
         scope: CoroutineScope,
-        controlState: MutableState<T?>,
+        controlState: ControlState<T>,
         closeMenu: () -> Unit
     ) {
         var searchQuery by remember { mutableStateOf("") }
@@ -79,9 +80,12 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
             totalPages = totalPages,
             currentPage = currentPage,
             onPageChange = { newPage -> currentPage = newPage },
-            onOptionSelected = { selectedValue ->
-                controlState.value = selectedValue
-                executeActions(controlContext, selectedValue, scope)
+            onOptionSelected = { selectedOption ->
+                controlState.value.value = selectedOption?.value
+                // Menu zna etykietę wybranej pozycji, więc zapisujemy ją od razu - nie ma powodu
+                // pytać bazy o tekst, który właśnie trzymamy w ręku.
+                controlState.displayText.value = selectedOption?.displayText
+                executeActions(controlContext, selectedOption?.value, scope)
                 closeMenu()
             }
         )
@@ -136,7 +140,7 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
         currentPage: Long,
         totalPages: Long,
         onPageChange: (Long) -> Unit,
-        onOptionSelected: (T?) -> Unit
+        onOptionSelected: (DropdownOption<T>?) -> Unit
     ) {
         if (isLoading) {
             LoadingIndicator()
@@ -164,7 +168,7 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
     private fun OptionsList(
         options: List<DropdownOption<T>>,
         isRequired: Boolean,
-        onOptionSelected: (T?) -> Unit
+        onOptionSelected: (DropdownOption<T>?) -> Unit
     ) {
         // Opcja "null" (brak wyboru), tylko jeśli kontrolka nie jest wymagana
         if (!isRequired) {
@@ -190,7 +194,7 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
             options.forEach { option ->
                 DropdownMenuItem(
                     text = { Text(option.displayText) },
-                    onClick = { onOptionSelected(option.value) }
+                    onClick = { onOptionSelected(option) }
                 )
             }
         }

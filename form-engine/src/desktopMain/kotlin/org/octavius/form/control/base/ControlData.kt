@@ -27,13 +27,18 @@ data class ControlResultData(
  * @param T Typ danych przechowywanych przez kontrolkę.
  * @param value Bieżąca wartość kontrolki (edytowana przez użytkownika) - MutableState.
  * @param initValue Pierwotna wartość załadowana z bazy lub ustawiona domyślnie - MutableState.
- * @param revision Licznik rewizji do wymuszenia synchronizacji UI w złożonych kontrolkach.
- *                 Używany gdy parsowanie wartości wymaga dodatkowej logiki.
+ * @param displayText Tekst pokazywany użytkownikowi, gdy nie da się go wyprowadzić z [value] przy
+ *                    każdym renderowaniu: bufor edycyjny pola liczbowego (`1.` nie jest jeszcze
+ *                    liczbą) albo etykieta wybranej pozycji dropdowna (wymaga zapytania).
+ *                    `null` znaczy "nieustalony" - kontrolka wypełni go sama, synchronicznie albo
+ *                    zapytaniem. Dlatego `updateControl` z zewnątrz zeruje to pole: zapisanie
+ *                    wartości unieważnia tekst, a samo zerowanie jest sygnałem do przeliczenia.
+ * @param labelOverride Etykieta nadpisana z akcji, zamiast tej ze schematu.
  */
 data class ControlState<T>(
     val value: MutableState<T?> = mutableStateOf(null),
     val initValue: MutableState<T?> = mutableStateOf(null),
-    val revision: MutableState<Int> = mutableStateOf(0),
+    val displayText: MutableState<String?> = mutableStateOf(null),
     val labelOverride: MutableState<String?> = mutableStateOf(null)
 )
 
