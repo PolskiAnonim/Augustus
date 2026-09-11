@@ -34,13 +34,6 @@
   "navigation": {
     "back": "Back"
   },
-  "pagination": {
-    "nextPage": "Next page",
-    "of": "of",
-    "page": "Page",
-    "previousPage": "Previous page",
-    "size": "Size:"
-  },
   "search": {
     "clear": "Clear",
     "placeholder": "Search...",

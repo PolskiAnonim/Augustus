@@ -1,7 +1,9 @@
 package org.octavius.form.control.type.selection.dropdown
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -44,12 +46,17 @@ abstract class DropdownControlBase<T : Any>(
      *
      * Dostają cały [ControlState], nie samą wartość, bo wybór pozycji ustawia wartość **i** tekst -
      * menu zna już etykietę, więc nie ma powodu wyznaczać jej drugi raz.
+     *
+     * [menuScrollState] jest stanem przewijania samego menu. Tworzy go ta klasa, bo to ona wywołuje
+     * `ExposedDropdownMenu`, ale czyta go podklasa doładowująca kolejne strony - stąd w parametrze.
+     * Podklasa z pełną listą opcji po prostu go ignoruje.
      */
     @Composable
     protected abstract fun ColumnScope.RenderMenuItems(
         controlContext: ControlContext,
         scope: CoroutineScope,
         controlState: ControlState<T>,
+        menuScrollState: ScrollState,
         closeMenu: () -> Unit
     )
 
@@ -99,15 +106,21 @@ abstract class DropdownControlBase<T : Any>(
                         .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                 )
 
-                // Menu z opcjami
+                // Menu z opcjami. Stan przewijania trzymamy sami, bo doładowywanie kolejnych stron
+                // jedzie z pozycji przewijania menu - samo menu już się przewija, więc nie ma po co
+                // wkładać w nie drugiej listy przewijalnej.
+                val menuScrollState = rememberScrollState()
+
                 ExposedDropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onDismissRequest = { expanded = false },
+                    scrollState = menuScrollState
                 ) {
                     RenderMenuItems(
                         controlContext = controlContext,
                         scope = scope,
                         controlState = controlState,
+                        menuScrollState = menuScrollState,
                         closeMenu = { expanded = false }
                     )
                 }

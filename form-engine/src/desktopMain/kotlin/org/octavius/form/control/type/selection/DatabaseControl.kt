@@ -12,6 +12,7 @@ import org.octavius.form.control.base.ControlAction
 import org.octavius.form.control.base.ControlDependency
 import org.octavius.form.control.type.selection.dropdown.AsyncPaginatedDropdownControl
 import org.octavius.form.control.type.selection.dropdown.DropdownOption
+import org.octavius.form.control.type.selection.dropdown.DropdownPage
 
 /**
  * Kontrolka do wyboru rekordu z bazy danych z listy rozwijanej.
@@ -57,48 +58,36 @@ class DatabaseControl(
         }
     }
 
-    override suspend fun loadPage(searchQuery: String, page: Long): Pair<List<DropdownOption<Int>>, Long> {
+    override suspend fun loadPage(searchQuery: String, page: Long): DropdownPage<Int> {
         return withContext(Dispatchers.IO) {
-            // Krok 1: Przygotuj filtr i parametry
             val filter = if (searchQuery.isNotBlank()) "$displayColumn ILIKE @search" else null
             val params = if (searchQuery.isNotBlank()) mapOf("search" to "%$searchQuery%") else emptyMap()
 
-            // Krok 2: Pobierz całkowitą liczbę pasujących rekordów
-            val countResult = db.select("COUNT(*)").from(relatedTable).where(filter).asResult().fetchField<Long>(params)
-
-            val totalCount = when (countResult) {
-                is DataResult.Success -> countResult.value
-                is DataResult.Failure -> {
-                    GlobalDialogManager.show(ErrorDialogConfig(countResult.error))
-                    return@withContext Pair(emptyList(), 0L)
-                }
-            }
-
-            if (totalCount == 0L) {
-                return@withContext Pair(emptyList(), 0L)
-            }
-
-            val totalPages = (totalCount + pageSize - 1) / pageSize
-
-
+            // Bierzemy jeden wiersz ponad stronę: jeśli przyszedł, to jest co doczytywać.
+            // To zastępuje osobne COUNT(*), które szło do bazy przy każdym znaku obok właściwego
+            // zapytania - a przy doczytywaniu w trakcie przewijania liczba stron i tak nie jest
+            // nigdzie pokazywana.
             val optionsResult = db.select("id, $displayColumn").from(relatedTable)
                 .where(filter)
                 .orderBy(displayColumn)
-                .page(page, pageSize)
+                .limit(pageSize + 1)
+                .offset(page * pageSize)
                 .asResult().fetchObjects<Map<String, Any?>>(params = params)
-            return@withContext when (optionsResult) {
+
+            when (optionsResult) {
                 is DataResult.Success -> {
-                    val mappedOptions = optionsResult.value.map { row ->
+                    val rows = optionsResult.value
+                    val mappedOptions = rows.take(pageSize.toInt()).map { row ->
                         val id = row["id"] as Int
                         val text = row[displayColumn] as String
                         DropdownOption(id, text)
                     }
-                   Pair(mappedOptions, totalPages)
+                    DropdownPage(mappedOptions, hasMore = rows.size > pageSize)
                 }
 
                 is DataResult.Failure -> {
                     GlobalDialogManager.show(ErrorDialogConfig(optionsResult.error))
-                    Pair(emptyList(), 0L)
+                    DropdownPage(emptyList(), hasMore = false)
                 }
             }
         }

@@ -1,9 +1,8 @@
 package org.octavius.form.control.type.selection.dropdown
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -20,8 +19,32 @@ import org.octavius.localization.Tr
 import org.octavius.theme.FormSpacing
 
 /**
+ * O ile pikseli przed końcem menu zaczynamy doczytywać następną stronę.
+ * Mniej więcej dwie pozycje, żeby lista dojechała zanim użytkownik zobaczy koniec.
+ */
+private const val LoadMoreThresholdPx = 100
+
+/**
+ * Pozycja w stronicowaniu dla jednego wyszukiwania, wymieniana w całości.
+ *
+ * Trzymanie tego jako jednego obiektu, a nie czterech osobnych zmiennych stanu, jest tu celowe:
+ * ładowanie pierwszej strony i doczytywanie kolejnych to dwa niezależne efekty, a przy osobnych
+ * zmiennych ten drugi mógłby wystartować z numerem strony należącym jeszcze do poprzedniego
+ * wyszukiwania. [query] rozstrzyga, do czego ta pozycja należy - dopóki nie zgadza się z tekstem
+ * w polu wyszukiwania, doczytywanie jest wyłączone i nie zależy to od kolejności startu efektów.
+ *
+ * `null` w [query] to stan początkowy, który nie pasuje do żadnego wyszukiwania - łącznie z pustym.
+ */
+private data class Paging<T>(
+    val query: String? = null,
+    val options: List<DropdownOption<T>> = emptyList(),
+    val nextPage: Long = 0,
+    val hasMore: Boolean = false
+)
+
+/**
  * Abstrakcyjna baza dla kontrolek dropdown, które ładują dane asynchronicznie,
- * wspierają wyszukiwanie i paginację.
+ * wspierają wyszukiwanie i doczytywanie kolejnych stron przy przewijaniu.
  */
 abstract class AsyncPaginatedDropdownControl<T : Any>(
     label: String?,
@@ -34,52 +57,68 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
      * Podklasy implementują tę metodę, aby dostarczyć dane dla konkretnej strony.
      * Użycie `suspend` jest kluczowe dla operacji asynchronicznych.
      */
-    protected abstract suspend fun loadPage(searchQuery: String, page: Long): Pair<List<DropdownOption<T>>, Long>
+    protected abstract suspend fun loadPage(searchQuery: String, page: Long): DropdownPage<T>
 
     @Composable
     override fun ColumnScope.RenderMenuItems(
         controlContext: ControlContext,
         scope: CoroutineScope,
         controlState: ControlState<T>,
+        menuScrollState: ScrollState,
         closeMenu: () -> Unit
     ) {
         var searchQuery by remember { mutableStateOf("") }
-        var options by remember { mutableStateOf<List<DropdownOption<T>>>(emptyList()) }
-        var isLoading by remember { mutableStateOf(false) }
-        var currentPage by remember { mutableStateOf(0L) }
-        var totalPages by remember { mutableStateOf(1L) }
+        var paging by remember { mutableStateOf(Paging<T>()) }
+        var isLoadingMore by remember { mutableStateOf(false) }
 
-        // Używamy klucza Unit, aby ten efekt uruchomił się tylko raz przy otwarciu menu
-        // i był aktywny, dopóki jest ono otwarte. Zmiany searchQuery i currentPage
-        // spowodują jego ponowne uruchomienie.
-        LaunchedEffect(searchQuery, currentPage) {
-            isLoading = true
-            try {
-                val (items, pages) = loadPage(searchQuery, currentPage)
-                options = items
-                totalPages = pages
-            } finally {
-                isLoading = false
-            }
+        // Czy pozycja w stronicowaniu opisuje to, co jest teraz wpisane w wyszukiwarce.
+        // Dopóki nie opisuje, pokazujemy ładowanie i nie doczytujemy kolejnych stron.
+        val isCurrent = paging.query == searchQuery
+
+        // Pierwsza strona, i przeładowanie od zera przy każdej zmianie wyszukiwania.
+        // Efekt anuluje się przy kolejnym znaku, więc wyniki nie wracają w złej kolejności.
+        LaunchedEffect(searchQuery) {
+            menuScrollState.scrollTo(0)
+            val page = loadPage(searchQuery, 0)
+            paging = Paging(searchQuery, page.options, nextPage = 1, hasMore = page.hasMore)
+        }
+
+        // Doczytywanie kolejnych stron z pozycji przewijania menu.
+        //
+        // `maxValue == 0` znaczy, że zawartość nie wypełniła jeszcze menu - wtedy też dobieramy,
+        // bo inaczej krótka pierwsza strona nie daje czym przewinąć i lista utyka na starcie.
+        LaunchedEffect(menuScrollState, searchQuery) {
+            snapshotFlow { Triple(menuScrollState.value, menuScrollState.maxValue, paging) }
+                .collect { (position, maxPosition, current) ->
+                    val atEnd = maxPosition == 0 || position >= maxPosition - LoadMoreThresholdPx
+                    if (current.query == searchQuery && current.hasMore && atEnd && !isLoadingMore) {
+                        isLoadingMore = true
+                        try {
+                            val page = loadPage(searchQuery, current.nextPage)
+                            paging = current.copy(
+                                options = current.options + page.options,
+                                nextPage = current.nextPage + 1,
+                                hasMore = page.hasMore
+                            )
+                        } finally {
+                            isLoadingMore = false
+                        }
+                    }
+                }
         }
 
         // 1. Pole wyszukiwania
         SearchField(
             searchQuery = searchQuery,
-            onQueryChange = {
-                searchQuery = it
-                currentPage = 0 // Resetuj stronę po zmianie wyszukiwania
-            }
+            onQueryChange = { searchQuery = it }
         )
 
         // 2. Właściwa zawartość menu
         MenuContent(
-            isLoading = isLoading,
-            options = options,
+            options = if (isCurrent) paging.options else emptyList(),
             isRequired = required ?: false,
-            totalPages = totalPages,
-            currentPage = currentPage,
-            onPageChange = { newPage -> currentPage = newPage },
+            isLoadingFirstPage = !isCurrent,
+            isLoadingMore = isLoadingMore,
             onOptionSelected = { selectedOption ->
                 controlState.value.value = selectedOption?.value
                 // Menu zna etykietę wybranej pozycji, więc zapisujemy ją od razu - nie ma powodu
@@ -130,34 +169,32 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
     }
 
     /**
-     * Komponent renderujący główną zawartość menu (wskaźnik ładowania lub listę opcji i paginację).
+     * Komponent renderujący główną zawartość menu.
+     *
+     * Ładowanie pierwszej strony zastępuje listę, doczytywanie kolejnej dokłada wskaźnik pod nią -
+     * inaczej lista znikałaby przy każdym dobraniu porcji.
      */
     @Composable
     private fun MenuContent(
-        isLoading: Boolean,
         options: List<DropdownOption<T>>,
         isRequired: Boolean,
-        currentPage: Long,
-        totalPages: Long,
-        onPageChange: (Long) -> Unit,
+        isLoadingFirstPage: Boolean,
+        isLoadingMore: Boolean,
         onOptionSelected: (DropdownOption<T>?) -> Unit
     ) {
-        if (isLoading) {
+        if (isLoadingFirstPage) {
             LoadingIndicator()
-        } else {
-            OptionsList(
-                options = options,
-                isRequired = isRequired,
-                onOptionSelected = onOptionSelected
-            )
+            return
+        }
 
-            if (totalPages > 1) {
-                PaginationPanel(
-                    currentPage = currentPage,
-                    totalPages = totalPages,
-                    onPageChange = onPageChange
-                )
-            }
+        OptionsList(
+            options = options,
+            isRequired = isRequired,
+            onOptionSelected = onOptionSelected
+        )
+
+        if (isLoadingMore) {
+            LoadingIndicator()
         }
     }
 
@@ -195,50 +232,6 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
                 DropdownMenuItem(
                     text = { Text(option.displayText) },
                     onClick = { onOptionSelected(option) }
-                )
-            }
-        }
-    }
-
-    /**
-     * Komponent renderujący panel paginacji.
-     */
-    @Composable
-    private fun PaginationPanel(
-        currentPage: Long,
-        totalPages: Long,
-        onPageChange: (Long) -> Unit
-    ) {
-        HorizontalDivider(modifier = Modifier.padding(vertical = FormSpacing.itemSpacing))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = FormSpacing.dropdownPaddingHorizontal,
-                    vertical = FormSpacing.dropdownPaddingVertical
-                ),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { onPageChange(currentPage - 1) },
-                enabled = currentPage > 0
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = Tr.Pagination.previousPage()
-                )
-            }
-
-            Text(Tr.Pagination.page() + " ${currentPage + 1} " + Tr.Pagination.of() + " $totalPages")
-
-            IconButton(
-                onClick = { onPageChange(currentPage + 1) },
-                enabled = currentPage < totalPages - 1
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = Tr.Pagination.nextPage()
                 )
             }
         }

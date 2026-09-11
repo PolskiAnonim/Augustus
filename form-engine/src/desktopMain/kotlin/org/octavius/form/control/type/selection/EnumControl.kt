@@ -1,5 +1,6 @@
 package org.octavius.form.control.type.selection
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -43,6 +44,7 @@ class EnumControl<T>(
         controlContext: ControlContext,
         scope: CoroutineScope,
         controlState: ControlState<T>,
+        menuScrollState: ScrollState, // nieużywane: enum ma wszystkie opcje od razu, nie ma czego doczytywać
         closeMenu: () -> Unit
     ) {
         val options = enumClass.java.enumConstants.map {

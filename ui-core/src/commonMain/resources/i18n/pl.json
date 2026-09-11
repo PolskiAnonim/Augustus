@@ -34,13 +34,6 @@
   "navigation": {
     "back": "Wstecz"
   },
-  "pagination": {
-    "nextPage": "Następna strona",
-    "of": "z",
-    "page": "Strona",
-    "previousPage": "Poprzednia strona",
-    "size": "Rozmiar:"
-  },
   "search": {
     "clear": "Wyczyść",
     "placeholder": "Szukaj...",
