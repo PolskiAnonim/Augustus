@@ -124,7 +124,10 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
                 // Menu zna etykietę wybranej pozycji, więc zapisujemy ją od razu - nie ma powodu
                 // pytać bazy o tekst, który właśnie trzymamy w ręku.
                 controlState.displayText.value = selectedOption?.displayText
-                executeActions(controlContext, selectedOption?.value, scope)
+                // Payload jest tylko tutaj, przy wyborze z menu. Akcja typu "wypełnij resztę
+                // z wybranego wiersza" nie może dostać go przy wczytaniu formularza - nadpisałaby
+                // wtedy zapisane dane tym, co akurat jest w słowniku.
+                executeActions(controlContext, selectedOption?.value, scope, payload = selectedOption?.payload)
                 closeMenu()
             }
         )

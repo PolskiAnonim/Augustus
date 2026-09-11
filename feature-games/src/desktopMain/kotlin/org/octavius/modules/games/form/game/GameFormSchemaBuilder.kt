@@ -1,5 +1,6 @@
 package org.octavius.modules.games.form.game
 
+import io.github.octaviusframework.client.query.QueryFragment
 import kotlinx.coroutines.launch
 import org.octavius.dialog.DialogConfig
 import org.octavius.dialog.GlobalDialogManager
@@ -38,7 +39,7 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
         ),
         "series" to DatabaseControl(
             label = Tr.Games.Form.series(),
-            relatedTable = "series",
+            query = QueryFragment("SELECT id, name FROM series"),
             displayColumn = "name"
         ),
         "status" to EnumControl(
@@ -152,7 +153,7 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
             rowControls = mapOf(
                 "category" to DatabaseControl(
                     label = Tr.Games.Form.category(1),
-                    relatedTable = "games.categories",
+                    query = QueryFragment("SELECT id, name FROM games.categories"),
                     displayColumn = "name",
                     required = true
                 )

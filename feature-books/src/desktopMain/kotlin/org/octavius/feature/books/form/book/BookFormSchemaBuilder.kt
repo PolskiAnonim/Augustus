@@ -1,5 +1,6 @@
 package org.octavius.feature.books.form.book
 
+import io.github.octaviusframework.client.query.QueryFragment
 import kotlinx.coroutines.launch
 import org.octavius.dialog.DialogConfig
 import org.octavius.dialog.GlobalDialogManager
@@ -52,7 +53,7 @@ class BookFormSchemaBuilder : FormSchemaBuilder() {
             rowControls = mapOf(
                 "author_id" to DatabaseControl(
                     label = Tr.Books.Form.author(),
-                    relatedTable = "books.authors",
+                    query = QueryFragment("SELECT id, name FROM books.authors"),
                     displayColumn = "name",
                     required = true
                 )
