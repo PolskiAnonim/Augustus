@@ -62,4 +62,28 @@ class ControlActionTest {
         assertThat(state2.displayText.value).isNull()
         assertThat(stateOther.displayText.value).isEqualTo("tekst obcy")
     }
+
+    @Test
+    fun `readControl should return current value and null for unknown path`() {
+        // Arrange
+        val formState = mockk<FormState>()
+        val context = ActionContext(
+            sourceValue = "trigger",
+            sourceControlContext = ControlContext(localName = "triggerSource", statePath = "triggerSource"),
+            formState = formState,
+            formSchema = mockk<FormSchema>(),
+            errorManager = mockk<ErrorManager>(),
+            trigger = mockk<FormActionTrigger>(),
+            coroutineScope = CoroutineScope(Dispatchers.Unconfined)
+        )
+
+        every { formState.getControlState("titles") } returns
+                ControlState(value = mutableStateOf(listOf("Solo Leveling", "Na Honjaman Level Up")))
+        every { formState.getControlState("nie_ma") } returns null
+
+        // Act & Assert
+        assertThat(context.readControl<List<String>>("titles"))
+            .containsExactly("Solo Leveling", "Na Honjaman Level Up")
+        assertThat(context.readControl<String>("nie_ma")).isNull()
+    }
 }

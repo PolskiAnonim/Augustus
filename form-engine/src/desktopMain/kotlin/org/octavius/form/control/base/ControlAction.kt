@@ -40,6 +40,23 @@ data class ActionContext<T>(
     val payload: Any? = null // Dodatkowe dane, przykładowo dla kontrolek dropdown dodatkowa wartość
 ) {
     /**
+     * Czyta bieżącą wartość kontrolki spod ścieżki względnej (./, ../) lub bezwzględnej.
+     *
+     * Czytająca połowa pary z [updateControl]. Potrzebna wszędzie tam, gdzie akcja nie podmienia
+     * wartości, tylko ją uzupełnia - na przykład dokłada do listy tytuły z kolejnego źródła,
+     * zamiast kasować to, co już w niej jest.
+     *
+     * Zwraca `null`, gdy kontrolki nie ma pod tą ścieżką albo nie ma wartości - wołający i tak
+     * nie odróżnia tych przypadków, skoro sama wartość też bywa pusta.
+     */
+    fun <V : Any> readControl(controlPath: String): V? {
+        val resolvedName = PathResolver.resolvePath(controlPath, sourceControlContext)
+        // Rzutowanie "unsafe" tak samo jak w updateControl - za zgodność typu odpowiada programista.
+        @Suppress("UNCHECKED_CAST")
+        return (formState.getControlState(resolvedName) as? ControlState<V>)?.value?.value
+    }
+
+    /**
      * Aktualizuje wartość kontrolki używając ścieżki względnej (./, ../) lub bezwzględnej.
      */
     fun <V: Any> updateControl(controlPath: String, newValue: V?) {
