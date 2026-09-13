@@ -21,13 +21,10 @@
         </encoder>
     </appender>
 
-    <!-- Ustawienia logowania dla KONKRETNYCH PAKIETÓW -->
-    <logger name="org.octavius" level="DEBUG"/>
+
     <logger name="io.github.octaviusframework" level="TRACE"/>
 
-    <!-- Ucisz gadatliwe biblioteki, żeby nie zaśmiecały logów -->
-    <logger name="com.zaxxer.hikari" level="INFO"/>
-    <logger name="org.springframework" level="INFO"/>
+    <logger name="com.zaxxer.hikari" level="TRACE"/>
 
     <!-- Główny (root) logger: Domyślny poziom i appender dla wszystkiego innego -->
     <root level="INFO">
