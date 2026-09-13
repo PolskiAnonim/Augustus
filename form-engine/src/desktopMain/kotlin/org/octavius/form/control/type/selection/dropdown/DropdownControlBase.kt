@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import org.octavius.form.control.base.*
 import org.octavius.form.control.layout.RenderNormalLabel
@@ -80,7 +81,17 @@ abstract class DropdownControlBase<T : Any>(
         LaunchedEffect(controlState.value.value, resolvedText) {
             val value = controlState.value.value
             if (value != null && controlState.displayText.value == null) {
-                controlState.displayText.value = resolveDisplayText(value) ?: ""
+                // Rozwiązanie etykiety dzieje się bez udziału użytkownika, przy samym otwarciu
+                // formularza, i nie ma gdzie pokazać błędu - menu jest zamknięte. Zamiast wysypać
+                // aplikację albo zasypać ją dialogami przy kilku wierszach naraz, zostawiamy tekst
+                // zastępczy; komunikat zobaczy dopiero po otwarciu listy.
+                controlState.displayText.value = try {
+                    resolveDisplayText(value) ?: ""
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    ""
+                }
             }
         }
 
