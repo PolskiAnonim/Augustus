@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.octavius.form.control.base.*
 import org.octavius.form.control.validator.collection.StringListValidator
+import org.octavius.form.localization.FormTr
 import org.octavius.localization.Tr
 import org.octavius.theme.FormSpacing
 
@@ -142,7 +143,7 @@ class StringListControl(
                             singleLine = true,
                             placeholder = { 
                                 Text(
-                                    text = Tr.Form.StringList.itemPlaceholder(),
+                                    text = FormTr.Form.StringList.itemPlaceholder(),
                                     style = MaterialTheme.typography.bodyMedium
                                 ) 
                             }

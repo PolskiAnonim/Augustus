@@ -5,10 +5,10 @@ import io.github.octaviusframework.client.query.join
 import io.github.octaviusframework.client.query.withParam
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
+import org.octavius.feature.books.localization.BooksTr
 import org.octavius.form.component.FormValidator
 import org.octavius.form.control.base.FormResultData
 import org.octavius.form.control.base.getCurrentAs
-import org.octavius.localization.Tr
 
 class BookAuthorValidator : FormValidator() {
 
@@ -33,7 +33,7 @@ class BookAuthorValidator : FormValidator() {
         return when (result) {
             is DataResult.Success -> {
                 if (result.value > 0) {
-                    errorManager.setFieldErrors("name", listOf(Tr.Books.Authors.Validation.nameExists()))
+                    errorManager.setFieldErrors("name", listOf(BooksTr.Authors.Validation.nameExists()))
                     false
                 } else {
                     true

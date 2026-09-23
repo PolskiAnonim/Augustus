@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.octavius.localization.Tr
 import org.octavius.report.ColumnWidth
 import org.octavius.report.ReportEvent
 import org.octavius.report.component.ReportState
@@ -154,7 +155,7 @@ abstract class ReportColumn(
                                 Button(
                                     onClick = { showColumnMenu = false }
                                 ) {
-                                    Text(ReportTr.Action.close())
+                                    Text(Tr.Action.close())
                                 }
                             }
                         }

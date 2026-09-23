@@ -9,6 +9,7 @@ import org.octavius.form.control.type.container.SectionControl
 import org.octavius.form.control.type.number.IntegerControl
 import org.octavius.form.control.type.primitive.StringControl
 import org.octavius.localization.Tr
+import org.octavius.modules.games.localization.GamesTr
 import org.octavius.navigation.AppRouter
 
 class GameSeriesFormSchemaBuilder : FormSchemaBuilder() {
@@ -19,7 +20,7 @@ class GameSeriesFormSchemaBuilder : FormSchemaBuilder() {
         mapOf(
             "id" to IntegerControl(null),
             "name" to StringControl(
-                Tr.Games.Series.name(),
+                GamesTr.Series.name(),
                 required = true
             ),
             "basic_info" to SectionControl(
@@ -27,7 +28,7 @@ class GameSeriesFormSchemaBuilder : FormSchemaBuilder() {
                 collapsible = false,
                 initiallyExpanded = true,
                 columns = 1,
-                label = Tr.Games.Series.basicInfo()
+                label = GamesTr.Series.basicInfo()
             ),
             // Przyciski
             "save_button" to ButtonControl(

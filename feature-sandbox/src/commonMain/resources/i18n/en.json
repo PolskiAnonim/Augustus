@@ -1,69 +1,67 @@
 {
-  "sandbox": {
-    "home": {
-      "title": "Sandbox",
-      "mainText": "Sandbox Module",
-      "description": "Test environment for verifying UI components: dialogs, forms, and reports.",
-      "popups": "Popups and Dialogs",
-      "popupsDescription": "Testing dialog windows, pickers, and snackbars",
-      "form": "Test Form",
-      "formDescription": "Testing form controls: text, numbers, enum, data, list",
-      "report": "Test Report",
-      "reportDescription": "Testing table with filtering, sorting, and actions"
-    },
-    "popup": {
-      "title": "Popups and Dialogs",
-      "alertDialog": "Alert Dialog",
-      "alertTitle": "Test Alert",
-      "alertMessage": "This is a test dialog window with confirmation.",
-      "errorDialog": "Error Dialog",
-      "errorTitle": "Test Error",
-      "errorMessage": "This is a simulated error message.",
-      "colorPicker": "Color Picker",
-      "selectedColor": "Selected Color",
-      "dateTimePicker": "Date/Time Picker",
-      "selectedDateTime": "Selected Date/Time",
-      "intervalPicker": "Interval Picker",
-      "selectedInterval": "Selected Interval",
-      "snackbar": "Snackbar",
-      "snackbarMessage": "This is a test snackbar message!",
-      "noSelection": "No selection"
-    },
-    "form": {
-      "title": "Test Form",
-      "newItem": "New Item",
-      "name": "Name",
-      "quantity": "Quantity",
-      "active": "Active",
-      "priority": "Priority",
-      "startDate": "Start Date",
-      "tags": "Tags",
-      "basicInfo": "Basic Info",
-      "elements": "Elements",
-      "elementName": "Element Name",
-      "elementValue": "Element Value",
-      "nestedRepeatable": "Nested List",
-      "innerRepeatable": "Inner List",
-      "innerString": "Inner Text",
-      "innerBoolean": "Inner Toggle",
-      "savedMessage": "Data saved (sandbox)"
-    },
-    "report": {
-      "title": "Test Report",
-      "name": "Name",
-      "priority": "Priority",
-      "active": "Active",
-      "score": "Score",
-      "createdAt": "Created At",
-      "newItem": "Add New"
-    },
-    "priority": {
-      "low": "Low",
-      "medium": "Medium",
-      "high": "High",
-      "critical": "Critical"
-    },
-    "componentTestScreen": "Component Test Screen"
-  }
+  "tab": "Sandbox",
+  "home": {
+    "title": "Sandbox",
+    "mainText": "Sandbox Module",
+    "description": "Test environment for verifying UI components: dialogs, forms, and reports.",
+    "popups": "Popups and Dialogs",
+    "popupsDescription": "Testing dialog windows, pickers, and snackbars",
+    "form": "Test Form",
+    "formDescription": "Testing form controls: text, numbers, enum, data, list",
+    "report": "Test Report",
+    "reportDescription": "Testing table with filtering, sorting, and actions"
+  },
+  "popup": {
+    "title": "Popups and Dialogs",
+    "alertDialog": "Alert Dialog",
+    "alertTitle": "Test Alert",
+    "alertMessage": "This is a test dialog window with confirmation.",
+    "errorDialog": "Error Dialog",
+    "errorTitle": "Test Error",
+    "errorMessage": "This is a simulated error message.",
+    "colorPicker": "Color Picker",
+    "selectedColor": "Selected Color",
+    "dateTimePicker": "Date/Time Picker",
+    "selectedDateTime": "Selected Date/Time",
+    "intervalPicker": "Interval Picker",
+    "selectedInterval": "Selected Interval",
+    "snackbar": "Snackbar",
+    "snackbarMessage": "This is a test snackbar message!",
+    "noSelection": "No selection"
+  },
+  "form": {
+    "title": "Test Form",
+    "newItem": "New Item",
+    "name": "Name",
+    "quantity": "Quantity",
+    "active": "Active",
+    "priority": "Priority",
+    "startDate": "Start Date",
+    "tags": "Tags",
+    "basicInfo": "Basic Info",
+    "elements": "Elements",
+    "elementName": "Element Name",
+    "elementValue": "Element Value",
+    "nestedRepeatable": "Nested List",
+    "innerRepeatable": "Inner List",
+    "innerString": "Inner Text",
+    "innerBoolean": "Inner Toggle",
+    "savedMessage": "Data saved (sandbox)"
+  },
+  "report": {
+    "title": "Test Report",
+    "name": "Name",
+    "priority": "Priority",
+    "active": "Active",
+    "score": "Score",
+    "createdAt": "Created At",
+    "newItem": "Add New"
+  },
+  "priority": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "critical": "Critical"
+  },
+  "componentTestScreen": "Component Test Screen"
 }
-

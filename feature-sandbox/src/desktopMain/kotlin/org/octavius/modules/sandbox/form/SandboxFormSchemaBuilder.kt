@@ -22,33 +22,34 @@ import org.octavius.form.control.type.selection.RadioGroupControl
 import org.octavius.form.control.type.selection.SelectionOption
 import org.octavius.localization.Tr
 import org.octavius.modules.sandbox.domain.SandboxPriority
+import org.octavius.modules.sandbox.localization.SandboxTr
 import org.octavius.navigation.AppRouter
 
 class SandboxFormSchemaBuilder : FormSchemaBuilder() {
 
     override fun defineControls(): Map<String, Control<*>> = mapOf(
         "name" to StringControl(
-            Tr.Sandbox.Form.name(),
+            SandboxTr.Form.name(),
             required = true
         ),
         "quantity" to IntegerControl(
-            Tr.Sandbox.Form.quantity(),
+            SandboxTr.Form.quantity(),
             validationOptions = IntegerValidation(min = 0)
         ),
         "active" to CheckboxControl(
-            Tr.Sandbox.Form.active(),
+            SandboxTr.Form.active(),
             required = true
         ),
         "priority" to EnumControl(
-            Tr.Sandbox.Form.priority(),
+            SandboxTr.Form.priority(),
             SandboxPriority::class,
             required = true
         ),
         "start_date" to DateControl(
-            Tr.Sandbox.Form.startDate()
+            SandboxTr.Form.startDate()
         ),
         "tags" to StringListControl(
-            Tr.Sandbox.Form.tags()
+            SandboxTr.Form.tags()
         ),
         "radio_test" to RadioGroupControl(
             label = "Test Radio (Poziom)",
@@ -88,21 +89,21 @@ class SandboxFormSchemaBuilder : FormSchemaBuilder() {
             collapsible = true,
             initiallyExpanded = true,
             columns = 2,
-            label = Tr.Sandbox.Form.basicInfo()
+            label = SandboxTr.Form.basicInfo()
         ),
         "elements" to RepeatableControl(
             rowControls = mapOf(
                 "element_name" to StringControl(
-                    Tr.Sandbox.Form.elementName(),
+                    SandboxTr.Form.elementName(),
                     required = true
                 ),
                 "element_value" to IntegerControl(
-                    Tr.Sandbox.Form.elementValue(),
+                    SandboxTr.Form.elementValue(),
                     validationOptions = IntegerValidation(min = 0)
                 )
             ),
             rowOrder = listOf("element_name", "element_value"),
-            label = Tr.Sandbox.Form.elements(),
+            label = SandboxTr.Form.elements(),
             validationOptions = RepeatableValidation(
                 minItems = 0,
                 maxItems = 10,
@@ -114,7 +115,7 @@ class SandboxFormSchemaBuilder : FormSchemaBuilder() {
                 "inner_repeatable" to RepeatableControl(
                     rowControls = mapOf(
                         "inner_string" to StringControl(
-                            Tr.Sandbox.Form.innerString(),
+                            SandboxTr.Form.innerString(),
                             dependencies = mapOf(
                                 "visible" to ControlDependency(
                                     controlPath = "../inner_boolean",
@@ -126,14 +127,14 @@ class SandboxFormSchemaBuilder : FormSchemaBuilder() {
                         )
                     ),
                     rowOrder = listOf("inner_string"),
-                    label = Tr.Sandbox.Form.innerRepeatable()
+                    label = SandboxTr.Form.innerRepeatable()
                 ),
                 "inner_boolean" to CheckboxControl(
-                    Tr.Sandbox.Form.innerBoolean()
+                    SandboxTr.Form.innerBoolean()
                 )
             ),
             rowOrder = listOf("inner_repeatable", "inner_boolean"),
-            label = Tr.Sandbox.Form.nestedRepeatable()
+            label = SandboxTr.Form.nestedRepeatable()
         ),
         "save_button" to ButtonControl(
             text = Tr.Action.save(),

@@ -4,7 +4,7 @@ import org.octavius.form.control.base.ControlContext
 import org.octavius.form.control.base.ControlState
 import org.octavius.form.control.base.ControlValidator
 import org.octavius.form.control.base.StringListValidation
-import org.octavius.localization.Tr
+import org.octavius.form.localization.FormTr
 
 /**
  * Walidator dla kontrolek list tekstowych z obsługą opcji walidacji.
@@ -22,14 +22,14 @@ class StringListValidator(
             // Sprawdź minimalną liczbę elementów
             options.minItems?.let { minItems ->
                 if (value.size < minItems) {
-                    errors.add(Tr.Validation.minimumItems(minItems))
+                    errors.add(FormTr.Validation.minimumItems(minItems))
                 }
             }
 
             // Sprawdź maksymalną liczbę elementów
             options.maxItems?.let { maxItems ->
                 if (value.size > maxItems) {
-                    errors.add(Tr.Validation.maximumItems(maxItems))
+                    errors.add(FormTr.Validation.maximumItems(maxItems))
                 }
             }
 
@@ -44,19 +44,19 @@ class StringListValidator(
                     if (item.isNotBlank()) {
                         itemValidation.minLength?.let { minLength ->
                             if (item.length < minLength) {
-                                tempErrors.add(Tr.Validation.itemMinLength(index + 1, minLength))
+                                tempErrors.add(FormTr.Validation.itemMinLength(index + 1, minLength))
                             }
                         }
                         itemValidation.maxLength?.let { maxLength ->
                             if (item.length > maxLength) {
-                                tempErrors.add(Tr.Validation.itemMaxLength(index + 1, maxLength))
+                                tempErrors.add(FormTr.Validation.itemMaxLength(index + 1, maxLength))
                             }
                         }
                         itemValidation.pattern?.let { pattern ->
                             if (!pattern.matches(item)) {
-                                tempErrors.add(Tr.Validation.itemPatternError(
+                                tempErrors.add(FormTr.Validation.itemPatternError(
                                     index + 1,
-                                    itemValidation.patternErrorMessage ?: Tr.Validation.invalidFormat()
+                                    itemValidation.patternErrorMessage ?: FormTr.Validation.invalidFormat()
                                 ))
                             }
                         }

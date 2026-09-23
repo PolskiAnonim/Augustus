@@ -3,9 +3,9 @@ package org.octavius.feature.books.form.book.ui
 import org.octavius.feature.books.form.book.BookFormDataManager
 import org.octavius.feature.books.form.book.BookFormSchemaBuilder
 import org.octavius.feature.books.form.book.BookFormValidator
+import org.octavius.feature.books.localization.BooksTr
 import org.octavius.form.component.FormHandler
 import org.octavius.form.component.FormView
-import org.octavius.localization.Tr
 import org.octavius.navigation.ComponentScreen
 import org.octavius.navigation.Screen
 
@@ -15,7 +15,7 @@ class BookFormScreen {
             entityId: Int? = null
         ): Screen {
             val title =
-                if (entityId == null) Tr.Books.Form.newBook() else Tr.Books.Form.editBook()
+                if (entityId == null) BooksTr.Form.newBook() else BooksTr.Form.editBook()
 
             val formHandler = FormHandler(
                 formSchemaBuilder = BookFormSchemaBuilder(),

@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.octaviusI18n)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
@@ -28,6 +29,16 @@ kotlin {
 
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+        }
+    }
+}
+
+octaviusI18n {
+    generators {
+        create("sandbox") {
+            sourceProject = project(":feature-sandbox")
+            targetPackage = "org.octavius.modules.sandbox.localization"
+            objectName = "SandboxTr"
         }
     }
 }

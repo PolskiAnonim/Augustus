@@ -8,6 +8,7 @@ import org.octavius.form.control.type.button.ButtonType
 import org.octavius.form.control.type.number.IntegerControl
 import org.octavius.form.control.type.primitive.StringControl
 import org.octavius.localization.Tr
+import org.octavius.modules.games.localization.GamesTr
 import org.octavius.navigation.AppRouter
 
 class GameCategorySchemaBuilder : FormSchemaBuilder() {
@@ -21,7 +22,7 @@ class GameCategorySchemaBuilder : FormSchemaBuilder() {
                 null
             ),
             "name" to StringControl(
-                Tr.Games.Categories.name(),
+                GamesTr.Categories.name(),
                 required = true
             ),
             // Przyciski

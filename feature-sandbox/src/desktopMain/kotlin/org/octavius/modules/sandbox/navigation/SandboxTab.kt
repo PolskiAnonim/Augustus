@@ -4,7 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import org.octavius.localization.Tr
+import org.octavius.modules.sandbox.localization.SandboxTr
 import org.octavius.navigation.Screen
 import org.octavius.navigation.Tab
 import org.octavius.navigation.TabOptions
@@ -15,7 +15,7 @@ class SandboxTab : Tab {
     override val options: TabOptions
         @Composable
         get() = TabOptions(
-            title = Tr.Tabs.sandbox(),
+            title = SandboxTr.tab(),
             icon = rememberVectorPainter(Icons.Filled.Science)
         )
 

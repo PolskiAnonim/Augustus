@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import org.octavius.form.control.base.ControlContext
-import org.octavius.localization.Tr
+import org.octavius.form.localization.FormTr
 
 /**
  * UI formularza - renderuje kontrolki dostarczone przez [FormHandler].
@@ -117,7 +117,7 @@ private fun GlobalErrorsCard(errors: List<String>) {
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = Tr.Form.Actions.errorsLabel(),
+                text = FormTr.Form.Actions.errorsLabel(),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )

@@ -1,11 +1,9 @@
 {
-  "popup": {
-    "status": {
-      "analyzing": "Analyzing page...",
-      "parseError": "Failed to parse page or no parser found.",
-      "invalidData": "Received invalid data from script.",
-      "moduleNotFound": "Handler module not found: {0}",
-      "processingError": "Error occurred during data processing by module."
-    }
+  "status": {
+    "analyzing": "Analyzing page...",
+    "parseError": "Failed to parse page or no parser found.",
+    "invalidData": "Received invalid data from script.",
+    "moduleNotFound": "Handler module not found: {0}",
+    "processingError": "Error occurred during data processing by module."
   }
 }

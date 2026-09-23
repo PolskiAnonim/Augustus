@@ -1,49 +1,62 @@
 {
-  "asianMedia": {
-    "form": {
-      "chapterCount": "Chapter Count",
-      "duplicateTitles": "Duplicate titles detected",
-      "editTitle": "Edit Title",
-      "newTitle": "New Title",
-      "originalCompleted": "Original Completed",
-      "originalLanguage": "Original Language",
-      "publicationType": "Publication Type",
-      "publications": "Publications",
-      "readingStatus": "Reading Status",
-      "titleInfo": "Title Info",
-      "titles": "Titles",
-      "titlesAlreadyExist": "Titles already exist in database",
-      "trackProgress": "Track progress?",
-      "translatedChapters": "Translated Chapters",
-      "translatedVolumes": "Translated Volumes",
-      "volumeCount": "Volume Count",
-      "seasonsCount": "Seasons Count",
-      "translatedSeasons": "Translated Seasons"
-    },
-    "readingStatus": {
-      "completed": "Completed",
-      "notReading": "Not Reading",
-      "reading": "Reading",
-      "toRead": "To Read"
-    },
-    "report": {
-      "newTitle": "New Title",
-      "newKoreanWebNovel": "New Korean Web Novel",
-      "title": "Asian Media",
-      "titles": "Titles",
-      "language": "Language",
-      "publicationType": "Publication Type",
-      "status": "Status"
-    },
-    "home": {
-      "title": "Home",
-      "viewFullList": "View Full List (Report)",
-      "totalTitles": "Total Titles",
-      "reading": "Reading",
-      "completed": "Completed",
-      "currentlyReading": "Currently Reading",
-      "recentlyAdded": "Recently Added",
-      "noItems": "No items"
-    }
+  "tab": "Asian",
+  "form": {
+    "chapterCount": "Chapter Count",
+    "duplicateTitles": "Duplicate titles detected",
+    "editTitle": "Edit Title",
+    "newTitle": "New Title",
+    "originalCompleted": "Original Completed",
+    "originalLanguage": "Original Language",
+    "publicationType": "Publication Type",
+    "publications": "Publications",
+    "readingStatus": "Reading Status",
+    "titleInfo": "Title Info",
+    "titles": "Titles",
+    "titlesAlreadyExist": "Titles already exist in database",
+    "trackProgress": "Track progress?",
+    "translatedChapters": "Translated Chapters",
+    "translatedVolumes": "Translated Volumes",
+    "volumeCount": "Volume Count",
+    "seasonsCount": "Seasons Count",
+    "translatedSeasons": "Translated Seasons"
+  },
+  "readingStatus": {
+    "completed": "Completed",
+    "notReading": "Not Reading",
+    "reading": "Reading",
+    "toRead": "To Read"
+  },
+  "report": {
+    "newTitle": "New Title",
+    "newKoreanWebNovel": "New Korean Web Novel",
+    "title": "Asian Media",
+    "titles": "Titles",
+    "language": "Language",
+    "publicationType": "Publication Type",
+    "status": "Status"
+  },
+  "home": {
+    "title": "Home",
+    "viewFullList": "View Full List (Report)",
+    "totalTitles": "Total Titles",
+    "reading": "Reading",
+    "completed": "Completed",
+    "currentlyReading": "Currently Reading",
+    "recentlyAdded": "Recently Added",
+    "noItems": "No items"
+  },
+  "publicationLanguage": {
+    "chinese": "Chinese",
+    "japanese": "Japanese",
+    "korean": "Korean"
+  },
+  "publicationType": {
+    "lightNovel": "Light Novel",
+    "manga": "Manga",
+    "manhua": "Manhua",
+    "manhwa": "Manhwa",
+    "publishedNovel": "Published Novel",
+    "webNovel": "Web Novel",
+    "webtoon": "Webtoon"
   }
 }

@@ -1,6 +1,7 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
+    alias(libs.plugins.octaviusI18n)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
@@ -62,6 +63,16 @@ compose.desktop {
 //            windows {
 //                iconFile.set(project.file("icon.ico"))
 //            }
+        }
+    }
+}
+
+octaviusI18n {
+    generators {
+        create("app") {
+            sourceProject = project(":desktop-app")
+            targetPackage = "org.octavius.app.localization"
+            objectName = "AppTr"
         }
     }
 }

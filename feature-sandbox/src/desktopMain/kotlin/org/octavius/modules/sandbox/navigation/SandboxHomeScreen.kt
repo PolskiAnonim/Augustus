@@ -11,9 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import org.octavius.localization.Tr
 import org.octavius.modules.sandbox.ComponentTestScreen
 import org.octavius.modules.sandbox.form.ui.SandboxFormScreen
+import org.octavius.modules.sandbox.localization.SandboxTr
 import org.octavius.modules.sandbox.popup.PopupShowcaseScreen
 import org.octavius.modules.sandbox.report.ui.SandboxReportScreen
 import org.octavius.navigation.AppRouter
@@ -21,7 +21,7 @@ import org.octavius.navigation.Screen
 
 class SandboxHomeScreen : Screen {
 
-    override val title = Tr.Sandbox.Home.title()
+    override val title = SandboxTr.Home.title()
 
     @Composable
     override fun Content() {
@@ -42,12 +42,12 @@ class SandboxHomeScreen : Screen {
                         .padding(24.dp)
                 ) {
                     Text(
-                        text = Tr.Sandbox.Home.mainText(),
+                        text = SandboxTr.Home.mainText(),
                         style = MaterialTheme.typography.headlineMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = Tr.Sandbox.Home.description(),
+                        text = SandboxTr.Home.description(),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -60,16 +60,16 @@ class SandboxHomeScreen : Screen {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 QuickActionCard(
-                    title = Tr.Sandbox.Home.popups(),
-                    description = Tr.Sandbox.Home.popupsDescription(),
+                    title = SandboxTr.Home.popups(),
+                    description = SandboxTr.Home.popupsDescription(),
                     icon = Icons.Default.BugReport,
                     onClick = { AppRouter.navigateTo(PopupShowcaseScreen.create()) },
                     modifier = Modifier.weight(1f)
                 )
 
                 QuickActionCard(
-                    title = Tr.Sandbox.Home.form(),
-                    description = Tr.Sandbox.Home.formDescription(),
+                    title = SandboxTr.Home.form(),
+                    description = SandboxTr.Home.formDescription(),
                     icon = Icons.AutoMirrored.Filled.ListAlt,
                     onClick = { AppRouter.navigateTo(SandboxFormScreen.create()) },
                     modifier = Modifier.weight(1f)
@@ -81,15 +81,15 @@ class SandboxHomeScreen : Screen {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 QuickActionCard(
-                    title = Tr.Sandbox.Home.report(),
-                    description = Tr.Sandbox.Home.reportDescription(),
+                    title = SandboxTr.Home.report(),
+                    description = SandboxTr.Home.reportDescription(),
                     icon = Icons.Default.TableChart,
                     onClick = { AppRouter.navigateTo(SandboxReportScreen.create()) },
                     modifier = Modifier.weight(1f)
                 )
 
                 QuickActionCard(
-                    title = Tr.Sandbox.componentTestScreen(),
+                    title = SandboxTr.componentTestScreen(),
                     description = "",
                     icon = Icons.Default.TableChart,
                     onClick = { AppRouter.navigateTo(ComponentTestScreen()) },

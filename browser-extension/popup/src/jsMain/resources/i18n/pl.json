@@ -1,11 +1,9 @@
 {
-  "popup": {
-    "status": {
-      "analyzing": "Analizowanie strony...",
-      "parseError": "Nie udało się sparsować strony lub nie znaleziono parsera.",
-      "invalidData": "Otrzymano nieprawidłowe dane ze skryptu.",
-      "moduleNotFound": "Nie znaleziono modułu obsługującego: {0}",
-      "processingError": "Wystąpił błąd podczas przetwarzania danych przez moduł."
-    }
+  "status": {
+    "analyzing": "Analizowanie strony...",
+    "parseError": "Nie udało się sparsować strony lub nie znaleziono parsera.",
+    "invalidData": "Otrzymano nieprawidłowe dane ze skryptu.",
+    "moduleNotFound": "Nie znaleziono modułu obsługującego: {0}",
+    "processingError": "Wystąpił błąd podczas przetwarzania danych przez moduł."
   }
 }

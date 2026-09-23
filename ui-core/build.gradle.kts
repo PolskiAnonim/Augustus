@@ -43,6 +43,7 @@ kotlin {
 octaviusI18n {
     generators {
         create("main") {
+            sourceProject = project(":ui-core")
             targetPackage = "org.octavius.localization"
         }
     }

@@ -5,7 +5,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import io.github.octaviusframework.client.query.QueryFragment
 import org.octavius.feature.books.form.author.ui.BookAuthorFormScreen
-import org.octavius.localization.Tr
+import org.octavius.feature.books.localization.BooksTr
 import org.octavius.navigation.AppRouter
 import org.octavius.report.ReportMainAction
 import org.octavius.report.ReportRowAction
@@ -40,21 +40,21 @@ class AuthorsReportStructureBuilder : ReportStructureBuilder() {
 
     override fun buildColumns(): Map<String, ReportColumn> = mapOf(
         "name" to StringColumn(
-            header = Tr.Books.Authors.Report.name()
+            header = BooksTr.Authors.Report.name()
         ),
         "sort_name" to StringColumn(
-            header = Tr.Books.Authors.Report.sortName()
+            header = BooksTr.Authors.Report.sortName()
         ),
         "book_count" to LongColumn(
-            header = Tr.Books.Authors.Report.bookCount()
+            header = BooksTr.Authors.Report.bookCount()
         ),
         "created_at" to InstantColumn(
-            header = Tr.Books.Authors.Report.createdAt()
+            header = BooksTr.Authors.Report.createdAt()
         )
     )
 
     override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(
-        label = Tr.Books.Authors.Report.editAuthor(),
+        label = BooksTr.Authors.Report.editAuthor(),
         icon = Icons.Default.Edit
     ) {
         val authorId = rowData["id"] as? Int
@@ -65,7 +65,7 @@ class AuthorsReportStructureBuilder : ReportStructureBuilder() {
 
     override fun buildMainActions(): List<ReportMainAction> = listOf(
         ReportMainAction(
-            label = Tr.Books.Authors.Report.newAuthor(),
+            label = BooksTr.Authors.Report.newAuthor(),
             icon = Icons.Default.Add
         ) {
             AppRouter.navigateTo(BookAuthorFormScreen.create())

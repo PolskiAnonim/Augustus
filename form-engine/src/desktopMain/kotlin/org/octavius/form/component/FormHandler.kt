@@ -6,7 +6,7 @@ import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.control.base.Control
 import org.octavius.form.control.base.ControlState
-import org.octavius.localization.Tr
+import org.octavius.form.localization.FormTr
 import org.octavius.ui.snackbar.SnackbarManager
 
 /**
@@ -104,7 +104,7 @@ class FormHandler(
             errorManager.clearAll()
 
             if (validates && !formValidator.validateFields()) {
-                SnackbarManager.showMessage(Tr.Form.Actions.containsErrors())
+                SnackbarManager.showMessage(FormTr.Form.Actions.containsErrors())
                 formState.actionTriggered.value = false
                 return@withContext false
             }
@@ -113,7 +113,7 @@ class FormHandler(
 
             // Walidacja reguł biznesowych (może odpytywać bazę)
             if (validates && !formValidator.validateBusinessRules(rawFormData)) {
-                SnackbarManager.showMessage(Tr.Form.Actions.containsErrors())
+                SnackbarManager.showMessage(FormTr.Form.Actions.containsErrors())
                 formState.actionTriggered.value = false
                 return@withContext false
             }
@@ -121,7 +121,7 @@ class FormHandler(
             // Walidacja specyficzna dla akcji (zawsze uruchamiana, niezależnie od flagi 'validates')
             val actionValidator = formValidator.defineActionValidations()[actionKey]
             if (actionValidator != null && !actionValidator.invoke(rawFormData)) {
-                SnackbarManager.showMessage(Tr.Form.Actions.containsErrors())
+                SnackbarManager.showMessage(FormTr.Form.Actions.containsErrors())
                 formState.actionTriggered.value = false
                 return@withContext false
             }

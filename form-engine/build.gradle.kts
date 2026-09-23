@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.octaviusI18n)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
@@ -16,6 +17,8 @@ kotlin {
             implementation(projects.uiCore)
 
             api(libs.octavius.client)
+
+            api(libs.octavius.i18n.core)
 
             implementation(libs.kotlinx.coroutines.core)
 
@@ -41,4 +44,14 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+octaviusI18n {
+    generators {
+        create("form") {
+            sourceProject = project(":form-engine")
+            targetPackage = "org.octavius.form.localization"
+            objectName = "FormTr"
+        }
+    }
 }

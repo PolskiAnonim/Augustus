@@ -6,6 +6,7 @@
       "itemLabel": "Item {0}"
     },
     "dropdown": {
+      "loading": "Loading...",
       "noResults": "No results",
       "noSelection": "No selection",
       "selectOption": "Select option"
@@ -16,17 +17,29 @@
   },
   "validation": {
     "duplicateInRow": "Duplicate value in row {0}",
+    "fieldRequired": "This field is required",
     "invalidFormat": "Invalid format",
+    "invalidNumberFormat": "Invalid number format",
     "itemMaxLength": "Item {0}: Maximum length is {1} characters",
     "itemMinLength": "Item {0}: Minimum length is {1} characters",
     "itemPatternError": "Item {0}: {1}",
     "maxDecimalPlaces": "Maximum {0} decimal places",
     "maxInterval": "Interval must be shorter than {0}",
     "maxItems": "Maximum {0} items",
+    "maximumItems": {
+      "_one": "Maximum {0} item",
+      "_few": "Maximum {0} items",
+      "_many": "Maximum {0} items"
+    },
     "maxLength": "Maximum length is {0} characters",
     "maxValue": "Value must be less than or equal to {0}",
     "minInterval": "Interval must be longer than {0}",
     "minItems": "Minimum {0} items required",
+    "minimumItems": {
+      "_one": "Minimum {0} item required",
+      "_few": "Minimum {0} items required",
+      "_many": "Minimum {0} items required"
+    },
     "minLength": "Minimum length is {0} characters",
     "minValue": "Value must be greater than or equal to {0}",
     "multipleOf": "Value must be a multiple of {0}"

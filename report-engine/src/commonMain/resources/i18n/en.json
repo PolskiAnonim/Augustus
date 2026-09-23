@@ -1,17 +1,4 @@
 {
-  "action": {
-    "add": "Add",
-    "cancel": "Cancel",
-    "close": "Close",
-    "load": "Load",
-    "overwrite": "Overwrite",
-    "remove": "Remove",
-    "save": "Save"
-  },
-  "expandable": {
-    "collapse": "Collapse",
-    "expand": "Expand"
-  },
   "filter": {
     "datetime": {
       "after": "After",
@@ -133,10 +120,5 @@
     "management": {
       "columnManagement": "Column management"
     }
-  },
-  "search": {
-    "clear": "Clear",
-    "placeholder": "Search...",
-    "search": "Search"
   }
 }

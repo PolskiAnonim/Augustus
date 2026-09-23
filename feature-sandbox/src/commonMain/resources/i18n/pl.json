@@ -1,69 +1,67 @@
 {
-  "sandbox": {
-    "home": {
-      "title": "Sandbox",
-      "mainText": "Moduł Sandbox",
-      "description": "Środowisko testowe do weryfikacji komponentów UI: dialogów, formularzy i raportów.",
-      "popups": "Popupy i dialogi",
-      "popupsDescription": "Testowanie okien dialogowych, pickerów i snackbarów",
-      "form": "Formularz testowy",
-      "formDescription": "Testowanie kontrolek formularza: tekst, liczby, enum, data, lista",
-      "report": "Raport testowy",
-      "reportDescription": "Testowanie tabeli z filtrowaniem, sortowaniem i akcjami"
-    },
-    "popup": {
-      "title": "Popupy i dialogi",
-      "alertDialog": "Alert Dialog",
-      "alertTitle": "Testowy alert",
-      "alertMessage": "To jest testowe okno dialogowe z potwierdzeniem.",
-      "errorDialog": "Error Dialog",
-      "errorTitle": "Testowy błąd",
-      "errorMessage": "To jest symulowany komunikat o błędzie.",
-      "colorPicker": "Color Picker",
-      "selectedColor": "Wybrany kolor",
-      "dateTimePicker": "Date/Time Picker",
-      "selectedDateTime": "Wybrana data/czas",
-      "intervalPicker": "Interval Picker",
-      "selectedInterval": "Wybrany interwał",
-      "snackbar": "Snackbar",
-      "snackbarMessage": "To jest testowa wiadomość snackbar!",
-      "noSelection": "Brak wyboru"
-    },
-    "form": {
-      "title": "Formularz testowy",
-      "newItem": "Nowy element",
-      "name": "Nazwa",
-      "quantity": "Ilość",
-      "active": "Aktywny",
-      "priority": "Priorytet",
-      "startDate": "Data rozpoczęcia",
-      "tags": "Tagi",
-      "basicInfo": "Podstawowe informacje",
-      "elements": "Elementy",
-      "elementName": "Nazwa elementu",
-      "elementValue": "Wartość elementu",
-      "nestedRepeatable": "Zagnieżdżona lista",
-      "innerRepeatable": "Wewnętrzna lista",
-      "innerString": "Wewnętrzny tekst",
-      "innerBoolean": "Wewnętrzny przełącznik",
-      "savedMessage": "Dane zapisane (sandbox)"
-    },
-    "report": {
-      "title": "Raport testowy",
-      "name": "Nazwa",
-      "priority": "Priorytet",
-      "active": "Aktywny",
-      "score": "Wynik",
-      "createdAt": "Data utworzenia",
-      "newItem": "Dodaj nowy"
-    },
-    "priority": {
-      "low": "Niski",
-      "medium": "Średni",
-      "high": "Wysoki",
-      "critical": "Krytyczny"
-    },
-    "componentTestScreen": "Ekran testów komponentów"
-  }
+  "tab": "Sandbox",
+  "home": {
+    "title": "Sandbox",
+    "mainText": "Moduł Sandbox",
+    "description": "Środowisko testowe do weryfikacji komponentów UI: dialogów, formularzy i raportów.",
+    "popups": "Popupy i dialogi",
+    "popupsDescription": "Testowanie okien dialogowych, pickerów i snackbarów",
+    "form": "Formularz testowy",
+    "formDescription": "Testowanie kontrolek formularza: tekst, liczby, enum, data, lista",
+    "report": "Raport testowy",
+    "reportDescription": "Testowanie tabeli z filtrowaniem, sortowaniem i akcjami"
+  },
+  "popup": {
+    "title": "Popupy i dialogi",
+    "alertDialog": "Alert Dialog",
+    "alertTitle": "Testowy alert",
+    "alertMessage": "To jest testowe okno dialogowe z potwierdzeniem.",
+    "errorDialog": "Error Dialog",
+    "errorTitle": "Testowy błąd",
+    "errorMessage": "To jest symulowany komunikat o błędzie.",
+    "colorPicker": "Color Picker",
+    "selectedColor": "Wybrany kolor",
+    "dateTimePicker": "Date/Time Picker",
+    "selectedDateTime": "Wybrana data/czas",
+    "intervalPicker": "Interval Picker",
+    "selectedInterval": "Wybrany interwał",
+    "snackbar": "Snackbar",
+    "snackbarMessage": "To jest testowa wiadomość snackbar!",
+    "noSelection": "Brak wyboru"
+  },
+  "form": {
+    "title": "Formularz testowy",
+    "newItem": "Nowy element",
+    "name": "Nazwa",
+    "quantity": "Ilość",
+    "active": "Aktywny",
+    "priority": "Priorytet",
+    "startDate": "Data rozpoczęcia",
+    "tags": "Tagi",
+    "basicInfo": "Podstawowe informacje",
+    "elements": "Elementy",
+    "elementName": "Nazwa elementu",
+    "elementValue": "Wartość elementu",
+    "nestedRepeatable": "Zagnieżdżona lista",
+    "innerRepeatable": "Wewnętrzna lista",
+    "innerString": "Wewnętrzny tekst",
+    "innerBoolean": "Wewnętrzny przełącznik",
+    "savedMessage": "Dane zapisane (sandbox)"
+  },
+  "report": {
+    "title": "Raport testowy",
+    "name": "Nazwa",
+    "priority": "Priorytet",
+    "active": "Aktywny",
+    "score": "Wynik",
+    "createdAt": "Data utworzenia",
+    "newItem": "Dodaj nowy"
+  },
+  "priority": {
+    "low": "Niski",
+    "medium": "Średni",
+    "high": "Wysoki",
+    "critical": "Krytyczny"
+  },
+  "componentTestScreen": "Ekran testów komponentów"
 }
-

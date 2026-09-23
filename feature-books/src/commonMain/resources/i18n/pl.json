@@ -1,71 +1,70 @@
 {
-  "books": {
-    "home": {
-      "addBook": "Dodaj książkę",
-      "allAuthors": "Wszyscy autorzy",
-      "allBooks": "Wszystkie książki",
-      "currentlyReading": "Obecnie czytane",
-      "noItems": "Brak danych",
-      "recentlyAdded": "Ostatnio dodane",
-      "title": "Strona główna"
-    },
-    "stats": {
-      "authors": "Autorzy",
-      "completed": "Ukończone",
-      "reading": "Czytane",
-      "total": "Razem"
-    },
-    "status": {
-      "notReading": "Nie czytam",
-      "reading": "Czytam",
-      "completed": "Przeczytane",
-      "planToRead": "Planuję przeczytać"
-    },
+  "tab": "Książki",
+  "home": {
+    "addBook": "Dodaj książkę",
+    "allAuthors": "Wszyscy autorzy",
+    "allBooks": "Wszystkie książki",
+    "currentlyReading": "Obecnie czytane",
+    "noItems": "Brak danych",
+    "recentlyAdded": "Ostatnio dodane",
+    "title": "Strona główna"
+  },
+  "stats": {
+    "authors": "Autorzy",
+    "completed": "Ukończone",
+    "reading": "Czytane",
+    "total": "Razem"
+  },
+  "status": {
+    "notReading": "Nie czytam",
+    "reading": "Czytam",
+    "completed": "Przeczytane",
+    "planToRead": "Planuję przeczytać"
+  },
+  "form": {
+    "newBook": "Nowa książka",
+    "editBook": "Edycja książki",
+    "titlePl": "Tytuł (PL)",
+    "titleEng": "Tytuł (ENG)",
+    "status": "Status",
+    "basicInfo": "Podstawowe informacje",
+    "author": "Autor",
+    "authors": "Autorzy",
+    "confirmDelete": "Czy na pewno chcesz usunąć tę książkę?"
+  },
+  "validation": {
+    "titleExists": "Książka o tym tytule już istnieje"
+  },
+  "authors": {
     "form": {
-      "newBook": "Nowa książka",
-      "editBook": "Edycja książki",
-      "titlePl": "Tytuł (PL)",
-      "titleEng": "Tytuł (ENG)",
-      "status": "Status",
-      "basicInfo": "Podstawowe informacje",
-      "author": "Autor",
-      "authors": "Autorzy",
-      "confirmDelete": "Czy na pewno chcesz usunąć tę książkę?"
+      "newAuthor": "Nowy autor",
+      "editAuthor": "Edycja autora",
+      "name": "Imię i nazwisko",
+      "sortName": "Nazwa do sortowania",
+      "confirmDelete": "Czy na pewno chcesz usunąć tego autora?"
     },
     "validation": {
-      "titleExists": "Książka o tym tytule już istnieje"
-    },
-    "authors": {
-      "form": {
-        "newAuthor": "Nowy autor",
-        "editAuthor": "Edycja autora",
-        "name": "Imię i nazwisko",
-        "sortName": "Nazwa do sortowania",
-        "confirmDelete": "Czy na pewno chcesz usunąć tego autora?"
-      },
-      "validation": {
-        "nameExists": "Taki autor już istnieje"
-      },
-      "report": {
-        "title": "Autorzy",
-        "name": "Imię i nazwisko",
-        "sortName": "Nazwa do sortowania",
-        "bookCount": "Liczba książek",
-        "createdAt": "Data dodania",
-        "newAuthor": "Nowy autor",
-        "editAuthor": "Edytuj autora"
-      }
+      "nameExists": "Taki autor już istnieje"
     },
     "report": {
-      "title": "Książki",
-      "titlePl": "Tytuł (PL)",
-      "titleEng": "Tytuł (ENG)",
-      "authors": "Autorzy",
-      "status": "Status",
+      "title": "Autorzy",
+      "name": "Imię i nazwisko",
+      "sortName": "Nazwa do sortowania",
+      "bookCount": "Liczba książek",
       "createdAt": "Data dodania",
-      "updatedAt": "Data aktualizacji",
-      "newBook": "Nowa książka",
-      "editBook": "Edytuj książkę"
+      "newAuthor": "Nowy autor",
+      "editAuthor": "Edytuj autora"
     }
+  },
+  "report": {
+    "title": "Książki",
+    "titlePl": "Tytuł (PL)",
+    "titleEng": "Tytuł (ENG)",
+    "authors": "Autorzy",
+    "status": "Status",
+    "createdAt": "Data dodania",
+    "updatedAt": "Data aktualizacji",
+    "newBook": "Nowa książka",
+    "editBook": "Edytuj książkę"
   }
 }

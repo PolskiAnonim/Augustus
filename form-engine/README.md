@@ -341,6 +341,31 @@ class GameCategoryValidator : FormValidator() {
 `FormValidator` is a `KoinComponent` with `db` and `errorManager` available directly, so business-rule
 and action validators can query the database and attach errors to specific fields in one place.
 
+## Localization
+
+The engine owns its strings. `src/commonMain/resources/i18n/{en,pl}.json` are compiled by the
+[Octavius I18n](https://github.com/Octavius-Framework/octavius-i18n) plugin into
+`org.octavius.form.localization.FormTr`, generated from this module alone:
+
+```kotlin
+octaviusI18n {
+    generators {
+        create("form") {
+            sourceProject = project(":form-engine")
+            targetPackage = "org.octavius.form.localization"
+            objectName = "FormTr"
+        }
+    }
+}
+```
+
+Everything the engine renders or reports on its own — validation messages, dropdown placeholders, repeatable
+row labels, the error summary — resolves through `FormTr`, never through the host application's translation
+object. Generic strings shared with the rest of the UI (`Tr.Action.add()`, `Tr.Expandable.expand()`,
+`Tr.Search.*`) are not repeated here — they come from `ui-core`'s `Tr`, which the engine depends on anyway.
+The active language is global —
+`OctaviusI18n.currentLanguage` — and shared with every other translation object in the application.
+
 ## Architecture
 
 ```
@@ -369,11 +394,12 @@ form-engine/
 │   ├── validator/              # One ControlValidator implementation per control type
 │   └── layout/                 # Section and repeatable-row rendering, shared layout helpers
 │
-└── resources/i18n/            # Engine-owned translation strings
+└── resources/i18n/            # en/pl translations, generated into `FormTr`
 ```
 
-The module targets the desktop JVM only and depends on `ui-core` for theme, dialogs and snackbars, and on
-[Octavius for PostgreSQL](https://github.com/Octavius-Framework/octavius-postgresql) for `OctaviusClient`.
+The module targets the desktop JVM only and depends on `ui-core` for theme, dialogs and snackbars, on
+[Octavius for PostgreSQL](https://github.com/Octavius-Framework/octavius-postgresql) for `OctaviusClient`,
+and on [Octavius I18n](https://github.com/Octavius-Framework/octavius-i18n) for its translations.
 `FormValidator` and `FormDataManager` obtain `OctaviusClient` through Koin.
 
 It does **not** depend on the application's navigation module, and deliberately so: nothing here knows what a

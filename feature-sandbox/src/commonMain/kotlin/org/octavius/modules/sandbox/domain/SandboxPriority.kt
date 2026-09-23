@@ -1,7 +1,7 @@
 package org.octavius.modules.sandbox.domain
 
 import org.octavius.domain.EnumWithFormatter
-import org.octavius.localization.Tr
+import org.octavius.modules.sandbox.localization.SandboxTr
 
 enum class SandboxPriority : EnumWithFormatter<SandboxPriority> {
     Low,
@@ -11,10 +11,10 @@ enum class SandboxPriority : EnumWithFormatter<SandboxPriority> {
 
     override fun toDisplayString(): String {
         return when (this) {
-            Low -> Tr.Sandbox.Priority.low()
-            Medium -> Tr.Sandbox.Priority.medium()
-            High -> Tr.Sandbox.Priority.high()
-            Critical -> Tr.Sandbox.Priority.critical()
+            Low -> SandboxTr.Priority.low()
+            Medium -> SandboxTr.Priority.medium()
+            High -> SandboxTr.Priority.high()
+            Critical -> SandboxTr.Priority.critical()
         }
     }
 }

@@ -1,108 +1,107 @@
 {
-  "games": {
-    "categories": {
-      "name": "Nazwa kategorii",
-      "gameCount": "Liczba gier",
-      "title": "Kategorie gier"
+  "tab": "Gry",
+  "categories": {
+    "name": "Nazwa kategorii",
+    "gameCount": "Liczba gier",
+    "title": "Kategorie gier"
+  },
+  "home": {
+    "title": "Gry - Strona główna",
+    "mainText": "Moduł Gry",
+    "description": "Zarządzaj swoją kolekcją gier, seriami i kategoriami.",
+    "allGames": "Wszystkie gry",
+    "allGamesDescription": "Przeglądaj i zarządzaj wszystkimi grami w swojej kolekcji",
+    "gameSeries": "Serie gier",
+    "gameSeriesDescription": "Zarządzaj seriami gier i organizuj swoje gry",
+    "gameCategories": "Kategorie gier",
+    "gameCategoriesDescription": "Zarządzaj kategoriami i tagami swoich gier",
+    "statistics": "Statystyki",
+    "statisticsDescription": "Zobacz statystyki swojej kolekcji gier",
+    "gameDetails": "Szczegóły gier",
+    "gameDetailsDescription": "Przeglądaj gry z ocenami, czasem gry i postaciami"
+  },
+  "form": {
+    "atmosphereRating": "Ocena atmosfery (1-10)",
+    "basicInfo": "Podstawowe informacje",
+    "category": {
+      "_one": "Kategoria",
+      "_few": "Kategorie"
     },
-    "home": {
-      "title": "Gry - Strona główna",
-      "mainText": "Moduł Gry",
-      "description": "Zarządzaj swoją kolekcją gier, seriami i kategoriami.",
-      "allGames": "Wszystkie gry",
-      "allGamesDescription": "Przeglądaj i zarządzaj wszystkimi grami w swojej kolekcji",
-      "gameSeries": "Serie gier",
-      "gameSeriesDescription": "Zarządzaj seriami gier i organizuj swoje gry",
-      "gameCategories": "Kategorie gier",
-      "gameCategoriesDescription": "Zarządzaj kategoriami i tagami swoich gier",
-      "statistics": "Statystyki",
-      "statisticsDescription": "Zobacz statystyki swojej kolekcji gier",
-      "gameDetails": "Szczegóły gier",
-      "gameDetailsDescription": "Przeglądaj gry z ocenami, czasem gry i postaciami"
-    },
-    "form": {
-      "atmosphereRating": "Ocena atmosfery (1-10)",
-      "basicInfo": "Podstawowe informacje",
-      "category": {
-        "_one": "Kategoria",
-        "_few": "Kategorie"
-      },
-      "characters": "Postacie",
-      "distinctiveAntagonist": "Charakterystyczny antagonista",
-      "distinctiveCharacters": "Charakterystyczne postacie",
-      "distinctiveProtagonist": "Charakterystyczny protagonista",
-      "editCategory": "Edytuj kategorię",
-      "editGame": "Edytuj grę",
-      "editSeries": "Edytuj serię",
-      "gameplayRating": "Ocena rozgrywki (1-10)",
-      "newCategory": "Nowa kategoria",
-      "newGame": "Nowa gra",
-      "newSeries": "Nowa seria",
-      "playCount": "Liczba przejść",
-      "playTime": "Czas gry",
-      "playTimeHours": "Czas gry (godziny)",
-      "ratings": "Oceny",
-      "series": "Seria",
-      "status": "Status",
-      "storyRating": "Ocena fabuły (1-10)",
-      "visibleCharacterSection": "Widoczna sekcja postaci"
-    },
-    "general": {
-      "gameName": "Nazwa",
-      "series": "Seria",
-      "status": "Status"
-    },
-    "report": {
-      "newGame": "Nowa gra",
-      "newSeries": "Nowa seria",
-      "title": "Gry",
-      "addGameInSeries": "Dodaj nową grę w serii",
-      "viewGames": "Zobacz gry"
-    },
-    "series": {
-      "basicInfo": "Informacje o serii",
-      "name": "Nazwa serii",
-      "gameCount": "Liczba gier",
-      "title": "Serie gier"
-    },
-    "details": {
-      "title": "Szczegóły gier",
-      "playTimeHours": "Czas gry (h)",
-      "completionCount": "Przejścia",
-      "storyRating": "Fabuła",
-      "gameplayRating": "Rozgrywka",
-      "atmosphereRating": "Atmosfera",
-      "distinctiveCharacter": "Char. postacie",
-      "distinctiveProtagonist": "Char. protagonista",
-      "distinctiveAntagonist": "Char. antagonista"
-    },
-    "stats": {
-      "title": "Statystyki gier",
-      "kpiHeader": "Podstawowe statystyki",
-      "totalGames": "Wszystkie gry",
-      "playedGames": "Zagrane gry",
-      "totalPlaytime": "Całkowity czas gry",
-      "avgPlaytime": "Średni czas gry",
-      "ratingHeader": "Oceny",
-      "avgStory": "Średnia ocena fabuły",
-      "avgGameplay": "Średnia ocena rozgrywki",
-      "avgAtmosphere": "Średnia ocena atmosfery",
-      "favoritesHeader": "Ulubione",
-      "favoriteCategory": "Ulubiona kategoria",
-      "favoriteSeries": "Ulubiona seria",
-      "mostPlayed": "Najczęściej grane",
-      "highestRated": "Najwyżej oceniane"
-    },
-    "status": {
-      "endless": "Gra bez końca",
-      "notPlaying": "Nie gram",
-      "played": "Grałem",
-      "playing": "Gram",
-      "toPlay": "Do zagrania"
-    },
-    "validation": {
-      "duplicatedSeries": "Seria o tej nazwie już istnieje",
-      "nameExists": "Nazwa już istnieje"
-    }
+    "characters": "Postacie",
+    "distinctiveAntagonist": "Charakterystyczny antagonista",
+    "distinctiveCharacters": "Charakterystyczne postacie",
+    "distinctiveProtagonist": "Charakterystyczny protagonista",
+    "editCategory": "Edytuj kategorię",
+    "editGame": "Edytuj grę",
+    "editSeries": "Edytuj serię",
+    "gameplayRating": "Ocena rozgrywki (1-10)",
+    "newCategory": "Nowa kategoria",
+    "newGame": "Nowa gra",
+    "newSeries": "Nowa seria",
+    "playCount": "Liczba przejść",
+    "playTime": "Czas gry",
+    "playTimeHours": "Czas gry (godziny)",
+    "ratings": "Oceny",
+    "series": "Seria",
+    "status": "Status",
+    "storyRating": "Ocena fabuły (1-10)",
+    "visibleCharacterSection": "Widoczna sekcja postaci"
+  },
+  "general": {
+    "gameName": "Nazwa",
+    "series": "Seria",
+    "status": "Status"
+  },
+  "report": {
+    "newGame": "Nowa gra",
+    "newSeries": "Nowa seria",
+    "title": "Gry",
+    "addGameInSeries": "Dodaj nową grę w serii",
+    "viewGames": "Zobacz gry"
+  },
+  "series": {
+    "basicInfo": "Informacje o serii",
+    "name": "Nazwa serii",
+    "gameCount": "Liczba gier",
+    "title": "Serie gier"
+  },
+  "details": {
+    "title": "Szczegóły gier",
+    "playTimeHours": "Czas gry (h)",
+    "completionCount": "Przejścia",
+    "storyRating": "Fabuła",
+    "gameplayRating": "Rozgrywka",
+    "atmosphereRating": "Atmosfera",
+    "distinctiveCharacter": "Char. postacie",
+    "distinctiveProtagonist": "Char. protagonista",
+    "distinctiveAntagonist": "Char. antagonista"
+  },
+  "stats": {
+    "title": "Statystyki gier",
+    "kpiHeader": "Podstawowe statystyki",
+    "totalGames": "Wszystkie gry",
+    "playedGames": "Zagrane gry",
+    "totalPlaytime": "Całkowity czas gry",
+    "avgPlaytime": "Średni czas gry",
+    "ratingHeader": "Oceny",
+    "avgStory": "Średnia ocena fabuły",
+    "avgGameplay": "Średnia ocena rozgrywki",
+    "avgAtmosphere": "Średnia ocena atmosfery",
+    "favoritesHeader": "Ulubione",
+    "favoriteCategory": "Ulubiona kategoria",
+    "favoriteSeries": "Ulubiona seria",
+    "mostPlayed": "Najczęściej grane",
+    "highestRated": "Najwyżej oceniane"
+  },
+  "status": {
+    "endless": "Gra bez końca",
+    "notPlaying": "Nie gram",
+    "played": "Grałem",
+    "playing": "Gram",
+    "toPlay": "Do zagrania"
+  },
+  "validation": {
+    "duplicatedSeries": "Seria o tej nazwie już istnieje",
+    "nameExists": "Nazwa już istnieje"
   }
 }

@@ -17,6 +17,7 @@ import org.octavius.form.control.type.primitive.CheckboxControl
 import org.octavius.form.control.type.repeatable.RepeatableControl
 import org.octavius.form.control.type.selection.EnumControl
 import org.octavius.localization.Tr
+import org.octavius.modules.asian.localization.AsianMediaTr
 import org.octavius.navigation.AppRouter
 
 class AsianMediaFormSchemaBuilder : FormSchemaBuilder() {
@@ -33,15 +34,15 @@ class AsianMediaFormSchemaBuilder : FormSchemaBuilder() {
             collapsible = false,
             initiallyExpanded = true,
             columns = 2,
-            label = Tr.AsianMedia.Form.titleInfo()
+            label = AsianMediaTr.Form.titleInfo()
         ),
         "titles" to StringListControl(
-            Tr.AsianMedia.Form.titles(),
+            AsianMediaTr.Form.titles(),
             required = true,
             validationOptions = StringListValidation(minItems = 1)
         ),
         "language" to EnumControl(
-            Tr.AsianMedia.Form.originalLanguage(),
+            AsianMediaTr.Form.originalLanguage(),
             PublicationLanguage::class,
             required = true
         ),
@@ -64,7 +65,7 @@ class AsianMediaFormSchemaBuilder : FormSchemaBuilder() {
                 minItems = 1,
                 maxItems = 7
             ),
-            label = Tr.AsianMedia.Form.publications()
+            label = AsianMediaTr.Form.publications()
         ),
         // Przyciski
         "save_button" to ButtonControl(
@@ -122,24 +123,24 @@ class AsianMediaFormSchemaBuilder : FormSchemaBuilder() {
         return mapOf(
             "id" to IntegerControl(null),
             "publication_type" to EnumControl(
-                Tr.AsianMedia.Form.publicationType(),
+                AsianMediaTr.Form.publicationType(),
                 PublicationType::class,
                 required = true,
                 actions = listOf(
                     ControlAction(executeOnInit = true) {
                         val isWebtoon = sourceValue == PublicationType.Webtoon
                         if (isWebtoon) {
-                            updateLabel("./volumes", Tr.AsianMedia.Form.seasonsCount())
-                            updateLabel("./translated_volumes", Tr.AsianMedia.Form.translatedSeasons())
+                            updateLabel("./volumes", AsianMediaTr.Form.seasonsCount())
+                            updateLabel("./translated_volumes", AsianMediaTr.Form.translatedSeasons())
                         } else {
-                            updateLabel("./volumes", Tr.AsianMedia.Form.volumeCount())
-                            updateLabel("./translated_volumes", Tr.AsianMedia.Form.translatedVolumes())
+                            updateLabel("./volumes", AsianMediaTr.Form.volumeCount())
+                            updateLabel("./translated_volumes", AsianMediaTr.Form.translatedVolumes())
                         }
                     }
                 )
             ),
             "status" to EnumControl(
-                Tr.AsianMedia.Form.readingStatus(),
+                AsianMediaTr.Form.readingStatus(),
                 PublicationStatus::class,
                 required = true,
                 actions = listOf(
@@ -153,27 +154,27 @@ class AsianMediaFormSchemaBuilder : FormSchemaBuilder() {
                 )
             ),
             "track_progress" to CheckboxControl(
-                Tr.AsianMedia.Form.trackProgress(),
+                AsianMediaTr.Form.trackProgress(),
                 required = true
             ),
             "volumes" to IntegerControl(
-                Tr.AsianMedia.Form.volumeCount(),
+                AsianMediaTr.Form.volumeCount(),
                 dependencies = visibleWhenTrackProgress()
             ),
             "translated_volumes" to IntegerControl(
-                Tr.AsianMedia.Form.translatedVolumes(),
+                AsianMediaTr.Form.translatedVolumes(),
                 dependencies = visibleWhenTrackProgress()
             ),
             "chapters" to IntegerControl(
-                Tr.AsianMedia.Form.chapterCount(),
+                AsianMediaTr.Form.chapterCount(),
                 dependencies = visibleWhenTrackProgress()
             ),
             "translated_chapters" to IntegerControl(
-                Tr.AsianMedia.Form.translatedChapters(),
+                AsianMediaTr.Form.translatedChapters(),
                 dependencies = visibleWhenTrackProgress()
             ),
             "original_completed" to CheckboxControl(
-                Tr.AsianMedia.Form.originalCompleted(),
+                AsianMediaTr.Form.originalCompleted(),
                 required = true,
                 dependencies = visibleWhenTrackProgress()
             )

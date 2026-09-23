@@ -17,6 +17,7 @@ import org.octavius.form.component.FormState
 import org.octavius.form.control.base.Control
 import org.octavius.form.control.base.ControlContext
 import org.octavius.form.control.type.repeatable.RepeatableRow
+import org.octavius.form.localization.FormTr
 import org.octavius.localization.Tr
 import org.octavius.theme.FormSpacing
 
@@ -118,7 +119,7 @@ private fun RepeatableRowHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = Tr.Form.Actions.itemLabel(index + 1),
+                text = FormTr.Form.Actions.itemLabel(index + 1),
                 style = MaterialTheme.typography.titleMedium
             )
 

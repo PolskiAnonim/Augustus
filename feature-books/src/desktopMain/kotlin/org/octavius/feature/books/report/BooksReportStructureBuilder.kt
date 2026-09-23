@@ -6,7 +6,7 @@ import androidx.compose.material.icons.filled.Edit
 import io.github.octaviusframework.client.query.QueryFragment
 import org.octavius.feature.books.domain.ReadingStatus
 import org.octavius.feature.books.form.book.ui.BookFormScreen
-import org.octavius.localization.Tr
+import org.octavius.feature.books.localization.BooksTr
 import org.octavius.navigation.AppRouter
 import org.octavius.report.ReportMainAction
 import org.octavius.report.ReportRowAction
@@ -42,28 +42,28 @@ class BooksReportStructureBuilder : ReportStructureBuilder() {
 
     override fun buildColumns(): Map<String, ReportColumn> = mapOf(
         "title_pl" to StringColumn(
-            header = Tr.Books.Report.titlePl()
+            header = BooksTr.Report.titlePl()
         ),
         "title_eng" to StringColumn(
-            header = Tr.Books.Report.titleEng()
+            header = BooksTr.Report.titleEng()
         ),
         "authors" to StringColumn(
-            header = Tr.Books.Report.authors()
+            header = BooksTr.Report.authors()
         ),
         "status" to EnumColumn(
-            header = Tr.Books.Report.status(),
+            header = BooksTr.Report.status(),
             enumClass = ReadingStatus::class
         ),
         "created_at" to InstantColumn(
-            header = Tr.Books.Report.createdAt()
+            header = BooksTr.Report.createdAt()
         ),
         "updated_at" to InstantColumn(
-            header = Tr.Books.Report.updatedAt()
+            header = BooksTr.Report.updatedAt()
         )
     )
 
     override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(
-        label = Tr.Books.Report.editBook(),
+        label = BooksTr.Report.editBook(),
         icon = Icons.Default.Edit
     ) {
         val bookId = rowData["id"] as? Int
@@ -74,7 +74,7 @@ class BooksReportStructureBuilder : ReportStructureBuilder() {
 
     override fun buildMainActions(): List<ReportMainAction> = listOf(
         ReportMainAction(
-            label = Tr.Books.Report.newBook(),
+            label = BooksTr.Report.newBook(),
             icon = Icons.Default.Add
         ) {
             AppRouter.navigateTo(BookFormScreen.create())

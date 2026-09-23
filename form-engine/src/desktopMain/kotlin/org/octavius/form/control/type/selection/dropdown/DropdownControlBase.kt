@@ -12,7 +12,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import org.octavius.form.control.base.*
 import org.octavius.form.control.layout.RenderNormalLabel
-import org.octavius.localization.Tr
+import org.octavius.form.localization.FormTr
 
 /**
  * Super-bazowa klasa dla kontrolek dropdown.
@@ -105,9 +105,9 @@ abstract class DropdownControlBase<T : Any>(
             ) {
                 OutlinedTextField(
                     value = resolvedText?.takeIf { it.isNotEmpty() } ?: when {
-                        unresolved -> Tr.App.loading()
-                        !isRequired -> Tr.Form.Dropdown.noSelection()
-                        else -> Tr.Form.Dropdown.selectOption()
+                        unresolved -> FormTr.Form.Dropdown.loading()
+                        !isRequired -> FormTr.Form.Dropdown.noSelection()
+                        else -> FormTr.Form.Dropdown.selectOption()
                     },
                     onValueChange = {},
                     readOnly = true,

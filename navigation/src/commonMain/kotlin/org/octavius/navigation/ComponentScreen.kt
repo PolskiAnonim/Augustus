@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
  *
  * ```kotlin
  * fun create(entityId: Int? = null): Screen {
- *     val title = Tr.Books.Form.editBook()
+ *     val title = BooksTr.Form.editBook()
  *     val formHandler = FormHandler(BookFormSchemaBuilder(), BookFormDataManager())
  *     return ComponentScreen(title) { FormView(formHandler) }
  * }

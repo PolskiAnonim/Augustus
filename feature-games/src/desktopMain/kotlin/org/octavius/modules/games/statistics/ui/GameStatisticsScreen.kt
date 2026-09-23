@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.octavius.localization.Tr
 import org.octavius.modules.games.form.game.ui.GameFormScreen
+import org.octavius.modules.games.localization.GamesTr
 import org.octavius.modules.games.statistics.model.DashboardGame
 import org.octavius.modules.games.statistics.model.GameStatisticsData
 import org.octavius.modules.games.statistics.model.GameStatisticsHandler
@@ -50,7 +51,7 @@ class GameStatisticsScreen(override val title: String) : Screen {
 
                 item {
                     QuickAccessGameList(
-                        title = Tr.Games.Stats.mostPlayed(),
+                        title = GamesTr.Stats.mostPlayed(),
                         items = data.mostPlayedGames.orEmpty(),
                         onItemClick = { AppRouter.navigateTo(GameFormScreen.create(it)) }
                     )
@@ -58,7 +59,7 @@ class GameStatisticsScreen(override val title: String) : Screen {
 
                 item {
                     QuickAccessGameList(
-                        title = Tr.Games.Stats.highestRated(),
+                        title = GamesTr.Stats.highestRated(),
                         items = data.highestRatedGames.orEmpty(),
                         onItemClick = { AppRouter.navigateTo(GameFormScreen.create(it)) }
                     )
@@ -69,7 +70,7 @@ class GameStatisticsScreen(override val title: String) : Screen {
 
     companion object {
         fun create(): Screen {
-            return GameStatisticsScreen(Tr.Games.Stats.title())
+            return GameStatisticsScreen(GamesTr.Stats.title())
         }
     }
 }
@@ -78,25 +79,25 @@ class GameStatisticsScreen(override val title: String) : Screen {
 @Composable
 private fun KpiStats(data: GameStatisticsData) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text(Tr.Games.Stats.kpiHeader(), style = MaterialTheme.typography.headlineSmall)
+        Text(GamesTr.Stats.kpiHeader(), style = MaterialTheme.typography.headlineSmall)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            StatCard(Tr.Games.Stats.totalGames(), data.totalGames.toString(), Modifier.weight(1f))
-            StatCard(Tr.Games.Stats.playedGames(), data.playedGamesCount.toString(), Modifier.weight(1f))
+            StatCard(GamesTr.Stats.totalGames(), data.totalGames.toString(), Modifier.weight(1f))
+            StatCard(GamesTr.Stats.playedGames(), data.playedGamesCount.toString(), Modifier.weight(1f))
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             StatCard(
-                Tr.Games.Stats.totalPlaytime(),
+                GamesTr.Stats.totalPlaytime(),
                 "${data.totalPlaytimeHours}h",
                 Modifier.weight(1f)
             )
             StatCard(
-                Tr.Games.Stats.avgPlaytime(),
+                GamesTr.Stats.avgPlaytime(),
                 "${data.avgPlaytimeForPlayed}h",
                 Modifier.weight(1f)
             )
@@ -107,14 +108,14 @@ private fun KpiStats(data: GameStatisticsData) {
 @Composable
 private fun RatingStats(data: GameStatisticsData) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text(Tr.Games.Stats.ratingHeader(), style = MaterialTheme.typography.headlineSmall)
+        Text(GamesTr.Stats.ratingHeader(), style = MaterialTheme.typography.headlineSmall)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            StatCard(Tr.Games.Stats.avgStory(), data.avgStoryRating?.toString() ?: "-", Modifier.weight(1f))
-            StatCard(Tr.Games.Stats.avgGameplay(), data.avgGameplayRating?.toString() ?: "-", Modifier.weight(1f))
-            StatCard(Tr.Games.Stats.avgAtmosphere(), data.avgAtmosphereRating?.toString() ?: "-", Modifier.weight(1f))
+            StatCard(GamesTr.Stats.avgStory(), data.avgStoryRating?.toString() ?: "-", Modifier.weight(1f))
+            StatCard(GamesTr.Stats.avgGameplay(), data.avgGameplayRating?.toString() ?: "-", Modifier.weight(1f))
+            StatCard(GamesTr.Stats.avgAtmosphere(), data.avgAtmosphereRating?.toString() ?: "-", Modifier.weight(1f))
         }
     }
 }
@@ -122,13 +123,13 @@ private fun RatingStats(data: GameStatisticsData) {
 @Composable
 private fun FavoriteStats(data: GameStatisticsData) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text(Tr.Games.Stats.favoritesHeader(), style = MaterialTheme.typography.headlineSmall)
+        Text(GamesTr.Stats.favoritesHeader(), style = MaterialTheme.typography.headlineSmall)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            StatCard(Tr.Games.Stats.favoriteCategory(), data.favoriteCategoryName ?: "-", Modifier.weight(1f))
-            StatCard(Tr.Games.Stats.favoriteSeries(), data.favoriteSeriesName ?: "-", Modifier.weight(1f))
+            StatCard(GamesTr.Stats.favoriteCategory(), data.favoriteCategoryName ?: "-", Modifier.weight(1f))
+            StatCard(GamesTr.Stats.favoriteSeries(), data.favoriteSeriesName ?: "-", Modifier.weight(1f))
         }
     }
 }

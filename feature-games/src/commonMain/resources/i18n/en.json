@@ -1,108 +1,107 @@
 {
-  "games": {
-    "categories": {
-      "name": "Category Name",
-      "gameCount": "Game Count",
-      "title": "Game Categories"
+  "tab": "Games",
+  "categories": {
+    "name": "Category Name",
+    "gameCount": "Game Count",
+    "title": "Game Categories"
+  },
+  "home": {
+    "title": "Games - Home",
+    "mainText": "Games Module",
+    "description": "Manage your collection of games, series, and categories.",
+    "allGames": "All Games",
+    "allGamesDescription": "Browse and manage all games in your collection",
+    "gameSeries": "Game Series",
+    "gameSeriesDescription": "Manage game series and organize your games",
+    "gameCategories": "Game Categories",
+    "gameCategoriesDescription": "Manage categories and tags for your games",
+    "statistics": "Statistics",
+    "statisticsDescription": "View statistics for your game collection",
+    "gameDetails": "Game Details",
+    "gameDetailsDescription": "Browse games with ratings, playtime, and characters"
+  },
+  "form": {
+    "atmosphereRating": "Atmosphere Rating (1-10)",
+    "basicInfo": "Basic Info",
+    "category": {
+      "_one": "Category",
+      "_many": "Categories"
     },
-    "home": {
-      "title": "Games - Home",
-      "mainText": "Games Module",
-      "description": "Manage your collection of games, series, and categories.",
-      "allGames": "All Games",
-      "allGamesDescription": "Browse and manage all games in your collection",
-      "gameSeries": "Game Series",
-      "gameSeriesDescription": "Manage game series and organize your games",
-      "gameCategories": "Game Categories",
-      "gameCategoriesDescription": "Manage categories and tags for your games",
-      "statistics": "Statistics",
-      "statisticsDescription": "View statistics for your game collection",
-      "gameDetails": "Game Details",
-      "gameDetailsDescription": "Browse games with ratings, playtime, and characters"
-    },
-    "form": {
-      "atmosphereRating": "Atmosphere Rating (1-10)",
-      "basicInfo": "Basic Info",
-      "category": {
-        "_one": "Category",
-        "_many": "Categories"
-      },
-      "characters": "Characters",
-      "distinctiveAntagonist": "Distinctive Antagonist",
-      "distinctiveCharacters": "Distinctive Characters",
-      "distinctiveProtagonist": "Distinctive Protagonist",
-      "editCategory": "Edit Category",
-      "editGame": "Edit Game",
-      "editSeries": "Edit Series",
-      "gameplayRating": "Gameplay Rating (1-10)",
-      "newCategory": "New Category",
-      "newGame": "New Game",
-      "newSeries": "New Series",
-      "playCount": "Play Count",
-      "playTime": "Play Time",
-      "playTimeHours": "Play Time (Hours)",
-      "ratings": "Ratings",
-      "series": "Series",
-      "status": "Status",
-      "storyRating": "Story Rating (1-10)",
-      "visibleCharacterSection": "Visible Character Section"
-    },
-    "general": {
-      "gameName": "Name",
-      "series": "Series",
-      "status": "Status"
-    },
-    "report": {
-      "newGame": "New Game",
-      "newSeries": "New Series",
-      "title": "Games",
-      "addGameInSeries": "Add New Game in Series",
-      "viewGames": "View Games"
-    },
-    "series": {
-      "basicInfo": "Series Info",
-      "name": "Series Name",
-      "gameCount": "Game Count",
-      "title": "Game Series"
-    },
-    "details": {
-      "title": "Game Details",
-      "playTimeHours": "Play Time (h)",
-      "completionCount": "Completions",
-      "storyRating": "Story",
-      "gameplayRating": "Gameplay",
-      "atmosphereRating": "Atmosphere",
-      "distinctiveCharacter": "Dist. Characters",
-      "distinctiveProtagonist": "Dist. Protagonist",
-      "distinctiveAntagonist": "Dist. Antagonist"
-    },
-    "stats": {
-      "title": "Game Statistics",
-      "kpiHeader": "Basic Statistics",
-      "totalGames": "Total Games",
-      "playedGames": "Games Played",
-      "totalPlaytime": "Total Playtime",
-      "avgPlaytime": "Average Playtime",
-      "ratingHeader": "Ratings",
-      "avgStory": "Average Story Rating",
-      "avgGameplay": "Average Gameplay Rating",
-      "avgAtmosphere": "Average Atmosphere Rating",
-      "favoritesHeader": "Favorites",
-      "favoriteCategory": "Favorite Category",
-      "favoriteSeries": "Favorite Series",
-      "mostPlayed": "Most Played",
-      "highestRated": "Highest Rated"
-    },
-    "status": {
-      "endless": "Endless",
-      "notPlaying": "Not Playing",
-      "played": "Played",
-      "playing": "Playing",
-      "toPlay": "To Play"
-    },
-    "validation": {
-      "duplicatedSeries": "Series with this name already exists",
-      "nameExists": "Name already exists"
-    }
+    "characters": "Characters",
+    "distinctiveAntagonist": "Distinctive Antagonist",
+    "distinctiveCharacters": "Distinctive Characters",
+    "distinctiveProtagonist": "Distinctive Protagonist",
+    "editCategory": "Edit Category",
+    "editGame": "Edit Game",
+    "editSeries": "Edit Series",
+    "gameplayRating": "Gameplay Rating (1-10)",
+    "newCategory": "New Category",
+    "newGame": "New Game",
+    "newSeries": "New Series",
+    "playCount": "Play Count",
+    "playTime": "Play Time",
+    "playTimeHours": "Play Time (Hours)",
+    "ratings": "Ratings",
+    "series": "Series",
+    "status": "Status",
+    "storyRating": "Story Rating (1-10)",
+    "visibleCharacterSection": "Visible Character Section"
+  },
+  "general": {
+    "gameName": "Name",
+    "series": "Series",
+    "status": "Status"
+  },
+  "report": {
+    "newGame": "New Game",
+    "newSeries": "New Series",
+    "title": "Games",
+    "addGameInSeries": "Add New Game in Series",
+    "viewGames": "View Games"
+  },
+  "series": {
+    "basicInfo": "Series Info",
+    "name": "Series Name",
+    "gameCount": "Game Count",
+    "title": "Game Series"
+  },
+  "details": {
+    "title": "Game Details",
+    "playTimeHours": "Play Time (h)",
+    "completionCount": "Completions",
+    "storyRating": "Story",
+    "gameplayRating": "Gameplay",
+    "atmosphereRating": "Atmosphere",
+    "distinctiveCharacter": "Dist. Characters",
+    "distinctiveProtagonist": "Dist. Protagonist",
+    "distinctiveAntagonist": "Dist. Antagonist"
+  },
+  "stats": {
+    "title": "Game Statistics",
+    "kpiHeader": "Basic Statistics",
+    "totalGames": "Total Games",
+    "playedGames": "Games Played",
+    "totalPlaytime": "Total Playtime",
+    "avgPlaytime": "Average Playtime",
+    "ratingHeader": "Ratings",
+    "avgStory": "Average Story Rating",
+    "avgGameplay": "Average Gameplay Rating",
+    "avgAtmosphere": "Average Atmosphere Rating",
+    "favoritesHeader": "Favorites",
+    "favoriteCategory": "Favorite Category",
+    "favoriteSeries": "Favorite Series",
+    "mostPlayed": "Most Played",
+    "highestRated": "Highest Rated"
+  },
+  "status": {
+    "endless": "Endless",
+    "notPlaying": "Not Playing",
+    "played": "Played",
+    "playing": "Playing",
+    "toPlay": "To Play"
+  },
+  "validation": {
+    "duplicatedSeries": "Series with this name already exists",
+    "nameExists": "Name already exists"
   }
 }

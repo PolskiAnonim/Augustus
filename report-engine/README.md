@@ -78,17 +78,17 @@ class BooksReportStructureBuilder : ReportStructureBuilder() {
     )
 
     override fun buildColumns(): Map<String, ReportColumn> = mapOf(
-        "title_pl" to StringColumn(header = Tr.Books.Report.titlePl(), width = 2f),
-        "authors" to StringColumn(header = Tr.Books.Report.authors()),
+        "title_pl" to StringColumn(header = BooksTr.Report.titlePl(), width = 2f),
+        "authors" to StringColumn(header = BooksTr.Report.authors()),
         "status" to EnumColumn(
-            header = Tr.Books.Report.status(),
+            header = BooksTr.Report.status(),
             enumClass = ReadingStatus::class
         ),
-        "created_at" to InstantColumn(header = Tr.Books.Report.createdAt())
+        "created_at" to InstantColumn(header = BooksTr.Report.createdAt())
     )
 
     override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(
-        label = Tr.Books.Report.editBook(),
+        label = BooksTr.Report.editBook(),
         icon = Icons.Default.Edit
     ) {
         val bookId = rowData["id"] as? Int ?: return@ReportRowAction
@@ -96,7 +96,7 @@ class BooksReportStructureBuilder : ReportStructureBuilder() {
     }
 
     override fun buildMainActions(): List<ReportMainAction> = listOf(
-        ReportMainAction(Tr.Books.Report.newBook(), Icons.Default.Add) {
+        ReportMainAction(BooksTr.Report.newBook(), Icons.Default.Add) {
             AppRouter.navigateTo(BookFormScreen.create())
         }
     )
@@ -120,7 +120,7 @@ class BooksReportScreen {
     companion object {
         fun create(): Screen {
             val reportHandler = ReportHandler(BooksReportStructureBuilder())
-            return ComponentScreen(Tr.Books.Report.title()) { ReportView(reportHandler) }
+            return ComponentScreen(BooksTr.Report.title()) { ReportView(reportHandler) }
         }
     }
 }
@@ -173,7 +173,7 @@ Columns wrapped with `asList()` filter against an array column and expose a `Fil
 
 ```kotlin
 "publication_type" to EnumColumn(
-    header = Tr.AsianMedia.Report.publicationType(),
+    header = AsianMediaTr.Report.publicationType(),
     enumClass = PublicationType::class,
     width = 1.5f
 ).asList(9)  // renders up to 9 elements per cell, separated by dividers
@@ -224,7 +224,7 @@ override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(...) { .
 
 // Toolbar "add" menu
 override fun buildMainActions(): List<ReportMainAction> = listOf(
-    ReportMainAction(Tr.Books.Report.newBook(), Icons.Default.Add) { ... }
+    ReportMainAction(BooksTr.Report.newBook(), Icons.Default.Add) { ... }
 )
 ```
 
@@ -282,7 +282,7 @@ octaviusI18n {
 Everything the engine renders on its own — filter popups, pagination, column management, the saved-layout
 dialog — resolves through `ReportTr`, never through the host application's translation object. `ReportTr`
 is public, so labels a report needs but should not have to spell out again can be reused from it:
-`ReportTr.Report.Actions.edit()` for the usual edit action, `ReportTr.Action.remove()` for a delete one.
+`ReportTr.Report.Actions.edit()` for the usual edit action, `Tr.Action.remove()` for a delete one.
 
 A new language is a new `<lang>.json` in the same directory. Keys are unioned across languages, so a
 partial file still builds: a key missing from the selected language renders as its raw path, and a

@@ -17,6 +17,7 @@ import org.octavius.form.control.base.ControlAction
 import org.octavius.form.control.base.ControlContext
 import org.octavius.form.control.base.ControlDependency
 import org.octavius.form.control.base.ControlState
+import org.octavius.form.localization.FormTr
 import org.octavius.localization.Tr
 import org.octavius.theme.FormSpacing
 
@@ -260,7 +261,7 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
         // Opcja "null" (brak wyboru), tylko jeśli kontrolka nie jest wymagana
         if (!isRequired) {
             DropdownMenuItem(
-                text = { Text(Tr.Form.Dropdown.noSelection()) },
+                text = { Text(FormTr.Form.Dropdown.noSelection()) },
                 onClick = { onOptionSelected(null) }
             )
             HorizontalDivider()
@@ -271,7 +272,7 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
                 enabled = false,
                 text = {
                     Text(
-                        Tr.Form.Dropdown.noResults(),
+                        FormTr.Form.Dropdown.noResults(),
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 },

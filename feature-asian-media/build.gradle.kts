@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.octaviusI18n)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
@@ -44,6 +45,16 @@ kotlin {
             implementation(libs.ktor.client.js) // Implementacja dla środowiska JS
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
+        }
+    }
+}
+
+octaviusI18n {
+    generators {
+        create("asianMedia") {
+            sourceProject = project(":feature-asian-media")
+            targetPackage = "org.octavius.modules.asian.localization"
+            objectName = "AsianMediaTr"
         }
     }
 }

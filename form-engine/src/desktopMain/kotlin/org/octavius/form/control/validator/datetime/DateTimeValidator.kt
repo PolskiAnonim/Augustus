@@ -4,7 +4,7 @@ import org.octavius.form.control.base.ControlContext
 import org.octavius.form.control.base.ControlState
 import org.octavius.form.control.base.ControlValidator
 import org.octavius.form.control.base.DateTimeValidation
-import org.octavius.localization.Tr
+import org.octavius.form.localization.FormTr
 import org.octavius.util.DateTimeAdapter
 
 class DateTimeValidator<T: Any>(
@@ -22,13 +22,13 @@ class DateTimeValidator<T: Any>(
                 // Używamy standardowego porównania, zakładając, że typy T są Comparable
                 @Suppress("UNCHECKED_CAST")
                 if ((value as Comparable<T>) < min) {
-                    errors.add(Tr.Validation.minValue(adapter.format(min)))
+                    errors.add(FormTr.Validation.minValue(adapter.format(min)))
                 }
             }
             options.max?.let { max ->
                 @Suppress("UNCHECKED_CAST")
                 if ((value as Comparable<T>) > max) {
-                    errors.add(Tr.Validation.maxValue(adapter.format(max)))
+                    errors.add(FormTr.Validation.maxValue(adapter.format(max)))
                 }
             }
         }

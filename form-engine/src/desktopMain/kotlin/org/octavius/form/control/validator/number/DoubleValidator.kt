@@ -4,7 +4,7 @@ import org.octavius.form.control.base.ControlContext
 import org.octavius.form.control.base.ControlState
 import org.octavius.form.control.base.ControlValidator
 import org.octavius.form.control.base.DoubleValidation
-import org.octavius.localization.Tr
+import org.octavius.form.localization.FormTr
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.round
@@ -24,14 +24,14 @@ class DoubleValidator(
             // Sprawdź wartość minimalną
             options.min?.let { min ->
                 if (value < min) {
-                    errors.add(Tr.Validation.minValue(min))
+                    errors.add(FormTr.Validation.minValue(min))
                 }
             }
 
             // Sprawdź wartość maksymalną
             options.max?.let { max ->
                 if (value > max) {
-                    errors.add(Tr.Validation.maxValue(max))
+                    errors.add(FormTr.Validation.maxValue(max))
                 }
             }
 
@@ -40,7 +40,7 @@ class DoubleValidator(
                 val multiplier = 10.0.pow(decimalPlaces)
                 val rounded = round(value * multiplier) / multiplier
                 if (value != rounded) {
-                    errors.add(Tr.Validation.maxDecimalPlaces(decimalPlaces))
+                    errors.add(FormTr.Validation.maxDecimalPlaces(decimalPlaces))
                 }
             }
 
@@ -48,7 +48,7 @@ class DoubleValidator(
             options.step?.let { step ->
                 val remainder = value % step
                 if (remainder != 0.0 && (remainder - step).let { abs(it) } > 1e-10) {
-                    errors.add(Tr.Validation.multipleOf(step))
+                    errors.add(FormTr.Validation.multipleOf(step))
                 }
             }
         }

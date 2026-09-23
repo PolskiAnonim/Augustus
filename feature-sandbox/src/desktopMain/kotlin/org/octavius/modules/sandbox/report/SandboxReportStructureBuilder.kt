@@ -3,9 +3,9 @@ package org.octavius.modules.sandbox.report
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import io.github.octaviusframework.client.query.QueryFragment
-import org.octavius.localization.Tr
 import org.octavius.modules.sandbox.domain.SandboxPriority
 import org.octavius.modules.sandbox.form.ui.SandboxFormScreen
+import org.octavius.modules.sandbox.localization.SandboxTr
 import org.octavius.navigation.AppRouter
 import org.octavius.report.ReportMainAction
 import org.octavius.report.ReportRowAction
@@ -38,11 +38,11 @@ class SandboxReportStructureBuilder : ReportStructureBuilder() {
     }
 
     override fun buildColumns(): Map<String, ReportColumn> = mapOf(
-        "name" to StringColumn(Tr.Sandbox.Report.name()),
-        "priority" to EnumColumn(Tr.Sandbox.Report.priority(), enumClass = SandboxPriority::class),
-        "is_active" to BooleanColumn(Tr.Sandbox.Report.active()),
-        "score" to IntegerColumn(Tr.Sandbox.Report.score()),
-        "created_at" to InstantColumn(Tr.Sandbox.Report.createdAt())
+        "name" to StringColumn(SandboxTr.Report.name()),
+        "priority" to EnumColumn(SandboxTr.Report.priority(), enumClass = SandboxPriority::class),
+        "is_active" to BooleanColumn(SandboxTr.Report.active()),
+        "score" to IntegerColumn(SandboxTr.Report.score()),
+        "created_at" to InstantColumn(SandboxTr.Report.createdAt())
     )
 
     override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(ReportTr.Report.Actions.edit()) {
@@ -50,7 +50,7 @@ class SandboxReportStructureBuilder : ReportStructureBuilder() {
     }
 
     override fun buildMainActions(): List<ReportMainAction> = listOf(
-        ReportMainAction(Tr.Sandbox.Report.newItem(), Icons.Default.Add) {
+        ReportMainAction(SandboxTr.Report.newItem(), Icons.Default.Add) {
             AppRouter.navigateTo(SandboxFormScreen.create())
         }
     )

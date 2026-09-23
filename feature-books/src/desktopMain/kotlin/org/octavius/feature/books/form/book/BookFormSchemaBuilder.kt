@@ -5,6 +5,7 @@ import kotlinx.coroutines.launch
 import org.octavius.dialog.DialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.feature.books.domain.ReadingStatus
+import org.octavius.feature.books.localization.BooksTr
 import org.octavius.form.component.FormSchemaBuilder
 import org.octavius.form.control.base.*
 import org.octavius.form.control.type.button.ButtonControl
@@ -28,15 +29,15 @@ class BookFormSchemaBuilder : FormSchemaBuilder() {
 
         // Podstawowe informacje
         "title_pl" to StringControl(
-            Tr.Books.Form.titlePl(),
+            BooksTr.Form.titlePl(),
             required = true
         ),
         "title_eng" to StringControl(
-            Tr.Books.Form.titleEng(),
+            BooksTr.Form.titleEng(),
             required = false
         ),
         "status" to EnumControl(
-            Tr.Books.Form.status(),
+            BooksTr.Form.status(),
             ReadingStatus::class,
             required = true
         ),
@@ -45,21 +46,21 @@ class BookFormSchemaBuilder : FormSchemaBuilder() {
             collapsible = false,
             initiallyExpanded = true,
             columns = 1,
-            label = Tr.Books.Form.basicInfo()
+            label = BooksTr.Form.basicInfo()
         ),
 
         // Autorzy
         "authors" to RepeatableControl(
             rowControls = mapOf(
                 "author_id" to DatabaseControl(
-                    label = Tr.Books.Form.author(),
+                    label = BooksTr.Form.author(),
                     query = QueryFragment("SELECT id, name FROM books.authors"),
                     displayColumn = "name",
                     required = true
                 )
             ),
             rowOrder = listOf("author_id"),
-            label = Tr.Books.Form.authors(),
+            label = BooksTr.Form.authors(),
             validationOptions = RepeatableValidation(
                 minItems = 0,
                 maxItems = 10,
@@ -93,7 +94,7 @@ class BookFormSchemaBuilder : FormSchemaBuilder() {
                     GlobalDialogManager.show(
                         DialogConfig(
                             title = Tr.Action.confirm(),
-                            text = Tr.Books.Form.confirmDelete(),
+                            text = BooksTr.Form.confirmDelete(),
                             onDismiss = { GlobalDialogManager.dismiss() },
                             confirmButtonText = Tr.Action.confirm(),
                             onConfirm = {

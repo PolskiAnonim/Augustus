@@ -11,22 +11,6 @@
     "remove": "Remove",
     "save": "Save"
   },
-  "asianMedia": {
-    "publicationLanguage": {
-      "chinese": "Chinese",
-      "japanese": "Japanese",
-      "korean": "Korean"
-    },
-    "publicationType": {
-      "lightNovel": "Light Novel",
-      "manga": "Manga",
-      "manhua": "Manhua",
-      "manhwa": "Manhwa",
-      "publishedNovel": "Published Novel",
-      "webNovel": "Web Novel",
-      "webtoon": "Webtoon"
-    }
-  },
   "expandable": {
     "collapse": "Collapse",
     "expand": "Expand"
@@ -38,12 +22,6 @@
     "clear": "Clear",
     "placeholder": "Search...",
     "search": "Search"
-  },
-  "tabs": {
-    "asianMedia": "Asian",
-    "games": "Games",
-    "books": "Books",
-    "sandbox": "Sandbox"
   },
   "error": {
     "dataLoading": "Data loading error",
@@ -71,20 +49,6 @@
   "statistics": {
     "noData": "No data to display",
     "noItemsInList": "No items to display"
-  },
-  "validation": {
-    "fieldRequired": "This field is required",
-    "invalidNumberFormat": "Invalid number format",
-    "minimumItems": {
-      "_one": "Minimum {0} item required",
-      "_few": "Minimum {0} items required",
-      "_many": "Minimum {0} items required"
-    },
-    "maximumItems": {
-      "_one": "Maximum {0} item",
-      "_few": "Maximum {0} items",
-      "_many": "Maximum {0} items"
-    }
   },
   "colorPicker": {
     "title": "Pick a color"

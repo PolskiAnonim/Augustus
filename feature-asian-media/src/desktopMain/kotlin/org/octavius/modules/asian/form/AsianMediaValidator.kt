@@ -8,7 +8,7 @@ import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.component.FormValidator
 import org.octavius.form.control.base.FormResultData
 import org.octavius.form.control.base.getCurrentAs
-import org.octavius.localization.Tr
+import org.octavius.modules.asian.localization.AsianMediaTr
 
 class AsianMediaValidator: FormValidator() {
     override fun validateBusinessRules(formResultData: FormResultData): Boolean {
@@ -20,7 +20,7 @@ class AsianMediaValidator: FormValidator() {
         val hasDuplicates = titles.size != titles.toSet().size
 
         if (hasDuplicates) {
-            errorManager.addFieldError("titles", Tr.AsianMedia.Form.duplicateTitles())
+            errorManager.addFieldError("titles", AsianMediaTr.Form.duplicateTitles())
         }
 
         return !hasDuplicates
@@ -48,7 +48,7 @@ class AsianMediaValidator: FormValidator() {
             }
             is DataResult.Success -> {
                 if (result.value > 0L) {
-                    errorManager.addGlobalError(Tr.AsianMedia.Form.titlesAlreadyExist())
+                    errorManager.addGlobalError(AsianMediaTr.Form.titlesAlreadyExist())
                     false
                 } else {
                     true

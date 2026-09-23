@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import org.octavius.localization.Tr
 import org.octavius.report.ReportEvent
 import org.octavius.report.component.ReportState
 import org.octavius.report.localization.ReportTr
@@ -79,7 +80,7 @@ fun ReportConfigurationDialog(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onDismiss) { Text(ReportTr.Action.close()) }
+                    TextButton(onClick = onDismiss) { Text(Tr.Action.close()) }
                 }
             }
         }
@@ -122,8 +123,8 @@ fun ConfigurationItem(
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                IconButton(onClick = onLoad) { Icon(Icons.Default.Download, contentDescription = ReportTr.Action.load()) }
-                IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = ReportTr.Action.remove(), tint = MaterialTheme.colorScheme.error) }
+                IconButton(onClick = onLoad) { Icon(Icons.Default.Download, contentDescription = Tr.Action.load()) }
+                IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = Tr.Action.remove(), tint = MaterialTheme.colorScheme.error) }
             }
         }
     }
@@ -269,13 +270,13 @@ private fun DialogActions(
     isOverwriting: Boolean
 ) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-        TextButton(onClick = onDismiss) { Text(ReportTr.Action.cancel()) }
+        TextButton(onClick = onDismiss) { Text(Tr.Action.cancel()) }
         Spacer(modifier = Modifier.width(8.dp))
         Button(
             onClick = onSaveClick,
             colors = if (isOverwriting) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary) else ButtonDefaults.buttonColors()
         ) {
-            Text(if (isOverwriting) ReportTr.Action.overwrite() else ReportTr.Action.save())
+            Text(if (isOverwriting) Tr.Action.overwrite() else Tr.Action.save())
         }
     }
 }

@@ -6,9 +6,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.List
 import io.github.octaviusframework.client.query.QueryFragment
-import org.octavius.localization.Tr
 import org.octavius.modules.games.form.game.ui.GameFormScreen
 import org.octavius.modules.games.form.series.ui.GameSeriesFormScreen
+import org.octavius.modules.games.localization.GamesTr
 import org.octavius.modules.games.report.ui.GameReportScreen
 import org.octavius.navigation.AppRouter
 import org.octavius.report.ReportMainAction
@@ -42,15 +42,15 @@ class GameSeriesReportStructureBuilder : ReportStructureBuilder() {
 
     override fun buildColumns(): Map<String, ReportColumn> = mapOf(
         "name" to StringColumn(
-            header = Tr.Games.Series.name()
+            header = GamesTr.Series.name()
         ),
         "game_count" to LongColumn(
-            header = Tr.Games.Series.gameCount()
+            header = GamesTr.Series.gameCount()
         )
     )
 
     override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(
-        label = Tr.Games.Form.editSeries(),
+        label = GamesTr.Form.editSeries(),
         icon = Icons.Default.Edit
     ) {
         val seriesId = rowData["id"] as? Int
@@ -61,7 +61,7 @@ class GameSeriesReportStructureBuilder : ReportStructureBuilder() {
 
     override fun buildMainActions(): List<ReportMainAction> = listOf(
         ReportMainAction(
-            label = Tr.Games.Form.newSeries(),
+            label = GamesTr.Form.newSeries(),
             icon = Icons.Default.Add
         ) {
             AppRouter.navigateTo(GameSeriesFormScreen.create())
@@ -70,7 +70,7 @@ class GameSeriesReportStructureBuilder : ReportStructureBuilder() {
 
     override fun buildRowActions(): List<ReportRowAction> = listOf(
         ReportRowAction(
-            label = Tr.Games.Report.viewGames(),
+            label = GamesTr.Report.viewGames(),
             icon = Icons.AutoMirrored.Filled.List
         ) {
             val seriesId = rowData["id"] as? Int
@@ -78,7 +78,7 @@ class GameSeriesReportStructureBuilder : ReportStructureBuilder() {
                 AppRouter.navigateTo(GameReportScreen.create(seriesId = seriesId))
             }
         },
-        ReportRowAction(Tr.Games.Report.addGameInSeries(), Icons.Default.Add) {
+        ReportRowAction(GamesTr.Report.addGameInSeries(), Icons.Default.Add) {
             val seriesId = rowData["id"] as? Int
             if (seriesId != null) {
                 val payload = mapOf("series" to seriesId)

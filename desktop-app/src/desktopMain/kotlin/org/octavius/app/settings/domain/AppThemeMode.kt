@@ -4,8 +4,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import kotlinx.serialization.Serializable
+import org.octavius.app.localization.AppTr
 import org.octavius.domain.EnumWithFormatter
-import org.octavius.localization.Tr
 
 /**
  * Tryb kolorystyczny interfejsu wybrany przez użytkownika.
@@ -18,9 +18,9 @@ enum class AppThemeMode : EnumWithFormatter<AppThemeMode> {
     DARK;
 
     override fun toDisplayString(): String = when (this) {
-        SYSTEM -> Tr.Settings.Theme.system()
-        LIGHT -> Tr.Settings.Theme.light()
-        DARK -> Tr.Settings.Theme.dark()
+        SYSTEM -> AppTr.Settings.Theme.system()
+        LIGHT -> AppTr.Settings.Theme.light()
+        DARK -> AppTr.Settings.Theme.dark()
     }
 }
 

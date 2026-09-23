@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.octavius.localization.Tr
+import org.octavius.app.localization.AppTr
 import org.octavius.app.settings.form.database.DatabaseSettingsFormScreen
 import org.octavius.app.settings.form.language.LanguageSettingsFormScreen
 import org.octavius.app.settings.form.theme.ThemeSettingsFormScreen
@@ -30,7 +30,7 @@ import org.octavius.app.settings.AppSettingsManager
 import org.octavius.theme.FormSpacing
 
 class SettingsScreen() : Screen, KoinComponent {
-    override val title = Tr.Settings.title()
+    override val title = AppTr.Settings.title()
 
     private val settingsManager: AppSettingsManager by inject()
 
@@ -46,32 +46,32 @@ class SettingsScreen() : Screen, KoinComponent {
 
         val settingOptions = listOf(
             SettingOption(
-                title = Tr.Settings.Language.title(),
-                description = Tr.Settings.Language.description(),
+                title = AppTr.Settings.Language.title(),
+                description = AppTr.Settings.Language.description(),
                 icon = Icons.Default.Language,
                 onClick = {
                     AppRouter.navigateTo(LanguageSettingsFormScreen.create(settingsManager))
                 }
             ),
             SettingOption(
-                title = Tr.Settings.Theme.title(),
-                description = Tr.Settings.Theme.description(),
+                title = AppTr.Settings.Theme.title(),
+                description = AppTr.Settings.Theme.description(),
                 icon = Icons.Default.Palette,
                 onClick = {
                     AppRouter.navigateTo(ThemeSettingsFormScreen.create(settingsManager))
                 }
             ),
             SettingOption(
-                title = Tr.Settings.Database.title(),
-                description = Tr.Settings.Database.description(),
+                title = AppTr.Settings.Database.title(),
+                description = AppTr.Settings.Database.description(),
                 icon = Icons.Default.Storage,
                 onClick = {
                     AppRouter.navigateTo(DatabaseSettingsFormScreen.create(settingsManager))
                 }
             ),
             SettingOption(
-                title = Tr.Settings.Api.title(),
-                description = Tr.Settings.Api.description(),
+                title = AppTr.Settings.Api.title(),
+                description = AppTr.Settings.Api.description(),
                 icon = Icons.Default.Api,
                 onClick = {
                     AppRouter.navigateTo(ApiIntegrationsReportScreen.create())

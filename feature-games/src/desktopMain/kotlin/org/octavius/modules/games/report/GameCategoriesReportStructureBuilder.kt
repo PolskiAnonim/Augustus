@@ -6,8 +6,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.List
 import io.github.octaviusframework.client.query.QueryFragment
-import org.octavius.localization.Tr
 import org.octavius.modules.games.form.category.ui.GameCategoryFormScreen
+import org.octavius.modules.games.localization.GamesTr
 import org.octavius.modules.games.report.ui.GameReportScreen
 import org.octavius.navigation.AppRouter
 import org.octavius.report.ReportMainAction
@@ -40,16 +40,16 @@ class GameCategoriesReportStructureBuilder : ReportStructureBuilder() {
 
     override fun buildColumns(): Map<String, ReportColumn> = mapOf(
         "name" to StringColumn(
-            header = Tr.Games.Categories.name()
+            header = GamesTr.Categories.name()
         ),
         "game_count" to LongColumn(
-            header = Tr.Games.Categories.gameCount()
+            header = GamesTr.Categories.gameCount()
         )
     )
 
     override fun buildRowActions(): List<ReportRowAction> = listOf(
         ReportRowAction(
-            label = Tr.Games.Report.viewGames(),
+            label = GamesTr.Report.viewGames(),
             icon = Icons.AutoMirrored.Filled.List
         ) {
             val categoryId = rowData["id"] as? Int
@@ -60,7 +60,7 @@ class GameCategoriesReportStructureBuilder : ReportStructureBuilder() {
     )
 
     override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(
-        label = Tr.Games.Form.editCategory(),
+        label = GamesTr.Form.editCategory(),
         icon = Icons.Default.Edit
     ) {
         val categoryId = rowData["id"] as? Int
@@ -71,7 +71,7 @@ class GameCategoriesReportStructureBuilder : ReportStructureBuilder() {
 
     override fun buildMainActions(): List<ReportMainAction> = listOf(
         ReportMainAction(
-            label = Tr.Games.Form.newCategory(),
+            label = GamesTr.Form.newCategory(),
             icon = Icons.Default.Add
         ) {
             AppRouter.navigateTo(GameCategoryFormScreen.create())

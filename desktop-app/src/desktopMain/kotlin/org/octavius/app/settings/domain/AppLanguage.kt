@@ -1,7 +1,7 @@
 package org.octavius.app.settings.domain
 
+import org.octavius.app.localization.AppTr
 import org.octavius.domain.EnumWithFormatter
-import org.octavius.localization.Tr
 
 /**
  * Supported application languages.
@@ -11,8 +11,8 @@ enum class AppLanguage(val code: String) : EnumWithFormatter<AppLanguage> {
     EN("en");
 
     override fun toDisplayString(): String = when (this) {
-        PL -> Tr.Settings.Language.pl()
-        EN -> Tr.Settings.Language.en()
+        PL -> AppTr.Settings.Language.pl()
+        EN -> AppTr.Settings.Language.en()
     }
 
     companion object {

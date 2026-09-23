@@ -15,8 +15,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.json.Json
 import org.octavius.api.contract.ExtensionModule
 import org.octavius.api.contract.ParseResult
+import org.octavius.extension.localization.PopupTr
 import org.octavius.extension.util.chrome
-import org.octavius.localization.Tr
 import org.octavius.modules.asian.AsianMediaExtensionModule
 import org.octavius.navigation.Screen
 import org.octavius.theme.AppTheme
@@ -34,13 +34,13 @@ fun main() {
     ComposeViewport {
         // Stan przechowujący aktualnie wyświetlany ekran
         var currentScreen by remember { mutableStateOf<Screen?>(null) }
-        var statusMessage by remember { mutableStateOf(Tr.Popup.Status.analyzing()) }
+        var statusMessage by remember { mutableStateOf(PopupTr.Status.analyzing()) }
 
         LaunchedEffect(Unit) {
             val responseString = sendParseRequestToContentScript()
 
             if (responseString == null) {
-                statusMessage = Tr.Popup.Status.parseError()
+                statusMessage = PopupTr.Status.parseError()
                 return@LaunchedEffect
             }
 
@@ -52,14 +52,14 @@ fun main() {
             }
 
             if (parseResult == null) {
-                statusMessage = Tr.Popup.Status.invalidData()
+                statusMessage = PopupTr.Status.invalidData()
                 return@LaunchedEffect
             }
 
             val targetModule = modulesById[parseResult.moduleId]
 
             if (targetModule == null) {
-                statusMessage =Tr.Popup.Status.moduleNotFound(parseResult.moduleId)
+                statusMessage =PopupTr.Status.moduleNotFound(parseResult.moduleId)
                 return@LaunchedEffect
             }
 
@@ -69,7 +69,7 @@ fun main() {
             if (screenToShow != null) {
                 currentScreen = screenToShow
             } else {
-                statusMessage = Tr.Popup.Status.processingError()
+                statusMessage = PopupTr.Status.processingError()
             }
         }
 

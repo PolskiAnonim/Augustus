@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import org.octavius.dialog.DialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.localization.Tr
+import org.octavius.modules.sandbox.localization.SandboxTr
 import org.octavius.navigation.Screen
 import org.octavius.ui.color.ColorPickerDialog
 import org.octavius.ui.datetime.DateTimePickerDialog
@@ -25,7 +26,7 @@ import kotlin.time.Duration
 
 class PopupShowcaseScreen : Screen {
 
-    override val title = Tr.Sandbox.Popup.title()
+    override val title = SandboxTr.Popup.title()
 
     @Composable
     override fun Content() {
@@ -46,13 +47,13 @@ class PopupShowcaseScreen : Screen {
         ) {
             // Alert Dialog
             ShowcaseItem(
-                title = Tr.Sandbox.Popup.alertDialog(),
+                title = SandboxTr.Popup.alertDialog(),
                 result = null,
                 onClick = {
                     GlobalDialogManager.show(
                         DialogConfig(
-                            title = Tr.Sandbox.Popup.alertTitle(),
-                            text = Tr.Sandbox.Popup.alertMessage(),
+                            title = SandboxTr.Popup.alertTitle(),
+                            text = SandboxTr.Popup.alertMessage(),
                             confirmButtonText = Tr.Action.confirm(),
                             onConfirm = { GlobalDialogManager.dismiss() },
                             dismissButtonText = Tr.Action.cancel(),
@@ -64,13 +65,13 @@ class PopupShowcaseScreen : Screen {
 
             // Error Dialog
             ShowcaseItem(
-                title = Tr.Sandbox.Popup.errorDialog(),
+                title = SandboxTr.Popup.errorDialog(),
                 result = null,
                 onClick = {
                     GlobalDialogManager.show(
                         DialogConfig(
-                            title = Tr.Sandbox.Popup.errorTitle(),
-                            text = Tr.Sandbox.Popup.errorMessage(),
+                            title = SandboxTr.Popup.errorTitle(),
+                            text = SandboxTr.Popup.errorMessage(),
                             confirmButtonText = null,
                             onConfirm = null,
                             dismissButtonText = Tr.Error.Dialog.dismiss(),
@@ -82,32 +83,32 @@ class PopupShowcaseScreen : Screen {
 
             // Color Picker
             ShowcaseItem(
-                title = Tr.Sandbox.Popup.colorPicker(),
-                result = selectedColor?.let { "${Tr.Sandbox.Popup.selectedColor()}: #${colorToHex(it)}" },
+                title = SandboxTr.Popup.colorPicker(),
+                result = selectedColor?.let { "${SandboxTr.Popup.selectedColor()}: #${colorToHex(it)}" },
                 onClick = { showColorPicker = true },
                 colorPreview = selectedColor
             )
 
             // DateTime Picker
             ShowcaseItem(
-                title = Tr.Sandbox.Popup.dateTimePicker(),
-                result = selectedDateTime?.let { "${Tr.Sandbox.Popup.selectedDateTime()}: $it" },
+                title = SandboxTr.Popup.dateTimePicker(),
+                result = selectedDateTime?.let { "${SandboxTr.Popup.selectedDateTime()}: $it" },
                 onClick = { showDateTimePicker = true }
             )
 
             // Interval Picker
             ShowcaseItem(
-                title = Tr.Sandbox.Popup.intervalPicker(),
-                result = selectedInterval?.let { "${Tr.Sandbox.Popup.selectedInterval()}: $it" },
+                title = SandboxTr.Popup.intervalPicker(),
+                result = selectedInterval?.let { "${SandboxTr.Popup.selectedInterval()}: $it" },
                 onClick = { showIntervalPicker = true }
             )
 
             // Snackbar
             ShowcaseItem(
-                title = Tr.Sandbox.Popup.snackbar(),
+                title = SandboxTr.Popup.snackbar(),
                 result = null,
                 onClick = {
-                    SnackbarManager.showMessage(Tr.Sandbox.Popup.snackbarMessage())
+                    SnackbarManager.showMessage(SandboxTr.Popup.snackbarMessage())
                 }
             )
         }
@@ -198,7 +199,7 @@ private fun ShowcaseItem(
                 } else {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = Tr.Sandbox.Popup.noSelection(),
+                        text = SandboxTr.Popup.noSelection(),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

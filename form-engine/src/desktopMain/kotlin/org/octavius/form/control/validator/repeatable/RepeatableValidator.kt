@@ -6,7 +6,7 @@ import org.octavius.form.control.base.ControlValidator
 import org.octavius.form.control.base.RepeatableValidation
 import org.octavius.form.control.type.repeatable.RepeatableControl
 import org.octavius.form.control.type.repeatable.RepeatableRow
-import org.octavius.localization.Tr
+import org.octavius.form.localization.FormTr
 
 /**
  * Walidator dla kontrolek typu RepeatableControl.
@@ -89,7 +89,7 @@ class RepeatableValidator(
 
             if (!seenValues.add(uniqueKey)) {
                 // Znaleziono duplikat, zwróć błąd i zakończ
-                return Tr.Validation.duplicateInRow(index + 1)
+                return FormTr.Validation.duplicateInRow(index + 1)
             }
         }
 
@@ -105,14 +105,14 @@ class RepeatableValidator(
         // Sprawdź minimalną liczbę elementów
         options.minItems?.let { minItems ->
             if (rows.size < minItems) {
-                errors.add(Tr.Validation.minItems(minItems))
+                errors.add(FormTr.Validation.minItems(minItems))
             }
         }
 
         // Sprawdź maksymalną liczbę elementów
         options.maxItems?.let { maxItems ->
             if (rows.size > maxItems) {
-                errors.add(Tr.Validation.maxItems(maxItems))
+                errors.add(FormTr.Validation.maxItems(maxItems))
             }
         }
 

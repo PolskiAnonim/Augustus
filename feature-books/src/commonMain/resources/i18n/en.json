@@ -1,71 +1,70 @@
 {
-  "books": {
-    "home": {
-      "addBook": "Add Book",
-      "allAuthors": "All Authors",
-      "allBooks": "All Books",
-      "currentlyReading": "Currently Reading",
-      "noItems": "No items",
-      "recentlyAdded": "Recently Added",
-      "title": "Home"
-    },
-    "stats": {
-      "authors": "Authors",
-      "completed": "Completed",
-      "reading": "Reading",
-      "total": "Total"
-    },
-    "status": {
-      "notReading": "Not Reading",
-      "reading": "Reading",
-      "completed": "Completed",
-      "planToRead": "Plan to Read"
-    },
+  "tab": "Books",
+  "home": {
+    "addBook": "Add Book",
+    "allAuthors": "All Authors",
+    "allBooks": "All Books",
+    "currentlyReading": "Currently Reading",
+    "noItems": "No items",
+    "recentlyAdded": "Recently Added",
+    "title": "Home"
+  },
+  "stats": {
+    "authors": "Authors",
+    "completed": "Completed",
+    "reading": "Reading",
+    "total": "Total"
+  },
+  "status": {
+    "notReading": "Not Reading",
+    "reading": "Reading",
+    "completed": "Completed",
+    "planToRead": "Plan to Read"
+  },
+  "form": {
+    "newBook": "New Book",
+    "editBook": "Edit Book",
+    "titlePl": "Title (PL)",
+    "titleEng": "Title (ENG)",
+    "status": "Status",
+    "basicInfo": "Basic Info",
+    "author": "Author",
+    "authors": "Authors",
+    "confirmDelete": "Are you sure you want to delete this book?"
+  },
+  "validation": {
+    "titleExists": "Book with this title already exists"
+  },
+  "authors": {
     "form": {
-      "newBook": "New Book",
-      "editBook": "Edit Book",
-      "titlePl": "Title (PL)",
-      "titleEng": "Title (ENG)",
-      "status": "Status",
-      "basicInfo": "Basic Info",
-      "author": "Author",
-      "authors": "Authors",
-      "confirmDelete": "Are you sure you want to delete this book?"
+      "newAuthor": "New Author",
+      "editAuthor": "Edit Author",
+      "name": "Full Name",
+      "sortName": "Sort Name",
+      "confirmDelete": "Are you sure you want to delete this author?"
     },
     "validation": {
-      "titleExists": "Book with this title already exists"
-    },
-    "authors": {
-      "form": {
-        "newAuthor": "New Author",
-        "editAuthor": "Edit Author",
-        "name": "Full Name",
-        "sortName": "Sort Name",
-        "confirmDelete": "Are you sure you want to delete this author?"
-      },
-      "validation": {
-        "nameExists": "Author already exists"
-      },
-      "report": {
-        "title": "Authors",
-        "name": "Full Name",
-        "sortName": "Sort Name",
-        "bookCount": "Book Count",
-        "createdAt": "Date Added",
-        "newAuthor": "New Author",
-        "editAuthor": "Edit Author"
-      }
+      "nameExists": "Author already exists"
     },
     "report": {
-      "title": "Books",
-      "titlePl": "Title (PL)",
-      "titleEng": "Title (ENG)",
-      "authors": "Authors",
-      "status": "Status",
+      "title": "Authors",
+      "name": "Full Name",
+      "sortName": "Sort Name",
+      "bookCount": "Book Count",
       "createdAt": "Date Added",
-      "updatedAt": "Date Updated",
-      "newBook": "New Book",
-      "editBook": "Edit Book"
+      "newAuthor": "New Author",
+      "editAuthor": "Edit Author"
     }
+  },
+  "report": {
+    "title": "Books",
+    "titlePl": "Title (PL)",
+    "titleEng": "Title (ENG)",
+    "authors": "Authors",
+    "status": "Status",
+    "createdAt": "Date Added",
+    "updatedAt": "Date Updated",
+    "newBook": "New Book",
+    "editBook": "Edit Book"
   }
 }

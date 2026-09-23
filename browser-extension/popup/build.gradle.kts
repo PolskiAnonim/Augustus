@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.octaviusI18n)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
@@ -30,6 +31,16 @@ kotlin {
 
                 implementation(projects.featureAsianMedia)
             }
+        }
+    }
+}
+
+octaviusI18n {
+    generators {
+        create("popup") {
+            sourceProject = project(":browser-extension:popup")
+            targetPackage = "org.octavius.extension.localization"
+            objectName = "PopupTr"
         }
     }
 }

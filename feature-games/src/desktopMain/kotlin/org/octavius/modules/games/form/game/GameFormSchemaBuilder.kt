@@ -18,6 +18,7 @@ import org.octavius.form.control.type.repeatable.RepeatableControl
 import org.octavius.form.control.type.selection.DatabaseControl
 import org.octavius.form.control.type.selection.EnumControl
 import org.octavius.localization.Tr
+import org.octavius.modules.games.localization.GamesTr
 import org.octavius.navigation.AppRouter
 
 class GameFormSchemaBuilder : FormSchemaBuilder() {
@@ -26,7 +27,7 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
         "id" to IntegerControl(null),
         // Podstawowe dane
         "visible_characters_section" to CheckboxControl(
-            Tr.Games.Form.visibleCharacterSection(),
+            GamesTr.Form.visibleCharacterSection(),
             required = true
         ),
         "play_time_exists" to CheckboxControl(null),
@@ -34,16 +35,16 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
         "characters_exists" to CheckboxControl(null),
         // Sekcja podstawowych informacji
         "name" to StringControl(
-            Tr.Games.General.gameName(),
+            GamesTr.General.gameName(),
             required = true
         ),
         "series" to DatabaseControl(
-            label = Tr.Games.Form.series(),
+            label = GamesTr.Form.series(),
             query = QueryFragment("SELECT id, name FROM series"),
             displayColumn = "name"
         ),
         "status" to EnumControl(
-            Tr.Games.Form.status(),
+            GamesTr.Form.status(),
             GameStatus::class,
             required = true
         ),
@@ -52,15 +53,15 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
             collapsible = false,
             initiallyExpanded = true,
             columns = 1,
-            label = Tr.Games.Form.basicInfo()
+            label = GamesTr.Form.basicInfo()
         ),
         // Sekcja czasu gry
         "play_time_hours" to DoubleControl(
-            Tr.Games.Form.playTimeHours(),
+            GamesTr.Form.playTimeHours(),
             validationOptions = DoubleValidation(min = 0.0, decimalPlaces = 2)
         ),
         "completion_count" to IntegerControl(
-            Tr.Games.Form.playCount(),
+            GamesTr.Form.playCount(),
             required = true, // Automatycznie pomijana walidacja jak niewidoczna kontrolka
             dependencies = mapOf(
                 "visible" to ControlDependency(
@@ -77,7 +78,7 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
             collapsible = false,
             initiallyExpanded = true,
             columns = 2,
-            label = Tr.Games.Form.playTime(),
+            label = GamesTr.Form.playTime(),
             dependencies = mapOf(
                 "visible" to ControlDependency(
                     controlPath = "status",
@@ -93,16 +94,16 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
         ),
         // Sekcja ocen
         "story_rating" to IntegerControl(
-            Tr.Games.Form.storyRating(),
+            GamesTr.Form.storyRating(),
             validationOptions = IntegerValidation(min = 0, max = 10)
         ),
         "gameplay_rating" to IntegerControl(
-            Tr.Games.Form.gameplayRating(),
+            GamesTr.Form.gameplayRating(),
             required = true,
             validationOptions = IntegerValidation(min = 0, max = 10)
         ),
         "atmosphere_rating" to IntegerControl(
-            Tr.Games.Form.atmosphereRating(),
+            GamesTr.Form.atmosphereRating(),
             validationOptions = IntegerValidation(min = 0, max = 10)
         ),
         "ratings_section" to SectionControl(
@@ -110,7 +111,7 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
             collapsible = true,
             initiallyExpanded = true,
             columns = 3,
-            label = Tr.Games.Form.ratings(),
+            label = GamesTr.Form.ratings(),
             dependencies = mapOf(
                 "visible" to ControlDependency(
                     controlPath = "status",
@@ -122,15 +123,15 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
         ),
         // Sekcja postaci
         "has_distinctive_character" to CheckboxControl(
-            Tr.Games.Form.distinctiveCharacters(),
+            GamesTr.Form.distinctiveCharacters(),
             required = true
         ),
         "has_distinctive_protagonist" to CheckboxControl(
-            Tr.Games.Form.distinctiveProtagonist(),
+            GamesTr.Form.distinctiveProtagonist(),
             required = true
         ),
         "has_distinctive_antagonist" to CheckboxControl(
-            Tr.Games.Form.distinctiveAntagonist(),
+            GamesTr.Form.distinctiveAntagonist(),
             required = true
         ),
         "characters_section" to SectionControl(
@@ -138,7 +139,7 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
             collapsible = true,
             initiallyExpanded = true,
             columns = 1,
-            label = Tr.Games.Form.characters(),
+            label = GamesTr.Form.characters(),
             dependencies = mapOf(
                 "visible" to ControlDependency(
                     controlPath = "visible_characters_section",
@@ -152,14 +153,14 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
         "categories" to RepeatableControl(
             rowControls = mapOf(
                 "category" to DatabaseControl(
-                    label = Tr.Games.Form.category(1),
+                    label = GamesTr.Form.category(1),
                     query = QueryFragment("SELECT id, name FROM games.categories"),
                     displayColumn = "name",
                     required = true
                 )
             ),
             rowOrder = listOf("category"),
-            label = Tr.Games.Form.category(2),
+            label = GamesTr.Form.category(2),
             validationOptions = RepeatableValidation(
                 minItems = 0,
                 maxItems = 10,

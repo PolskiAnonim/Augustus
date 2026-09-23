@@ -17,13 +17,13 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.octavius.api.contract.ApiModule
 import org.octavius.api.server.EmbeddedServer
+import org.octavius.app.localization.AppTr
 import org.octavius.app.settings.SettingsFeature
 import org.octavius.app.settings.form.database.DatabaseSettingsFormScreen
 import org.octavius.app.settings.AppSettingsManager
 import org.octavius.contract.FeatureModule
 import org.octavius.contract.ScreenFactory
 import org.octavius.feature.books.BooksFeature
-import org.octavius.localization.Tr
 import org.octavius.modules.asian.AsianMediaFeature
 import org.octavius.modules.games.GamesFeature
 import org.octavius.modules.sandbox.SandboxFeature
@@ -96,7 +96,7 @@ private fun ApplicationScope.AppLoadingScreen(
 ) {
     Window(
         onCloseRequest = ::exitApplication,
-        title = Tr.App.loading(),
+        title = AppTr.App.loading(),
         state = rememberWindowState(position = WindowPosition(Alignment.Center), size = DpSize(300.dp, 200.dp)),
         undecorated = true,
         resizable = false
@@ -108,7 +108,7 @@ private fun ApplicationScope.AppLoadingScreen(
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         CircularProgressIndicator()
-                        Text(Tr.App.loading())
+                        Text(AppTr.App.loading())
                     }
                 }
             }
@@ -138,14 +138,14 @@ private fun ApplicationScope.DatabaseErrorWindow(
     val formScreen = DatabaseSettingsFormScreen.create(settingsManager)
     Window(
         onCloseRequest = onCloseRequest,
-        title = Tr.Settings.Database.title(),
+        title = AppTr.Settings.Database.title(),
         state = rememberWindowState(position = WindowPosition(Alignment.Center), size = DpSize(600.dp, 500.dp))
     ) {
         AppThemeFromSettings(settingsManager) {
             Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                 Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
                     Text(
-                        text = Tr.Settings.Database.restartWarning(),
+                        text = AppTr.Settings.Database.restartWarning(),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(bottom = 16.dp)
@@ -161,7 +161,7 @@ private fun ApplicationScope.DatabaseErrorWindow(
                         onClick = onRetry,
                         modifier = Modifier.align(Alignment.End)
                     ) {
-                        Text(Tr.Settings.Database.retry())
+                        Text(AppTr.Settings.Database.retry())
                     }
                 }
             }
@@ -188,7 +188,7 @@ private fun ApplicationScope.MainAppScreen(onCloseRequest: () -> Unit, settingsM
 
     Window(
         onCloseRequest = ::exitApplication,
-        title = Tr.App.name(),
+        title = AppTr.App.name(),
         state = rememberWindowState(size = DpSize(1280.dp, 720.dp))
     ) {
         NavigationHandler(screenFactories)

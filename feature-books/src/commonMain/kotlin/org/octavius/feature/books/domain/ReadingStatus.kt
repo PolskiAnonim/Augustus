@@ -2,7 +2,7 @@ package org.octavius.feature.books.domain
 
 import io.github.octaviusframework.annotation.PgEnumType
 import org.octavius.domain.EnumWithFormatter
-import org.octavius.localization.Tr
+import org.octavius.feature.books.localization.BooksTr
 
 @PgEnumType(name = "reading_status")
 enum class ReadingStatus : EnumWithFormatter<ReadingStatus> {
@@ -13,10 +13,10 @@ enum class ReadingStatus : EnumWithFormatter<ReadingStatus> {
 
     override fun toDisplayString(): String {
         return when (this) {
-            NotReading -> Tr.Books.Status.notReading()
-            Reading -> Tr.Books.Status.reading()
-            Completed -> Tr.Books.Status.completed()
-            PlanToRead -> Tr.Books.Status.planToRead()
+            NotReading -> BooksTr.Status.notReading()
+            Reading -> BooksTr.Status.reading()
+            Completed -> BooksTr.Status.completed()
+            PlanToRead -> BooksTr.Status.planToRead()
         }
     }
 }

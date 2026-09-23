@@ -3,6 +3,7 @@ package org.octavius.feature.books.form.author
 import kotlinx.coroutines.launch
 import org.octavius.dialog.DialogConfig
 import org.octavius.dialog.GlobalDialogManager
+import org.octavius.feature.books.localization.BooksTr
 import org.octavius.form.component.FormSchemaBuilder
 import org.octavius.form.control.base.*
 import org.octavius.form.control.type.button.ButtonControl
@@ -20,11 +21,11 @@ class BookAuthorSchemaBuilder : FormSchemaBuilder() {
     override fun defineControls(): Map<String, Control<*>> = mapOf(
         "id" to IntegerControl(null),
         "name" to StringControl(
-            Tr.Books.Authors.Form.name(),
+            BooksTr.Authors.Form.name(),
             required = true
         ),
         "sort_name" to StringControl(
-            Tr.Books.Authors.Form.sortName(),
+            BooksTr.Authors.Form.sortName(),
             required = false
         ),
         // Przyciski
@@ -53,7 +54,7 @@ class BookAuthorSchemaBuilder : FormSchemaBuilder() {
                     GlobalDialogManager.show(
                         DialogConfig(
                             title = Tr.Action.confirm(),
-                            text = Tr.Books.Authors.Form.confirmDelete(),
+                            text = BooksTr.Authors.Form.confirmDelete(),
                             onDismiss = { GlobalDialogManager.dismiss() },
                             confirmButtonText = Tr.Action.confirm(),
                             onConfirm = {

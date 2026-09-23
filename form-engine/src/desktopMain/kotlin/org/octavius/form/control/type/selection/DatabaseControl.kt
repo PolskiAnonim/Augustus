@@ -26,7 +26,7 @@ import org.octavius.form.control.type.selection.dropdown.DropdownPage
  *
  * ```kotlin
  * "author_id" to DatabaseControl(
- *     label = Tr.Books.Form.author(),
+ *     label = BooksTr.Form.author(),
  *     query = QueryFragment("SELECT id, name FROM books.authors"),
  *     displayColumn = "name"
  * )

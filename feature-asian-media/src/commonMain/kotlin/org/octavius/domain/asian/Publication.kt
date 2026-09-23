@@ -2,7 +2,7 @@ package org.octavius.domain.asian
 
 import io.github.octaviusframework.annotation.PgEnumType
 import org.octavius.domain.EnumWithFormatter
-import org.octavius.localization.Tr
+import org.octavius.modules.asian.localization.AsianMediaTr
 
 @PgEnumType
 enum class PublicationStatus : EnumWithFormatter<PublicationStatus> {
@@ -13,10 +13,10 @@ enum class PublicationStatus : EnumWithFormatter<PublicationStatus> {
 
     override fun toDisplayString(): String {
         return when (this) {
-            NotReading -> Tr.AsianMedia.ReadingStatus.notReading()
-            Reading -> Tr.AsianMedia.ReadingStatus.reading()
-            Completed -> Tr.AsianMedia.ReadingStatus.completed()
-            PlanToRead -> Tr.AsianMedia.ReadingStatus.toRead()
+            NotReading -> AsianMediaTr.ReadingStatus.notReading()
+            Reading -> AsianMediaTr.ReadingStatus.reading()
+            Completed -> AsianMediaTr.ReadingStatus.completed()
+            PlanToRead -> AsianMediaTr.ReadingStatus.toRead()
         }
     }
 }
@@ -29,9 +29,9 @@ enum class PublicationLanguage : EnumWithFormatter<PublicationLanguage> {
 
     override fun toDisplayString(): String {
         return when (this) {
-            Korean -> Tr.AsianMedia.PublicationLanguage.korean()
-            Chinese -> Tr.AsianMedia.PublicationLanguage.chinese()
-            Japanese -> Tr.AsianMedia.PublicationLanguage.japanese()
+            Korean -> AsianMediaTr.PublicationLanguage.korean()
+            Chinese -> AsianMediaTr.PublicationLanguage.chinese()
+            Japanese -> AsianMediaTr.PublicationLanguage.japanese()
         }
     }
 }
@@ -48,13 +48,13 @@ enum class PublicationType : EnumWithFormatter<PublicationType> {
 
     override fun toDisplayString(): String {
         return when (this) {
-            Manga -> Tr.AsianMedia.PublicationType.manga()
-            LightNovel -> Tr.AsianMedia.PublicationType.lightNovel()
-            WebNovel -> Tr.AsianMedia.PublicationType.webNovel()
-            PublishedNovel -> Tr.AsianMedia.PublicationType.publishedNovel()
-            Webtoon -> Tr.AsianMedia.PublicationType.webtoon()
-            Manhwa ->Tr.AsianMedia.PublicationType.manhwa()
-            Manhua -> Tr.AsianMedia.PublicationType.manhua()
+            Manga -> AsianMediaTr.PublicationType.manga()
+            LightNovel -> AsianMediaTr.PublicationType.lightNovel()
+            WebNovel -> AsianMediaTr.PublicationType.webNovel()
+            PublishedNovel -> AsianMediaTr.PublicationType.publishedNovel()
+            Webtoon -> AsianMediaTr.PublicationType.webtoon()
+            Manhwa ->AsianMediaTr.PublicationType.manhwa()
+            Manhua -> AsianMediaTr.PublicationType.manhua()
         }
     }
 }

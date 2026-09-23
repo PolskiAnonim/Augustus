@@ -4,7 +4,7 @@ import org.octavius.form.component.ErrorManager
 import org.octavius.form.component.FormSchema
 import org.octavius.form.component.FormState
 import org.octavius.form.component.PathResolver
-import org.octavius.localization.Tr
+import org.octavius.form.localization.FormTr
 
 /**
  * Abstrakcyjna klasa bazowa dla wszystkich walidatorów kontrolek formularza.
@@ -151,7 +151,7 @@ abstract class ControlValidator<T : Any> {
 
         // Jeśli pole jest wymagane i wartość jest pusta, ustawiamy błąd
         if (isRequired && isValueEmpty(state.value.value)) {
-            errorManager.setFieldErrors(controlContext.fullStatePath, listOf(Tr.Validation.fieldRequired()))
+            errorManager.setFieldErrors(controlContext.fullStatePath, listOf(FormTr.Validation.fieldRequired()))
             return
         }
 

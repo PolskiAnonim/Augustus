@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.octavius.localization.Tr
 import org.octavius.report.component.ReportState
 import org.octavius.report.localization.ReportTr
 
@@ -42,7 +43,7 @@ fun ColumnManagementPanel(
                     )
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                        contentDescription = if (isExpanded) ReportTr.Expandable.collapse() else ReportTr.Expandable.expand()
+                        contentDescription = if (isExpanded) Tr.Expandable.collapse() else Tr.Expandable.expand()
                     )
                 }
 

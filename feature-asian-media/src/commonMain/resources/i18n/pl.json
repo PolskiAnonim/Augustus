@@ -1,49 +1,62 @@
 {
-  "asianMedia": {
-    "form": {
-      "chapterCount": "Liczba rozdziałów",
-      "duplicateTitles": "Wykryto duplikaty w tytułach",
-      "editTitle": "Edytuj tytuł",
-      "newTitle": "Nowy tytuł",
-      "originalCompleted": "Oryginał ukończony",
-      "originalLanguage": "Język oryginału",
-      "publicationType": "Typ publikacji",
-      "publications": "Publikacje",
-      "readingStatus": "Status czytania",
-      "titleInfo": "Informacje o tytule",
-      "titles": "Tytuły",
-      "titlesAlreadyExist": "Tytuły już istnieją w bazie danych",
-      "trackProgress": "Śledzić postęp?",
-      "translatedChapters": "Przetłumaczone rozdziały",
-      "translatedVolumes": "Przetłumaczone tomy",
-      "volumeCount": "Liczba tomów",
-      "seasonsCount": "Liczba sezonów",
-      "translatedSeasons": "Przetłumaczone sezony"
-    },
-    "readingStatus": {
-      "completed": "Ukończone",
-      "notReading": "Nie czytam",
-      "reading": "Czytam",
-      "toRead": "Do przeczytania"
-    },
-    "report": {
-      "newTitle": "Nowy tytuł",
-      "newKoreanWebNovel": "Nowy Koreański Web Novel",
-      "title": "Azjatyckie media",
-      "titles": "Tytuły",
-      "language": "Język",
-      "publicationType": "Typ publikacji",
-      "status": "Status"
-    },
-    "home": {
-      "title": "Strona główna",
-      "viewFullList": "Przeglądaj pełną listę (Raport)",
-      "totalTitles": "Łącznie tytułów",
-      "reading": "Czytam",
-      "completed": "Ukończone",
-      "currentlyReading": "Obecnie czytane",
-      "recentlyAdded": "Ostatnio dodane",
-      "noItems": "Brak elementów"
-    }
+  "tab": "Azjatyckie",
+  "form": {
+    "chapterCount": "Liczba rozdziałów",
+    "duplicateTitles": "Wykryto duplikaty w tytułach",
+    "editTitle": "Edytuj tytuł",
+    "newTitle": "Nowy tytuł",
+    "originalCompleted": "Oryginał ukończony",
+    "originalLanguage": "Język oryginału",
+    "publicationType": "Typ publikacji",
+    "publications": "Publikacje",
+    "readingStatus": "Status czytania",
+    "titleInfo": "Informacje o tytule",
+    "titles": "Tytuły",
+    "titlesAlreadyExist": "Tytuły już istnieją w bazie danych",
+    "trackProgress": "Śledzić postęp?",
+    "translatedChapters": "Przetłumaczone rozdziały",
+    "translatedVolumes": "Przetłumaczone tomy",
+    "volumeCount": "Liczba tomów",
+    "seasonsCount": "Liczba sezonów",
+    "translatedSeasons": "Przetłumaczone sezony"
+  },
+  "readingStatus": {
+    "completed": "Ukończone",
+    "notReading": "Nie czytam",
+    "reading": "Czytam",
+    "toRead": "Do przeczytania"
+  },
+  "report": {
+    "newTitle": "Nowy tytuł",
+    "newKoreanWebNovel": "Nowy Koreański Web Novel",
+    "title": "Azjatyckie media",
+    "titles": "Tytuły",
+    "language": "Język",
+    "publicationType": "Typ publikacji",
+    "status": "Status"
+  },
+  "home": {
+    "title": "Strona główna",
+    "viewFullList": "Przeglądaj pełną listę (Raport)",
+    "totalTitles": "Łącznie tytułów",
+    "reading": "Czytam",
+    "completed": "Ukończone",
+    "currentlyReading": "Obecnie czytane",
+    "recentlyAdded": "Ostatnio dodane",
+    "noItems": "Brak elementów"
+  },
+  "publicationLanguage": {
+    "chinese": "Chiński",
+    "japanese": "Japoński",
+    "korean": "Koreański"
+  },
+  "publicationType": {
+    "lightNovel": "Light Novel",
+    "manga": "Manga",
+    "manhua": "Manhua",
+    "manhwa": "Manhwa",
+    "publishedNovel": "Published Novel",
+    "webNovel": "Web Novel",
+    "webtoon": "Webtoon"
   }
 }

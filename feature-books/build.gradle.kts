@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.octaviusI18n)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
@@ -31,6 +32,16 @@ kotlin {
 
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+        }
+    }
+}
+
+octaviusI18n {
+    generators {
+        create("books") {
+            sourceProject = project(":feature-books")
+            targetPackage = "org.octavius.feature.books.localization"
+            objectName = "BooksTr"
         }
     }
 }

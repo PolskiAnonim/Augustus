@@ -4,9 +4,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import io.github.octaviusframework.client.query.QueryFragment
 import org.octavius.domain.game.GameStatus
-import org.octavius.localization.Tr
 import org.octavius.modules.games.form.game.ui.GameFormScreen
 import org.octavius.modules.games.form.series.ui.GameSeriesFormScreen
+import org.octavius.modules.games.localization.GamesTr
 import org.octavius.navigation.AppRouter
 import org.octavius.report.ReportMainAction
 import org.octavius.report.ReportRowAction
@@ -57,12 +57,12 @@ class GameReportStructureBuilder(
     }
 
     override fun buildColumns(): Map<String, ReportColumn> = mapOf(
-        "game_name" to StringColumn(Tr.Games.General.gameName()),
-        "series_name" to StringColumn(Tr.Games.General.series()),
+        "game_name" to StringColumn(GamesTr.General.gameName()),
+        "series_name" to StringColumn(GamesTr.General.series()),
         "status" to EnumColumn(
-            Tr.Games.General.status(), enumClass = GameStatus::class
+            GamesTr.General.status(), enumClass = GameStatus::class
         ),
-        "categories" to StringColumn(Tr.Games.Form.category(2)).asList(),
+        "categories" to StringColumn(GamesTr.Form.category(2)).asList(),
     )
 
     override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(
@@ -80,12 +80,12 @@ class GameReportStructureBuilder(
 
 
     override fun buildMainActions(): List<ReportMainAction> = listOf(
-        ReportMainAction(Tr.Games.Report.newGame(), Icons.Default.Add) {
+        ReportMainAction(GamesTr.Report.newGame(), Icons.Default.Add) {
             AppRouter.navigateTo(
                 GameFormScreen.create()
             )
         },
-        ReportMainAction(Tr.Games.Report.newSeries(), Icons.Default.Add) {
+        ReportMainAction(GamesTr.Report.newSeries(), Icons.Default.Add) {
             AppRouter.navigateTo(
                 GameSeriesFormScreen.create()
             )

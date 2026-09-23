@@ -7,8 +7,8 @@ import io.github.octaviusframework.client.query.withParam
 import org.octavius.domain.asian.PublicationLanguage
 import org.octavius.domain.asian.PublicationStatus
 import org.octavius.domain.asian.PublicationType
-import org.octavius.localization.Tr
 import org.octavius.modules.asian.form.ui.AsianMediaFormScreen
+import org.octavius.modules.asian.localization.AsianMediaTr
 import org.octavius.navigation.AppRouter
 import org.octavius.report.ReportMainAction
 import org.octavius.report.ReportRowAction
@@ -37,21 +37,21 @@ class AsianMediaReportStructureBuilder() : ReportStructureBuilder() {
 
     override fun buildColumns(): Map<String, ReportColumn> = mapOf(
         "titles" to StringColumn(
-            header = Tr.AsianMedia.Report.titles(),
+            header = AsianMediaTr.Report.titles(),
             width = 2f
         ).asList(5),
         "language" to EnumColumn(
-            header = Tr.AsianMedia.Report.language(),
+            header = AsianMediaTr.Report.language(),
             enumClass = PublicationLanguage::class,
             width = 1f
         ),
         "publication_type" to EnumColumn(
-            header = Tr.AsianMedia.Report.publicationType(),
+            header = AsianMediaTr.Report.publicationType(),
             enumClass = PublicationType::class,
             width = 1.5f
         ).asList(9),
         "status" to EnumColumn(
-            header = Tr.AsianMedia.Report.status(),
+            header = AsianMediaTr.Report.status(),
             enumClass = PublicationStatus::class,
             width = 1.5f
         ).asList(9)
@@ -69,13 +69,13 @@ class AsianMediaReportStructureBuilder() : ReportStructureBuilder() {
     }
 
     override fun buildMainActions(): List<ReportMainAction> = listOf(
-        ReportMainAction(Tr.AsianMedia.Report.newTitle(), Icons.Default.Add) {
+        ReportMainAction(AsianMediaTr.Report.newTitle(), Icons.Default.Add) {
             AppRouter.navigateTo(
                 AsianMediaFormScreen.create(
                 )
             )
         },
-        ReportMainAction(Tr.AsianMedia.Report.newKoreanWebNovel(), Icons.Default.Add) {
+        ReportMainAction(AsianMediaTr.Report.newKoreanWebNovel(), Icons.Default.Add) {
             val payload = mapOf(
                 "publications" to listOf(
                     mapOf(

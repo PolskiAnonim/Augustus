@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.octavius.app.settings.domain.AppSettings
-import org.octavius.localization.Tr
 import java.io.File
 
 /**

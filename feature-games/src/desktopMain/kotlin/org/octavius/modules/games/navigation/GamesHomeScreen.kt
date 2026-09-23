@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import org.octavius.localization.Tr
+import org.octavius.modules.games.localization.GamesTr
 import org.octavius.modules.games.report.ui.GameCategoriesReportScreen
 import org.octavius.modules.games.report.ui.GameRatingsReportScreen
 import org.octavius.modules.games.report.ui.GameReportScreen
@@ -23,7 +23,7 @@ import org.octavius.navigation.Screen
  */
 class GamesHomeScreen : Screen {
 
-    override val title = Tr.Games.Home.title()
+    override val title = GamesTr.Home.title()
 
     @Composable
     override fun Content() {
@@ -44,12 +44,12 @@ class GamesHomeScreen : Screen {
                         .padding(24.dp)
                 ) {
                     Text(
-                        text = Tr.Games.Home.mainText(),
+                        text = GamesTr.Home.mainText(),
                         style = MaterialTheme.typography.headlineMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = Tr.Games.Home.description(),
+                        text = GamesTr.Home.description(),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -63,8 +63,8 @@ class GamesHomeScreen : Screen {
             ) {
                 // All Games
                 QuickActionCard(
-                    title = Tr.Games.Home.allGames(),
-                    description = Tr.Games.Home.allGamesDescription(),
+                    title = GamesTr.Home.allGames(),
+                    description = GamesTr.Home.allGamesDescription(),
                     icon = Icons.Default.SportsEsports,
                     onClick = {
                         AppRouter.navigateTo(GameReportScreen.create())
@@ -74,8 +74,8 @@ class GamesHomeScreen : Screen {
 
                 // Game Series
                 QuickActionCard(
-                    title = Tr.Games.Home.gameSeries(),
-                    description = Tr.Games.Home.gameSeriesDescription(),
+                    title = GamesTr.Home.gameSeries(),
+                    description = GamesTr.Home.gameSeriesDescription(),
                     icon = Icons.Default.CollectionsBookmark,
                     onClick = {
                         AppRouter.navigateTo(GameSeriesReportScreen.create())
@@ -90,8 +90,8 @@ class GamesHomeScreen : Screen {
             ) {
                 // Game Categories
                 QuickActionCard(
-                    title = Tr.Games.Home.gameCategories(),
-                    description = Tr.Games.Home.gameCategoriesDescription(),
+                    title = GamesTr.Home.gameCategories(),
+                    description = GamesTr.Home.gameCategoriesDescription(),
                     icon = Icons.Default.Category,
                     onClick = {
                         AppRouter.navigateTo(GameCategoriesReportScreen.create())
@@ -101,8 +101,8 @@ class GamesHomeScreen : Screen {
 
                 // Game Details
                 QuickActionCard(
-                    title = Tr.Games.Home.gameDetails(),
-                    description = Tr.Games.Home.gameDetailsDescription(),
+                    title = GamesTr.Home.gameDetails(),
+                    description = GamesTr.Home.gameDetailsDescription(),
                     icon = Icons.Default.Star,
                     onClick = {
                         AppRouter.navigateTo(GameRatingsReportScreen.create())
@@ -117,8 +117,8 @@ class GamesHomeScreen : Screen {
             ) {
                 // Statistics
                 QuickActionCard(
-                    title = Tr.Games.Home.statistics(),
-                    description = Tr.Games.Home.statisticsDescription(),
+                    title = GamesTr.Home.statistics(),
+                    description = GamesTr.Home.statisticsDescription(),
                     icon = Icons.Default.Analytics,
                     onClick = {
                         AppRouter.navigateTo(GameStatisticsScreen.create())

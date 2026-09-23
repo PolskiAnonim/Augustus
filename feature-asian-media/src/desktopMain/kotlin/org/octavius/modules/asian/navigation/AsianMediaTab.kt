@@ -4,8 +4,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import org.octavius.localization.Tr
 import org.octavius.modules.asian.home.ui.AsianMediaHomeScreen
+import org.octavius.modules.asian.localization.AsianMediaTr
 import org.octavius.navigation.Screen
 import org.octavius.navigation.Tab
 import org.octavius.navigation.TabOptions
@@ -16,7 +16,7 @@ class AsianMediaTab : Tab {
     override val options: TabOptions
         @Composable
         get() = TabOptions(
-            title = Tr.Tabs.asianMedia(),
+            title = AsianMediaTr.tab(),
             icon = rememberVectorPainter(Icons.AutoMirrored.Filled.MenuBook)
         )
 

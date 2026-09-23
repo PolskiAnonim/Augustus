@@ -13,11 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import org.octavius.localization.Tr
 import org.octavius.modules.asian.form.ui.AsianMediaFormScreen
 import org.octavius.modules.asian.home.model.AsianMediaHomeHandler
 import org.octavius.modules.asian.home.model.AsianMediaHomeState
 import org.octavius.modules.asian.home.model.DashboardItem
+import org.octavius.modules.asian.localization.AsianMediaTr
 import org.octavius.modules.asian.report.ui.AsianMediaReportScreen
 import org.octavius.navigation.AppRouter
 import org.octavius.navigation.Screen
@@ -40,7 +40,7 @@ class AsianMediaHomeScreen(override val title: String) : Screen {
         Scaffold(
             floatingActionButton = {
                 ExtendedFloatingActionButton(
-                    text = { Text(Tr.AsianMedia.Report.newTitle()) },
+                    text = { Text(AsianMediaTr.Report.newTitle()) },
                     icon = { Icon(Icons.Default.Add, contentDescription = null) },
                     onClick = {
                         AppRouter.navigateTo(AsianMediaFormScreen.create())
@@ -74,13 +74,13 @@ class AsianMediaHomeScreen(override val title: String) : Screen {
                                 modifier = Modifier.size(ButtonDefaults.IconSize)
                             )
                             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                            Text(Tr.AsianMedia.Home.viewFullList())
+                            Text(AsianMediaTr.Home.viewFullList())
                         }
                     }
 
                     item {
                         QuickAccessList(
-                            title = Tr.AsianMedia.Home.currentlyReading(),
+                            title = AsianMediaTr.Home.currentlyReading(),
                             items = state.currentlyReading,
                             onItemClick = { item ->
                                 AppRouter.navigateTo(AsianMediaFormScreen.create(entityId = item.id))
@@ -90,7 +90,7 @@ class AsianMediaHomeScreen(override val title: String) : Screen {
 
                     item {
                         QuickAccessList(
-                            title = Tr.AsianMedia.Home.recentlyAdded(),
+                            title = AsianMediaTr.Home.recentlyAdded(),
                             items = state.recentlyAdded,
                             onItemClick = { item ->
                                 AppRouter.navigateTo(AsianMediaFormScreen.create(entityId = item.id))
@@ -104,7 +104,7 @@ class AsianMediaHomeScreen(override val title: String) : Screen {
 
     companion object {
         fun create(): Screen {
-            return AsianMediaHomeScreen(Tr.AsianMedia.Home.title())
+            return AsianMediaHomeScreen(AsianMediaTr.Home.title())
         }
     }
 }
@@ -118,17 +118,17 @@ private fun StatsHeader(state: AsianMediaHomeState) {
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         StatCard(
-            Tr.AsianMedia.Home.totalTitles(),
+            AsianMediaTr.Home.totalTitles(),
             state.totalTitles.toString(),
             Modifier.weight(1f)
         )
         StatCard(
-            Tr.AsianMedia.Home.reading(),
+            AsianMediaTr.Home.reading(),
             state.readingCount.toString(),
             Modifier.weight(1f)
         )
         StatCard(
-            Tr.AsianMedia.Home.completed(),
+            AsianMediaTr.Home.completed(),
             state.completedCount.toString(),
             Modifier.weight(1f)
         )
@@ -161,7 +161,7 @@ private fun QuickAccessList(
 
         if (items.isEmpty()) {
             Text(
-                text = Tr.AsianMedia.Home.noItems(),
+                text = AsianMediaTr.Home.noItems(),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(start = 8.dp, top = 8.dp)
             )
