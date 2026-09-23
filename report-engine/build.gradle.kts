@@ -38,7 +38,6 @@ kotlin {
 octaviusI18n {
     generators {
         create("report") {
-            sourceProject = project(":report-engine")
             targetPackage = "org.octavius.report.localization"
             objectName = "ReportTr"
         }

@@ -271,7 +271,6 @@ The engine owns its strings. `src/commonMain/resources/i18n/{en,pl}.json` are co
 octaviusI18n {
     generators {
         create("report") {
-            sourceProject = project(":report-engine")
             targetPackage = "org.octavius.report.localization"
             objectName = "ReportTr"
         }

@@ -351,7 +351,6 @@ The engine owns its strings. `src/commonMain/resources/i18n/{en,pl}.json` are co
 octaviusI18n {
     generators {
         create("form") {
-            sourceProject = project(":form-engine")
             targetPackage = "org.octavius.form.localization"
             objectName = "FormTr"
         }

@@ -49,7 +49,6 @@ tasks.withType<Test> {
 octaviusI18n {
     generators {
         create("form") {
-            sourceProject = project(":form-engine")
             targetPackage = "org.octavius.form.localization"
             objectName = "FormTr"
         }

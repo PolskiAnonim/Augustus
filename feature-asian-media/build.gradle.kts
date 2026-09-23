@@ -52,7 +52,6 @@ kotlin {
 octaviusI18n {
     generators {
         create("asianMedia") {
-            sourceProject = project(":feature-asian-media")
             targetPackage = "org.octavius.modules.asian.localization"
             objectName = "AsianMediaTr"
         }

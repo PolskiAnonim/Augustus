@@ -38,7 +38,6 @@ kotlin {
 octaviusI18n {
     generators {
         create("popup") {
-            sourceProject = project(":browser-extension:popup")
             targetPackage = "org.octavius.extension.localization"
             objectName = "PopupTr"
         }

@@ -39,7 +39,6 @@ kotlin {
 octaviusI18n {
     generators {
         create("books") {
-            sourceProject = project(":feature-books")
             targetPackage = "org.octavius.feature.books.localization"
             objectName = "BooksTr"
         }

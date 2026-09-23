@@ -36,7 +36,6 @@ kotlin {
 octaviusI18n {
     generators {
         create("sandbox") {
-            sourceProject = project(":feature-sandbox")
             targetPackage = "org.octavius.modules.sandbox.localization"
             objectName = "SandboxTr"
         }

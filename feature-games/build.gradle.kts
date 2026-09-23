@@ -37,7 +37,6 @@ kotlin {
 octaviusI18n {
     generators {
         create("games") {
-            sourceProject = project(":feature-games")
             targetPackage = "org.octavius.modules.games.localization"
             objectName = "GamesTr"
         }

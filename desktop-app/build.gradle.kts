@@ -70,7 +70,6 @@ compose.desktop {
 octaviusI18n {
     generators {
         create("app") {
-            sourceProject = project(":desktop-app")
             targetPackage = "org.octavius.app.localization"
             objectName = "AppTr"
         }
