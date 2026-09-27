@@ -33,7 +33,7 @@ class BookFormValidator : FormValidator() {
         return when (result) {
             is DataResult.Success -> {
                 if ((result.value) > 0) {
-                    errorManager.setFieldErrors("titlePl", listOf(BooksTr.Validation.titleExists()))
+                    errorManager.setFieldErrors("title_pl",listOf(BooksTr.Validation.titleExists()))
                     false
                 } else {
                     true

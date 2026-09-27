@@ -68,6 +68,7 @@ class RepeatableControl(
 
 
     override val validator: ControlValidator<List<RepeatableRow>> = RepeatableValidator(
+        rowControls,
         validationOptions
     )
 

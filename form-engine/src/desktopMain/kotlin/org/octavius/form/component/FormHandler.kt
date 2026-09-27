@@ -40,8 +40,9 @@ class FormHandler(
     private val payload: Map<String, Any?> = emptyMap(),
     private val handlerScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 ) : FormActionTrigger {
-    internal val errorManager: ErrorManager = ErrorManager()
     private val formState: FormState = FormState()
+    // Błędy pól są kluczowane tą samą pełną ścieżką co stany kontrolek, łącznie z wierszami repeatable.
+    internal val errorManager: ErrorManager = ErrorManager { path -> formState.getControlState(path) != null }
     private val formSchema: FormSchema = formSchemaBuilder.build()
 
     val isLoading: State<Boolean> get() = formState.isLoading

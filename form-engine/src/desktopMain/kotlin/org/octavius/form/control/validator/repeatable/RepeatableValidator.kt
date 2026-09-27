@@ -1,10 +1,10 @@
 package org.octavius.form.control.validator.repeatable
 
+import org.octavius.form.control.base.Control
 import org.octavius.form.control.base.ControlContext
 import org.octavius.form.control.base.ControlState
 import org.octavius.form.control.base.ControlValidator
 import org.octavius.form.control.base.RepeatableValidation
-import org.octavius.form.control.type.repeatable.RepeatableControl
 import org.octavius.form.control.type.repeatable.RepeatableRow
 import org.octavius.form.localization.FormTr
 
@@ -19,6 +19,7 @@ import org.octavius.form.localization.FormTr
  * - Walidacja minimalnej i maksymalnej liczby elementów
  */
 class RepeatableValidator(
+    private val rowControls: Map<String, Control<*>>,
     private val validationOptions: RepeatableValidation? = null
 ) : ControlValidator<List<RepeatableRow>>() {
 
@@ -41,10 +42,8 @@ class RepeatableValidator(
         @Suppress("UNCHECKED_CAST")
         val rows = state.value.value as List<RepeatableRow>
 
-        val control = formSchema.getControl(controlContext.fullStatePath) as? RepeatableControl ?: return
-
         // 1. Walidacja kontrolek-dzieci (zawsze musi być wykonana)
-        validateChildControls(rows, control, controlContext)
+        validateChildControls(rows, controlContext)
 
         // 2. Walidacja reguł samej listy
         val allErrors = mutableListOf<String>()
@@ -121,12 +120,11 @@ class RepeatableValidator(
 
     private fun validateChildControls(
         rows: List<RepeatableRow>,
-        control: RepeatableControl,
         controlContext: ControlContext
     ) {
         val allStates = formState.getAllStates()
         for (row in rows) {
-            for ((fieldName, fieldControl) in control.rowControls) {
+            for ((fieldName, fieldControl) in rowControls) {
                 val hierarchicalContext = controlContext.forRepeatableChild(fieldName, row.id)
                 val fieldState = allStates.getValue(hierarchicalContext.fullStatePath)
                 fieldControl.validateControl(hierarchicalContext, fieldState)

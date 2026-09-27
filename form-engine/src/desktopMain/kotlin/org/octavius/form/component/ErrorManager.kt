@@ -3,7 +3,12 @@ package org.octavius.form.component
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 
-class ErrorManager {
+/**
+ * @param isKnownField Czy pod daną ścieżką jest kontrolka. Błąd pola to string-klucz, więc literówka
+ *   (`"titlePl"` zamiast `"title_pl"`) nie trafiłaby nigdzie: formularz pokazałby tylko "zawiera
+ *   błędy", bez wskazania pola. Dlatego zapis błędu pod nieznaną ścieżkę rzuca.
+ */
+class ErrorManager(private val isKnownField: (String) -> Boolean) {
     private val _globalErrors = mutableStateOf<List<String>>(emptyList())
     val globalErrors = _globalErrors
 
@@ -22,16 +27,19 @@ class ErrorManager {
     }
 
     fun addFieldError(fieldName: String, error: String) {
+        requireKnownField(fieldName)
         val currentErrors = _fieldErrors[fieldName] ?: emptyList()
         _fieldErrors[fieldName] = currentErrors + error
     }
 
     fun addFieldErrors(fieldName: String, errors: List<String>) {
+        requireKnownField(fieldName)
         val currentErrors = _fieldErrors[fieldName] ?: emptyList()
         _fieldErrors[fieldName] = currentErrors + errors
     }
 
     fun setFieldErrors(fieldName: String, errors: List<String>) {
+        requireKnownField(fieldName)
         if (errors.isEmpty()) {
             _fieldErrors.remove(fieldName)
         } else {
@@ -86,5 +94,9 @@ class ErrorManager {
 
     fun hasFormatErrors(): Boolean {
         return _formatErrors.isNotEmpty()
+    }
+
+    private fun requireKnownField(fieldName: String) {
+        require(isKnownField(fieldName)) { "Błąd pola '$fieldName', ale w formularzu nie ma takiej kontrolki" }
     }
 }
