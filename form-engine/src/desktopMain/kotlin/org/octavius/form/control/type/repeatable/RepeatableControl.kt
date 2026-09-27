@@ -169,50 +169,21 @@ class RepeatableControl(
             states
         )
 
-        val deletedRowsValues = deletedRows.map { row ->
+        fun rowValues(row: RepeatableRow): FormResultData =
             rowControls.mapValues { (fieldName, control) ->
                 val hierarchicalContext = controlContext.forRepeatableChild(fieldName, row.id)
-                val fieldState = states[hierarchicalContext.fullStatePath]!!
-                control.getResult(hierarchicalContext, fieldState)
+                control.getResult(hierarchicalContext, states.getValue(hierarchicalContext.fullStatePath))
             }
-        }
 
-        val newRowsValues = newRows.map { row ->
-            rowControls.mapValues { (fieldName, control) ->
-                val hierarchicalContext = controlContext.forRepeatableChild(fieldName, row.id)
-                val fieldControlState = states[hierarchicalContext.fullStatePath]!!
-                control.getResult(hierarchicalContext, fieldControlState)
-            }
-        }
-
-        val changedRowsValues = changedRows.map { row ->
-            rowControls.mapValues { (fieldName, control) ->
-                val hierarchicalContext = controlContext.forRepeatableChild(fieldName, row.id)
-                val fieldControlState = states[hierarchicalContext.fullStatePath]!!
-                control.getResult(hierarchicalContext, fieldControlState)
-            }
-        }
-
-        val allCurrentRowsValues = controlState.value.value!!.map { row ->
-            rowControls.mapValues { (fieldName, control) ->
-                val hierarchicalContext = controlContext.forRepeatableChild(fieldName, row.id)
-                val fieldControlState = states[hierarchicalContext.fullStatePath]!!
-                control.getResult(hierarchicalContext, fieldControlState)
-            }
-        }
-
-        // Wyczyść stany usuniętych wierszy które były oryginalne
-        deletedRows.forEach { row ->
-            val rowPrefix = "${controlContext.fullStatePath}[${row.id}]"
-            formState.removeControlStatesWithPrefix(rowPrefix)
-        }
-
+        // Zbieranie danych niczego nie zmienia w stanie. Stany usuniętych wierszy z bazy muszą
+        // przetrwać, bo ich wartości początkowe idą do deletedRows przy KAŻDYM zbieraniu, a to
+        // powtarza się, gdy zapis nie przejdzie i użytkownik kliknie jeszcze raz.
         return ControlResultData(
             currentValue = RepeatableResultValue(
-                deletedRows = deletedRowsValues,
-                addedRows = newRowsValues,
-                modifiedRows = changedRowsValues,
-                allCurrentRows = allCurrentRowsValues
+                deletedRows = deletedRows.map(::rowValues),
+                addedRows = newRows.map(::rowValues),
+                modifiedRows = changedRows.map(::rowValues),
+                allCurrentRows = controlState.value.value!!.map(::rowValues)
             ),
             initialValue = null  // Oryginalne wartości są już zawarte w currentValue dla poszczególnych kontrolek
         )

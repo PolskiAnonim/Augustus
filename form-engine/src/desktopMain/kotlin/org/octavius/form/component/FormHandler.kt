@@ -6,6 +6,7 @@ import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.control.base.Control
 import org.octavius.form.control.base.ControlState
+import org.octavius.form.control.base.FormResultData
 import org.octavius.form.localization.FormTr
 import org.octavius.ui.snackbar.SnackbarManager
 
@@ -92,6 +93,9 @@ class FormHandler(
     }
 
     override suspend fun triggerAction(actionKey: String, validates: Boolean): Boolean {
+        // Celowo pod jobem handlerScope, nie wołającego: przycisk odpala akcję w scope ekranu, który
+        // ginie razem z ekranem, a zapis złożony z kilku kroków ma dojść do końca, nawet gdy
+        // użytkownik zdąży ekran zamknąć. Stąd też brak anulowania handlerScope przy wyjściu.
         return withContext(handlerScope.coroutineContext) {
             val formActions = formDataManager.definedFormActions()
             val action = formActions[actionKey] ?: run {
@@ -100,35 +104,39 @@ class FormHandler(
             }
 
             formState.actionTriggered.value = true
+            try {
+                errorManager.clearAll()
 
-            errorManager.clearAll()
+                val formData = validatedFormData(actionKey, validates) ?: run {
+                    SnackbarManager.showMessage(FormTr.Form.Actions.containsErrors())
+                    return@withContext false
+                }
 
-            if (validates && !formValidator.validateFields()) {
-                SnackbarManager.showMessage(FormTr.Form.Actions.containsErrors())
+                action.invoke(formData)
+            } finally {
+                // Nakładka blokuje cały formularz, więc musi zejść na każdej drodze wyjścia -
+                // także gdy walidator albo akcja rzucą wyjątkiem.
                 formState.actionTriggered.value = false
-                return@withContext false
             }
-
-            val rawFormData = formState.collectFormData(formSchema)
-
-            // Walidacja reguł biznesowych (może odpytywać bazę)
-            if (validates && !formValidator.validateBusinessRules(rawFormData)) {
-                SnackbarManager.showMessage(FormTr.Form.Actions.containsErrors())
-                formState.actionTriggered.value = false
-                return@withContext false
-            }
-
-            // Walidacja specyficzna dla akcji (zawsze uruchamiana, niezależnie od flagi 'validates')
-            val actionValidator = formValidator.defineActionValidations()[actionKey]
-            if (actionValidator != null && !actionValidator.invoke(rawFormData)) {
-                SnackbarManager.showMessage(FormTr.Form.Actions.containsErrors())
-                formState.actionTriggered.value = false
-                return@withContext false
-            }
-
-            val succeeded = action.invoke(rawFormData)
-            formState.actionTriggered.value = false
-            succeeded
         }
+    }
+
+    /**
+     * Zbiera dane formularza, jeśli przejdą walidację, albo zwraca `null`, gdy któryś etap ją oblał.
+     * Błędy do pokazania zapisuje sam etap, w `errorManager`.
+     */
+    private fun validatedFormData(actionKey: String, validates: Boolean): FormResultData? {
+        if (validates && !formValidator.validateFields()) return null
+
+        val formData = formState.collectFormData(formSchema)
+
+        // Walidacja reguł biznesowych (może odpytywać bazę)
+        if (validates && !formValidator.validateBusinessRules(formData)) return null
+
+        // Walidacja specyficzna dla akcji (zawsze uruchamiana, niezależnie od flagi 'validates')
+        val actionValidator = formValidator.defineActionValidations()[actionKey]
+        if (actionValidator != null && !actionValidator.invoke(formData)) return null
+
+        return formData
     }
 }

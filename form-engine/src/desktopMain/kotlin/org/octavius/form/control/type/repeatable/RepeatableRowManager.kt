@@ -36,8 +36,9 @@ class RepeatableRowManager(
         // Sprawdź czy wiersz był w oryginalnych danych
         val wasOriginal = controlState.initValue.value!!.any { it.id == rowToRemove.id }
         
+        // Stany wiersza z bazy zostają do końca życia formularza: jego wartości początkowe trafiają
+        // do deletedRows przy każdym zbieraniu danych. Nowy wiersz nie ma czego zgłaszać.
         if (!wasOriginal) {
-            // Nowy wiersz - usuń stany od razu
             formState.removeControlStatesWithPrefix("${controlContext.fullStatePath}[${rowToRemove.id}]")
         }
         
