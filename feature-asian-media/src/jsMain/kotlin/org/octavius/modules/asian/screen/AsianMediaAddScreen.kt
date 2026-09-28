@@ -6,12 +6,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,16 +24,23 @@ import org.octavius.modules.asian.model.AsianPublicationData
 import org.octavius.modules.asian.model.PublicationAddRequest
 import org.octavius.modules.asian.model.PublicationCheckRequest
 import org.octavius.modules.asian.model.PublicationCheckResponse
+import org.octavius.modules.asian.model.PublicationLinkRequest
+import org.octavius.modules.asian.model.PublicationSummary
+import org.octavius.modules.asian.model.TitleOpenRequest
+import org.octavius.modules.asian.model.TitlesAppendRequest
 import org.octavius.navigation.Screen
 
 /**
- * Ekran dedykowany do wyświetlania danych sparsowanych ze strony
- * i umożliwiający dodanie ich do bazy danych Augustus.
+ * Ekran dedykowany do wyświetlania danych sparsowanych ze strony i umożliwiający dodanie ich do bazy
+ * danych Augustus - albo podpięcie do tytułu, który już tam jest.
+ *
+ * Co da się zrobić, zależy od tego, co znalazł `/check`: seria rozpoznana po identyfikatorze już jest
+ * w bazie i można ją tylko otworzyć; podobny tytuł to podpowiedź, że może chodzi o istniejący tytuł;
+ * brak dopasowania - zwykłe dodanie.
  */
 class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
     override val title = "asianMediaAddScreen"
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         var isLoading by remember { mutableStateOf(false) }
@@ -38,11 +48,43 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
         var statusMessage by remember { mutableStateOf<Pair<String, Boolean>?>(null) }
         val coroutineScope = rememberCoroutineScope()
 
-        // Sprawdź czy tytuł już istnieje przy wejściu na ekran
-        LaunchedEffect(data.titles) {
-            if (data.titles.isNotEmpty()) {
-                checkResponse = ApiClient.checkPublicationExistence(PublicationCheckRequest(data.titles))
+        suspend fun check() = ApiClient.checkPublicationExistence(PublicationCheckRequest(data.titles, data.externalId))
+
+        // Sprawdź przy wejściu na ekran, czy seria już jest w bazie
+        LaunchedEffect(data) {
+            val response = check()
+            checkResponse = response
+            // Rozpoznana po identyfikatorze: strona zna zwykle więcej tytułów alternatywnych niż baza
+            // (import listy brał tylko główny), więc brakujące dopisujemy od razu.
+            if (response.byExternalId && response.titleId != null && data.titles.isNotEmpty()) {
+                val added = ApiClient.appendTitles(TitlesAppendRequest(response.titleId, data.titles)).added
+                if (added > 0) statusMessage = Pair("Dopisano tytuły alternatywne: $added", true)
             }
+        }
+
+        // Po udanym dodaniu albo podpięciu sprawdzamy jeszcze raz: seria jest już w bazie po
+        // identyfikatorze, więc ekran przestaje proponować dodanie jej drugi raz.
+        fun runAction(action: suspend () -> Pair<String, Boolean>) {
+            isLoading = true
+            statusMessage = null
+            coroutineScope.launch {
+                val result = action()
+                if (result.second) checkResponse = check()
+                statusMessage = result
+                isLoading = false
+            }
+        }
+
+        val addAsNew: suspend () -> Pair<String, Boolean> = {
+            val response = ApiClient.addPublication(
+                PublicationAddRequest(
+                    titles = data.titles,
+                    type = data.type,
+                    language = data.language,
+                    externalId = data.externalId
+                )
+            )
+            Pair(response.message, response.success)
         }
 
         Column(
@@ -60,7 +102,7 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
                     color = MaterialTheme.colorScheme.primary
                 )
             )
-            
+
             Text(
                 "Źródło: ${data.source}",
                 style = MaterialTheme.typography.bodySmall,
@@ -68,12 +110,29 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Warning Section if exists
-            checkResponse?.let { check ->
-                if (check.found) {
-                    WarningCard(check.matchedTitle ?: "Nieznany tytuł")
-                    Spacer(modifier = Modifier.height(16.dp))
+            // Co już jest w bazie
+            val check = checkResponse
+            if (check != null && check.found) {
+                if (check.byExternalId) {
+                    StatusCard(
+                        icon = Icons.Default.CheckCircle,
+                        heading = "Już w bazie",
+                        title = check.matchedTitle ?: "Nieznany tytuł",
+                        publications = check.publications,
+                        container = MaterialTheme.colorScheme.primaryContainer,
+                        content = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                } else {
+                    StatusCard(
+                        icon = Icons.Default.Warning,
+                        heading = "Podobny tytuł w bazie!",
+                        title = check.matchedTitle ?: "Nieznany tytuł",
+                        publications = check.publications,
+                        container = MaterialTheme.colorScheme.tertiaryContainer,
+                        content = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
                 }
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             // Main Content Card
@@ -93,7 +152,7 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.secondary
                     )
-                    
+
                     if (data.titles.isEmpty()) {
                         Text("Nie znaleziono tytułów...", style = MaterialTheme.typography.bodyMedium)
                     } else {
@@ -110,39 +169,50 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
 
                     InfoRow("Typ", data.type.toDisplayString())
                     InfoRow("Język", data.language.toDisplayString())
+                    InfoRow("Identyfikator", data.externalId?.id ?: "brak")
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Action Button
-            Button(
-                onClick = {
-                    isLoading = true
-                    statusMessage = null
-                    coroutineScope.launch {
-                        val request = PublicationAddRequest(
-                            titles = data.titles,
-                            type = data.type,
-                            language = data.language
-                        )
-                        val response = ApiClient.addPublication(request)
-                        statusMessage = Pair(response.message, response.success)
-                        isLoading = false
+            // Action Buttons
+            when {
+                check == null -> ActionButton("Sprawdzam...", enabled = false, isLoading = true) {}
+
+                check.byExternalId && check.titleId != null -> ActionButton("Otwórz w Augustusie", !isLoading, isLoading) {
+                    runAction {
+                        if (ApiClient.openTitle(TitleOpenRequest(check.titleId))) Pair("Otwarto w aplikacji", true)
+                        else Pair("Nie można połączyć się z serwerem Augustus.", false)
                     }
-                },
-                enabled = data.titles.isNotEmpty() && !isLoading,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Dodaj do Augustusa", fontWeight = FontWeight.Bold)
+                }
+
+                check.found && check.titleId != null -> {
+                    ActionButton("Podepnij do „${check.matchedTitle}”", !isLoading && data.titles.isNotEmpty(), isLoading) {
+                        runAction {
+                            val response = ApiClient.linkPublication(
+                                PublicationLinkRequest(
+                                    titleId = check.titleId,
+                                    titles = data.titles,
+                                    type = data.type,
+                                    externalId = data.externalId
+                                )
+                            )
+                            Pair(response.message, response.success)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = { runAction(addAsNew) },
+                        enabled = !isLoading && data.titles.isNotEmpty(),
+                        modifier = Modifier.fillMaxWidth().height(40.dp),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Dodaj jako nowy tytuł")
+                    }
+                }
+
+                else -> ActionButton("Dodaj do Augustusa", !isLoading && data.titles.isNotEmpty(), isLoading) {
+                    runAction(addAsNew)
                 }
             }
 
@@ -161,34 +231,68 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
     }
 
     @Composable
-    private fun WarningCard(matchedTitle: String) {
+    private fun ActionButton(label: String, enabled: Boolean, isLoading: Boolean, onClick: () -> Unit) {
+        Button(
+            onClick = onClick,
+            enabled = enabled,
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text(label, fontWeight = FontWeight.Bold, maxLines = 1)
+            }
+        }
+    }
+
+    @Composable
+    private fun StatusCard(
+        icon: ImageVector,
+        heading: String,
+        title: String,
+        publications: List<PublicationSummary>,
+        container: Color,
+        content: Color
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.tertiaryContainer)
+                .background(container)
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.Warning,
-                contentDescription = "Ostrzeżenie",
-                tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                imageVector = icon,
+                contentDescription = heading,
+                tint = content,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text(
-                    "Podobny tytuł w bazie!",
+                    heading,
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    color = content,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    "Znaleziono: \"$matchedTitle\"",
+                    "Znaleziono: \"$title\"",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                    color = content
                 )
+                if (publications.isNotEmpty()) {
+                    Text(
+                        publications.joinToString(" · ") { "${it.type.toDisplayString()}: ${it.status.toDisplayString()}" },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = content
+                    )
+                }
             }
         }
     }

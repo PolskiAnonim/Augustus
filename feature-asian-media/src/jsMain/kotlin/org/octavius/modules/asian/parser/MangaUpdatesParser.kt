@@ -1,13 +1,16 @@
 package org.octavius.modules.asian.parser
 
 import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.serialization.json.Json
 import org.octavius.api.contract.ParsedData
 import org.octavius.api.contract.Parser
 import org.octavius.domain.asian.PublicationLanguage
 import org.octavius.domain.asian.PublicationType
+import org.octavius.domain.asian.SourceSite
 import org.octavius.modules.asian.AsianMediaExtensionModule
 import org.octavius.modules.asian.model.AsianPublicationData
+import org.octavius.modules.asian.model.ExternalId
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.asList
@@ -61,11 +64,15 @@ object MangaUpdatesParser: Parser<AsianPublicationData> {
             PublicationType.Manhua -> PublicationLanguage.Chinese
             else -> PublicationLanguage.Japanese
         }
+        // Identyfikator serii jest w adresie: /series/<id w base36>/<slug>.
+        val seriesId = Regex("mangaupdates\\.com/series/([0-9a-z]+)/").find(window.location.href)?.groupValues?.get(1)
+
         return AsianPublicationData(
             "MangaUpdates",
             allTitles,
             detectedType,
-            language
+            language,
+            seriesId?.let { ExternalId(SourceSite.MangaUpdates, it) }
         )
     }
 

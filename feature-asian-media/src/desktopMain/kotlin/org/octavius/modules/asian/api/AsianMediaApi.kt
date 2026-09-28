@@ -1,5 +1,6 @@
 package org.octavius.modules.asian.api
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -9,6 +10,10 @@ import org.octavius.api.contract.ApiModule
 import io.github.octaviusframework.client.OctaviusClient
 import io.github.octaviusframework.client.DataResult
 import io.github.octaviusframework.client.dbResult
+import io.github.octaviusframework.client.getOrElse
+import io.github.octaviusframework.client.getOrNull
+import io.github.octaviusframework.client.map
+import io.github.octaviusframework.client.onFailure
 import io.github.octaviusframework.client.transaction.TransactionPlan
 import io.github.octaviusframework.driver.type.PgStandardType
 import io.github.octaviusframework.driver.type.withPgType
@@ -16,12 +21,19 @@ import org.octavius.domain.asian.PublicationLanguage
 import org.octavius.domain.asian.PublicationStatus
 import org.octavius.domain.asian.PublicationType
 import org.octavius.modules.asian.AsianMediaFeature
+import org.octavius.modules.asian.model.ExternalId
 import org.octavius.modules.asian.model.NovelUpdatesListMove
 import org.octavius.modules.asian.model.NovelUpdatesListMoveResponse
 import org.octavius.modules.asian.model.PublicationAddRequest
 import org.octavius.modules.asian.model.PublicationAddResponse
 import org.octavius.modules.asian.model.PublicationCheckRequest
 import org.octavius.modules.asian.model.PublicationCheckResponse
+import org.octavius.modules.asian.model.PublicationLinkRequest
+import org.octavius.modules.asian.model.PublicationLinkResponse
+import org.octavius.modules.asian.model.PublicationSummary
+import org.octavius.modules.asian.model.TitleOpenRequest
+import org.octavius.modules.asian.model.TitlesAppendRequest
+import org.octavius.modules.asian.model.TitlesAppendResponse
 import org.octavius.navigation.NavigationEvent
 import org.octavius.navigation.NavigationEventBus
 
@@ -43,6 +55,11 @@ class AsianMediaApi : ApiModule, KoinComponent {
 
             // Przeniesienia serii między listami na NovelUpdates, podsłuchane przez wtyczkę
             mirrorNovelUpdatesListMove()
+
+            // Popup: podpięcie serii do istniejącego tytułu, dopisanie tytułów, otwarcie w aplikacji
+            linkPublication()
+            appendTitlesToTitle()
+            openTitle()
         }
     }
 
@@ -53,6 +70,24 @@ class AsianMediaApi : ApiModule, KoinComponent {
     private fun Route.checkPublicationExistence() {
         post("/check") {
             val request = call.receive<PublicationCheckRequest>()
+
+            // Po identyfikatorze serii nie ma wątpliwości, więc podobieństwo tytułów sprawdzamy dopiero,
+            // gdy tego identyfikatora w bazie nie ma.
+            val known = request.externalId?.let(::titleByExternalId)
+            if (known != null) {
+                val (titleId, mainTitle) = known
+                call.respond(
+                    PublicationCheckResponse(
+                        found = true,
+                        titleId = titleId,
+                        matchedTitle = mainTitle,
+                        byExternalId = true,
+                        publications = publicationsOf(titleId)
+                    )
+                )
+                return@post
+            }
+
             if (request.titles.isEmpty()) {
                 call.respond(PublicationCheckResponse(found = false))
                 return@post
@@ -87,7 +122,8 @@ class AsianMediaApi : ApiModule, KoinComponent {
                             PublicationCheckResponse(
                                 found = true,
                                 titleId = titleId,
-                                matchedTitle = matchedTitle
+                                matchedTitle = matchedTitle,
+                                publications = publicationsOf(titleId)
                             )
                         )
                     } else {
@@ -144,6 +180,21 @@ class AsianMediaApi : ApiModule, KoinComponent {
                     .update(publicationData)
             )
 
+            // Krok 3: Identyfikator serii na stronie, z której dodajemy - po nim popup rozpozna ją następnym razem
+            request.externalId?.let { externalId ->
+                val externalIdData = mapOf(
+                    "title_id" to titleIdHandle.value(),
+                    "site" to externalId.site,
+                    "external_id" to externalId.id
+                )
+                plan.add(
+                    db.insertInto("asian_media.title_external_ids")
+                        .values(externalIdData)
+                        .asStep()
+                        .update(externalIdData)
+                )
+            }
+
             // Wykonanie planu
             when (val result = dbResult { db.executeTransactionPlan(plan) }) {
                 is DataResult.Failure -> {
@@ -159,15 +210,7 @@ class AsianMediaApi : ApiModule, KoinComponent {
                     val newId = result.value.get(titleIdHandle)
 
                     println("API: Pomyślnie dodano tytuł z ID: $newId. Wysyłanie zdarzenia nawigacyjnego...")
-
-                    val payload = mapOf("entityId" to newId)
-                    NavigationEventBus.post(
-                        NavigationEvent.Navigate(
-                            screenId = AsianMediaFeature.ASIAN_MEDIA_FORM_SCREEN_ID,
-                            payload = payload,
-                            tabId = "asian_media"
-                        )
-                    )
+                    openInForm(newId)
 
                     call.respond(
                         PublicationAddResponse(
@@ -230,6 +273,147 @@ class AsianMediaApi : ApiModule, KoinComponent {
             }
             call.respond(response)
         }
+    }
+
+    /**
+     * Definiuje endpoint: POST /api/asian-media/link
+     * Podpina serię ze strony do tytułu, który już jest w bazie, i otwiera go w formularzu, żeby ustawić
+     * status nowej publikacji - tak samo jak po dodaniu.
+     */
+    private fun Route.linkPublication() {
+        post("/link") {
+            val request = call.receive<PublicationLinkRequest>()
+            val titles = request.titles.filter { it.isNotBlank() && it.isLatinScript() }
+
+            val result = db.transactionResult {
+                request.externalId?.let { externalId ->
+                    val linkedTo = rawQuery("SELECT title_id FROM asian_media.title_external_ids WHERE site = @site AND external_id = @id")
+                        .asResult().fetchField<Int?>("site" to externalId.site, "id" to externalId.id)
+                        .getOrElse { return@transactionResult it }
+                    if (linkedTo != null && linkedTo != request.titleId) {
+                        return@transactionResult DataResult.Success(
+                            PublicationLinkResponse(false, "Ta seria jest już podpięta do innego tytułu (id $linkedTo), nic nie zmieniono")
+                        )
+                    }
+                    if (linkedTo == null) {
+                        rawQuery("INSERT INTO asian_media.title_external_ids (title_id, site, external_id) VALUES (@titleId, @site, @id)")
+                            .asResult().update("titleId" to request.titleId, "site" to externalId.site, "id" to externalId.id)
+                            .getOrElse { return@transactionResult it }
+                    }
+                }
+
+                val addedPublication = rawQuery(
+                    """
+                    INSERT INTO asian_media.publications (title_id, publication_type, status, track_progress)
+                    VALUES (@titleId, @type, @status, false)
+                    ON CONFLICT (title_id, publication_type) DO NOTHING
+                    """
+                ).asResult().update("titleId" to request.titleId, "type" to request.type, "status" to PublicationStatus.Trash)
+                    .getOrElse { return@transactionResult it }
+
+                val addedTitles = appendTitles(request.titleId, titles).getOrElse { return@transactionResult it }
+
+                val details = listOfNotNull(
+                    "dodano publikację: ${request.type.toDisplayString()}".takeIf { addedPublication > 0 },
+                    "dopisane tytuły: $addedTitles".takeIf { addedTitles > 0 }
+                )
+                DataResult.Success(PublicationLinkResponse(true, (listOf("Podpięto") + details).joinToString(", ")))
+            }
+
+            when (result) {
+                is DataResult.Failure -> call.respond(PublicationLinkResponse(false, "Wystąpił błąd: ${result.error.message}"))
+                is DataResult.Success -> {
+                    if (result.value.success) openInForm(request.titleId)
+                    call.respond(result.value)
+                }
+            }
+        }
+    }
+
+    /**
+     * Definiuje endpoint: POST /api/asian-media/titles/append
+     * Dopisuje do tytułu te z podanych nazw, których jeszcze nie ma - popup woła go sam, gdy rozpozna
+     * serię po identyfikatorze, bo strona zna zwykle więcej tytułów alternatywnych niż import listy.
+     */
+    private fun Route.appendTitlesToTitle() {
+        post("/titles/append") {
+            val request = call.receive<TitlesAppendRequest>()
+            val titles = request.titles.filter { it.isNotBlank() && it.isLatinScript() }
+            val added = when (val result = appendTitles(request.titleId, titles)) {
+                is DataResult.Failure -> {
+                    println("Błąd dopisywania tytułów: ${result.error.message}")
+                    0
+                }
+                is DataResult.Success -> result.value
+            }
+            call.respond(TitlesAppendResponse(added))
+        }
+    }
+
+    /**
+     * Definiuje endpoint: POST /api/asian-media/open
+     * Otwiera tytuł w formularzu aplikacji - z popupu, gdy seria już jest w bazie.
+     */
+    private fun Route.openTitle() {
+        post("/open") {
+            openInForm(call.receive<TitleOpenRequest>().titleId)
+            call.respond(HttpStatusCode.NoContent)
+        }
+    }
+
+    private fun titleByExternalId(externalId: ExternalId): Pair<Int, String>? =
+        db.rawQuery(
+            """
+            SELECT t.id, t.titles[1] AS main_title
+            FROM asian_media.title_external_ids e
+                     JOIN asian_media.titles t ON t.id = e.title_id
+            WHERE e.site = @site
+              AND e.external_id = @id
+            """
+        ).asResult().fetchRow("site" to externalId.site, "id" to externalId.id)
+            .onFailure { println("Błąd wyszukiwania po identyfikatorze serii: ${it.message}") }
+            .getOrNull()
+            ?.let { row -> row.get<Int>("id") to row.get<String>("main_title") }
+
+    private fun publicationsOf(titleId: Int): List<PublicationSummary> =
+        db.rawQuery("SELECT publication_type, status FROM asian_media.publications WHERE title_id = @id ORDER BY publication_type")
+            .asResult().fetchRows("id" to titleId)
+            .onFailure { println("Błąd odczytu publikacji tytułu $titleId: ${it.message}") }
+            .getOrNull().orEmpty()
+            .map { row -> PublicationSummary(row["publication_type"], row["status"]) }
+
+    /** Zwraca, ile tytułów przybyło; porównanie bez względu na wielkość liter, kolejność podanych zostaje. */
+    private fun appendTitles(titleId: Int, titles: List<String>): DataResult<Int> {
+        if (titles.isEmpty()) return DataResult.Success(0)
+        return db.rawQuery(
+            """
+            UPDATE asian_media.titles t
+            SET titles = t.titles || missing.titles
+            FROM (SELECT array_agg(n.title ORDER BY n.ord) AS titles
+                  FROM (SELECT DISTINCT ON (lower(x.title)) x.title, x.ord
+                        FROM unnest(@titles) WITH ORDINALITY AS x (title, ord)
+                        ORDER BY lower(x.title), x.ord) n
+                  WHERE NOT EXISTS (SELECT 1
+                                    FROM asian_media.titles e,
+                                         unnest(e.titles) AS old (title)
+                                    WHERE e.id = @titleId
+                                      AND lower(old.title) = lower(n.title))) missing
+            WHERE t.id = @titleId
+              AND missing.titles IS NOT NULL
+            RETURNING cardinality(missing.titles)
+            """
+        ).asResult().fetchField<Int?>("titleId" to titleId, "titles" to titles.withPgType(PgStandardType.TEXT_ARRAY))
+            .map { it ?: 0 }
+    }
+
+    private suspend fun openInForm(titleId: Int) {
+        NavigationEventBus.post(
+            NavigationEvent.Navigate(
+                screenId = AsianMediaFeature.ASIAN_MEDIA_FORM_SCREEN_ID,
+                payload = mapOf("entityId" to titleId),
+                tabId = "asian_media"
+            )
+        )
     }
 }
 

@@ -6,8 +6,10 @@ import org.octavius.api.contract.ParsedData
 import org.octavius.api.contract.Parser
 import org.octavius.domain.asian.PublicationLanguage
 import org.octavius.domain.asian.PublicationType
+import org.octavius.domain.asian.SourceSite
 import org.octavius.modules.asian.AsianMediaExtensionModule
 import org.octavius.modules.asian.model.AsianPublicationData
+import org.octavius.modules.asian.model.ExternalId
 import org.octavius.modules.asian.model.NovelUpdatesListMove
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
@@ -64,11 +66,15 @@ object NovelUpdatesParser : Parser<AsianPublicationData> {
             else -> PublicationLanguage.Chinese
         }
 
+        // sid serii - ten sam, który podsłuch list i import listy zapisują w title_external_ids.
+        val sid = (document.querySelector("#mypostid") as? HTMLInputElement)?.value?.takeIf { it.isNotBlank() }
+
         return AsianPublicationData(
             source = "NovelUpdates",
             titles = allTitles,
             type = detectedType,
-            language = language
+            language = language,
+            externalId = sid?.let { ExternalId(SourceSite.NovelUpdates, it) }
         )
     }
 

@@ -12,5 +12,6 @@ data class AsianPublicationData(
     override val source: String,
     val titles: List<String>,
     val type: PublicationType,
-    val language: PublicationLanguage
+    val language: PublicationLanguage,
+    val externalId: ExternalId? = null
 ) : ParsedData

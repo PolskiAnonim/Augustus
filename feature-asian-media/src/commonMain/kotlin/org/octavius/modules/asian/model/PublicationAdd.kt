@@ -9,7 +9,7 @@ data class PublicationAddRequest(
     val titles: List<String>,
     val type: PublicationType,
     val language: PublicationLanguage,
-    val sourceUrl: String? = null
+    val externalId: ExternalId? = null
 )
 
 @Serializable
