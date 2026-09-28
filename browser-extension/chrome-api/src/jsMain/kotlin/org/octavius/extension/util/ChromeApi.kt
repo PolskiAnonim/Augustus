@@ -1,5 +1,7 @@
 package org.octavius.extension.util
 
+import kotlin.js.Promise
+
 
 // Definiujemy globalny obiekt `chrome`
 external val chrome: Chrome
@@ -8,10 +10,14 @@ external val chrome: Chrome
 external interface Chrome {
     val runtime: Runtime
     val tabs: Tabs
+    val webRequest: WebRequest
+    val storage: Storage
 }
 
 external interface Runtime {
     val onMessage: OnMessage
+    /** Ustawiane na czas callbacku, gdy wywołanie się nie udało - np. karta, do której pisaliśmy, jest już zamknięta. */
+    val lastError: dynamic
 }
 
 external interface OnMessage {
@@ -32,6 +38,31 @@ external interface Tab {
     val id: Int?
     val url: String?
     val title: String?
+}
+
+// Dostępne tylko w tle wtyczki (service worker), nie w content scripcie.
+external interface WebRequest {
+    val onCompleted: WebRequestEvent
+}
+
+external interface WebRequestEvent {
+    /** [filter] to obiekt `{ urls: [...] }` z wzorcami adresów. */
+    fun addListener(callback: (details: WebRequestDetails) -> Unit, filter: dynamic)
+}
+
+external interface WebRequestDetails {
+    val url: String
+    val tabId: Int
+    val statusCode: Int
+}
+
+external interface Storage {
+    val local: StorageArea
+}
+
+external interface StorageArea {
+    fun get(key: String): Promise<dynamic>
+    fun set(items: dynamic): Promise<Unit>
 }
 
 // To jest klasa pomocnicza, a nie deklaracja `external`,

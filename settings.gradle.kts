@@ -55,6 +55,7 @@ include(
     // Browser extension
     ":browser-extension",
     ":browser-extension:content-script",
+    ":browser-extension:background",
     ":browser-extension:popup",
     ":browser-extension:chrome-api",
 )

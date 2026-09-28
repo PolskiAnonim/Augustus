@@ -22,8 +22,8 @@ fun main() {
     )
 
     chrome.runtime.onMessage.addListener { message, _, sendResponse ->
-        if (message.action == "parsePage") {
-            GlobalScope.launch { // Parsowanie może być asynchroniczne
+        when (message.action) {
+            "parsePage" -> GlobalScope.launch { // Parsowanie może być asynchroniczne
                 val url = window.location.href
                 val parser = availableParsers.firstOrNull { it.canParse(url) }
 
@@ -51,6 +51,15 @@ fun main() {
                     sendResponse(js("{ success: false, error: 'No suitable parser found' }"))
                 }
             }
+
+            // Tło wtyczki podsłuchało przeniesienie serii na liście lektur i pyta, co to za seria.
+            // null, gdy serii nie ma na tej stronie - tło da wtedy znać, że nic nie wysłało.
+            "describeNovelUpdatesListMove" -> {
+                val move = NovelUpdatesParser.listMove(message.sid as String, message.listId as Int)
+                sendResponse(move?.let { Json.encodeToString(it) })
+            }
+
+            "showAugustusToast" -> showToast(message.text as String, message.saved as Boolean)
         }
         true
     }

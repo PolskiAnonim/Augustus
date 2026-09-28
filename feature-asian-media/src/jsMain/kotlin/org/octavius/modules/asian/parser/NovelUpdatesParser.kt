@@ -8,7 +8,12 @@ import org.octavius.domain.asian.PublicationLanguage
 import org.octavius.domain.asian.PublicationType
 import org.octavius.modules.asian.AsianMediaExtensionModule
 import org.octavius.modules.asian.model.AsianPublicationData
+import org.octavius.modules.asian.model.NovelUpdatesListMove
+import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.asList
+import org.w3c.dom.get
 
 /**
  * Parser do wyciągania danych ze strony NovelUpdates.
@@ -43,15 +48,8 @@ object NovelUpdatesParser : Parser<AsianPublicationData> {
             .filter { it.isPrimarilyLatinScript() }
             .distinct()
 
-        // Typ publikacji (Web Novel, Light Novel etc.)
-        val typeString = document.querySelector("#showtype a")?.textContent?.trim()?.uppercase()
-        val detectedType = when (typeString) {
-            "WEB NOVEL" -> PublicationType.WebNovel
-            "LIGHT NOVEL" -> PublicationType.LightNovel
-            "PUBLISHED NOVEL" -> PublicationType.PublishedNovel
-            // Bezpieczny domyślny typ dla tej strony
-            else -> PublicationType.WebNovel
-        }
+        // Typ publikacji (Web Novel, Light Novel etc.), bezpieczny domyślny typ dla tej strony
+        val detectedType = seriesPageType() ?: PublicationType.WebNovel
 
         // Język oryginału, np. (CN)
         val languageString = document.querySelector("#showtype span")?.textContent
@@ -73,6 +71,42 @@ object NovelUpdatesParser : Parser<AsianPublicationData> {
             language = language
         )
     }
+
+    /**
+     * Opisuje serię, którą użytkownik właśnie przeniósł na liście lektur, z tego, co widać na bieżącej
+     * stronie: wiersza w series finderze, strony serii albo wiersza na stronie listy. `null`, gdy tej
+     * serii na stronie nie ma.
+     */
+    fun listMove(sid: String, listId: Int): NovelUpdatesListMove? {
+        val finderRow = document.getElementById("sid$sid")?.closest(".search_main_box_nu")
+        if (finderRow != null) {
+            val title = finderRow.querySelector(".search_title a")?.textContent?.trim() ?: return null
+            val org = finderRow.querySelectorAll("span").asList()
+                .firstNotNullOfOrNull { Regex("^org([a-z]{2})$").find((it as Element).className)?.groupValues?.get(1) }
+            return NovelUpdatesListMove(sid, listId, title, org)
+        }
+
+        if ((document.querySelector("#mypostid") as? HTMLInputElement)?.value == sid) {
+            val title = document.querySelector(".seriestitlenu")?.textContent?.trim() ?: return null
+            // Język jest w nawiasie obok typu, np. "(CN)".
+            val org = document.querySelector("#showtype span")?.textContent?.trim()?.removeSurrounding("(", ")")?.lowercase()
+            return NovelUpdatesListMove(sid, listId, title, org, seriesPageType())
+        }
+
+        val listRow = document.querySelector("tr.rl_links[data-sid='$sid']") as? HTMLElement
+        val listTitle = listRow?.dataset?.get("title")?.trim()
+        if (!listTitle.isNullOrEmpty()) return NovelUpdatesListMove(sid, listId, listTitle)
+
+        return null
+    }
+
+    private fun seriesPageType(): PublicationType? =
+        when (document.querySelector("#showtype a")?.textContent?.trim()?.uppercase()) {
+            "WEB NOVEL" -> PublicationType.WebNovel
+            "LIGHT NOVEL" -> PublicationType.LightNovel
+            "PUBLISHED NOVEL" -> PublicationType.PublishedNovel
+            else -> null
+        }
 
     /**
      * Zwraca `true`, jeśli ciąg znaków składa się głównie ze znaków łacińskich,

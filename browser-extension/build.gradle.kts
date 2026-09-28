@@ -14,9 +14,16 @@ tasks.register("assembleBrowserExtension") {
     dependsOn(
         project(":browser-extension:popup").tasks.named("jsBrowserProductionWebpack"),
         project(":browser-extension:content-script").tasks.named("jsBrowserProductionWebpack"),
+        project(":browser-extension:background").tasks.named("jsBrowserProductionWebpack"),
     )
 
     val extensionDir = project.layout.buildDirectory.dir("extension")
+    // Bez wejść Gradle uznawał zadanie za aktualne, dopóki nikt nie ruszył build/extension, i nowe
+    // pliki JS nie były kopiowane.
+    inputs.dir(project(":browser-extension:popup").layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable"))
+    inputs.dir(project(":browser-extension:content-script").layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable"))
+    inputs.dir(project(":browser-extension:background").layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable"))
+    inputs.dir(project(":browser-extension:popup").file("src/jsMain/resources"))
     outputs.dir(extensionDir)
 
     doLast {
@@ -39,6 +46,13 @@ tasks.register("assembleBrowserExtension") {
             }
             into(extensionDir)
             println("  -> Copied files from content-script JS build")
+        }
+        copy {
+            from(project(":browser-extension:background").layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable")) {
+                include("background.js")
+            }
+            into(extensionDir)
+            println("  -> Copied files from background JS build")
         }
         copy {
             from(project(":browser-extension:popup").file("src/jsMain/resources"))

@@ -5,6 +5,17 @@
   "action": {
     "default_popup": "popup.html"
   },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "webRequest",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.novelupdates.com/*",
+    "http://localhost:8080/*"
+  ],
   "content_scripts": [
     {
       "matches": [
