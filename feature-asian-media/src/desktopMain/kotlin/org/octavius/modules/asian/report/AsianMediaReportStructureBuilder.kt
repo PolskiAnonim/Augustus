@@ -80,7 +80,7 @@ class AsianMediaReportStructureBuilder() : ReportStructureBuilder() {
                 "publications" to listOf(
                     mapOf(
                         "publication_type" to PublicationType.WebNovel,
-                        "status" to PublicationStatus.NotReading,
+                        "status" to PublicationStatus.Trash,
                         "track_progress" to false
                     )
                 ), "language" to PublicationLanguage.Korean

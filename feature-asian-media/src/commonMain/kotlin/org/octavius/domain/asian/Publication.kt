@@ -6,14 +6,14 @@ import org.octavius.modules.asian.localization.AsianMediaTr
 
 @PgEnumType
 enum class PublicationStatus : EnumWithFormatter<PublicationStatus> {
-    NotReading,
+    Trash,
     Reading,
     Completed,
     PlanToRead;
 
     override fun toDisplayString(): String {
         return when (this) {
-            NotReading -> AsianMediaTr.ReadingStatus.notReading()
+            Trash -> AsianMediaTr.ReadingStatus.trash()
             Reading -> AsianMediaTr.ReadingStatus.reading()
             Completed -> AsianMediaTr.ReadingStatus.completed()
             PlanToRead -> AsianMediaTr.ReadingStatus.toRead()

@@ -133,7 +133,7 @@ class AsianMediaApi : ApiModule, KoinComponent {
             // Krok 2: Wstaw publikację, używając referencji do ID z kroku 1
             val publicationData = mapOf(
                 "publication_type" to request.type,
-                "status" to PublicationStatus.NotReading,
+                "status" to PublicationStatus.Trash,
                 "track_progress" to false,
                 "title_id" to titleIdHandle.value()
             )
@@ -240,7 +240,7 @@ class AsianMediaApi : ApiModule, KoinComponent {
 private val novelUpdatesListStatuses = mapOf(
     0 to PublicationStatus.Reading,
     1 to PublicationStatus.PlanToRead,
-    2 to PublicationStatus.NotReading,
+    2 to PublicationStatus.Trash,
     3 to PublicationStatus.Completed,
     4 to PublicationStatus.Completed,
     5 to PublicationStatus.PlanToRead,

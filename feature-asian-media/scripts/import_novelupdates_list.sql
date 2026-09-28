@@ -9,8 +9,8 @@
 -- serwer (pg_read_file), a usługa PostgreSQL nie ma dostępu do katalogów w C:\Users.
 --
 -- Uruchomienie:
---   psql -h localhost -U postgres -d augustus -v file=D:/nu/trash.json -v status=NOT_READING -f import_novelupdates_list.sql
--- status jest opcjonalny (domyślnie NOT_READING). Z -v dry_run=1 wszystko się wykona i wypisze,
+--   psql -h localhost -U postgres -d augustus -v file=D:/nu/trash.json -v status=TRASH -f import_novelupdates_list.sql
+-- status jest opcjonalny (domyślnie TRASH). Z -v dry_run=1 wszystko się wykona i wypisze,
 -- ale na końcu jest ROLLBACK.
 --
 -- Serie dopasowujemy tylko dokładnie (bez wielkości liter) do title_variants - trigramy przy
@@ -29,7 +29,7 @@
 \set ON_ERROR_STOP on
 \if :{?status}
 \else
-    \set status NOT_READING
+    \set status TRASH
 \endif
 
 BEGIN;

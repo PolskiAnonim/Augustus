@@ -22,7 +22,7 @@
   },
   "readingStatus": {
     "completed": "Completed",
-    "notReading": "Not Reading",
+    "trash": "Trash",
     "reading": "Reading",
     "toRead": "To Read"
   },
