@@ -23,17 +23,6 @@ data class PublicationLinkResponse(
 )
 
 @Serializable
-data class TitlesAppendRequest(
-    val titleId: Int,
-    val titles: List<String>
-)
-
-@Serializable
-data class TitlesAppendResponse(
-    val added: Int
-)
-
-@Serializable
 data class TitleOpenRequest(
     val titleId: Int
 )

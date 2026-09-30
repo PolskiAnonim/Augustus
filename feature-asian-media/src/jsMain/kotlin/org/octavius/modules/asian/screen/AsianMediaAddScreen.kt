@@ -27,7 +27,6 @@ import org.octavius.modules.asian.model.PublicationCheckResponse
 import org.octavius.modules.asian.model.PublicationLinkRequest
 import org.octavius.modules.asian.model.PublicationSummary
 import org.octavius.modules.asian.model.TitleOpenRequest
-import org.octavius.modules.asian.model.TitlesAppendRequest
 import org.octavius.navigation.Screen
 
 /**
@@ -52,14 +51,7 @@ class AsianMediaAddScreen(private val data: AsianPublicationData) : Screen {
 
         // Sprawdź przy wejściu na ekran, czy seria już jest w bazie
         LaunchedEffect(data) {
-            val response = check()
-            checkResponse = response
-            // Rozpoznana po identyfikatorze: strona zna zwykle więcej tytułów alternatywnych niż baza
-            // (import listy brał tylko główny), więc brakujące dopisujemy od razu.
-            if (response.byExternalId && response.titleId != null && data.titles.isNotEmpty()) {
-                val added = ApiClient.appendTitles(TitlesAppendRequest(response.titleId, data.titles)).added
-                if (added > 0) statusMessage = Pair("Dopisano tytuły alternatywne: $added", true)
-            }
+            checkResponse = check()
         }
 
         // Po udanym dodaniu albo podpięciu sprawdzamy jeszcze raz: seria jest już w bazie po

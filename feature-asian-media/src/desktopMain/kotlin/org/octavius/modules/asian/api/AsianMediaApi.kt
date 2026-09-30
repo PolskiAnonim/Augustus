@@ -32,8 +32,6 @@ import org.octavius.modules.asian.model.PublicationLinkRequest
 import org.octavius.modules.asian.model.PublicationLinkResponse
 import org.octavius.modules.asian.model.PublicationSummary
 import org.octavius.modules.asian.model.TitleOpenRequest
-import org.octavius.modules.asian.model.TitlesAppendRequest
-import org.octavius.modules.asian.model.TitlesAppendResponse
 import org.octavius.navigation.NavigationEvent
 import org.octavius.navigation.NavigationEventBus
 
@@ -56,9 +54,8 @@ class AsianMediaApi : ApiModule, KoinComponent {
             // Przeniesienia serii między listami na NovelUpdates, podsłuchane przez wtyczkę
             mirrorNovelUpdatesListMove()
 
-            // Popup: podpięcie serii do istniejącego tytułu, dopisanie tytułów, otwarcie w aplikacji
+            // Popup: podpięcie serii do istniejącego tytułu, otwarcie w aplikacji
             linkPublication()
-            appendTitlesToTitle()
             openTitle()
         }
     }
@@ -327,26 +324,6 @@ class AsianMediaApi : ApiModule, KoinComponent {
                     call.respond(result.value)
                 }
             }
-        }
-    }
-
-    /**
-     * Definiuje endpoint: POST /api/asian-media/titles/append
-     * Dopisuje do tytułu te z podanych nazw, których jeszcze nie ma - popup woła go sam, gdy rozpozna
-     * serię po identyfikatorze, bo strona zna zwykle więcej tytułów alternatywnych niż import listy.
-     */
-    private fun Route.appendTitlesToTitle() {
-        post("/titles/append") {
-            val request = call.receive<TitlesAppendRequest>()
-            val titles = request.titles.filter { it.isNotBlank() && it.isLatinScript() }
-            val added = when (val result = appendTitles(request.titleId, titles)) {
-                is DataResult.Failure -> {
-                    println("Błąd dopisywania tytułów: ${result.error.message}")
-                    0
-                }
-                is DataResult.Success -> result.value
-            }
-            call.respond(TitlesAppendResponse(added))
         }
     }
 

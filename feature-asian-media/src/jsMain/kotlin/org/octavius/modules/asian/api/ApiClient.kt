@@ -14,8 +14,6 @@ import org.octavius.modules.asian.model.PublicationCheckResponse
 import org.octavius.modules.asian.model.PublicationLinkRequest
 import org.octavius.modules.asian.model.PublicationLinkResponse
 import org.octavius.modules.asian.model.TitleOpenRequest
-import org.octavius.modules.asian.model.TitlesAppendRequest
-import org.octavius.modules.asian.model.TitlesAppendResponse
 
 object ApiClient {
 
@@ -64,19 +62,6 @@ object ApiClient {
         } catch (e: Exception) {
             println("Błąd API (/link): ${e.message}")
             PublicationLinkResponse(success = false, message = NO_CONNECTION)
-        }
-    }
-
-    /** Dopisywanie tytułów to dodatek do rozpoznania serii, więc błąd kończy się po prostu zerem. */
-    suspend fun appendTitles(request: TitlesAppendRequest): TitlesAppendResponse {
-        return try {
-            client.post("$BASE_URL/api/asian-media/titles/append") {
-                contentType(ContentType.Application.Json)
-                setBody(request)
-            }.body()
-        } catch (e: Exception) {
-            println("Błąd API (/titles/append): ${e.message}")
-            TitlesAppendResponse(added = 0)
         }
     }
 
