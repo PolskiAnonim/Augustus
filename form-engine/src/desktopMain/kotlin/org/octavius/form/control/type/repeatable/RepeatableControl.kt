@@ -49,9 +49,6 @@ class RepeatableControl(
         formActionTrigger: FormActionTrigger
     ) {
         super.initializeControlLifecycle(formState, formSchema, errorManager, formActionTrigger)
-        rowControls.values.forEach { childControl ->
-            childControl.hierarchyRole = ControlHierarchyRole.AGGREGATED_CHILD
-        }
         this.rowManager = RepeatableRowManager(rowControls, formState, validationOptions as RepeatableValidation?)
     }
 
@@ -66,11 +63,13 @@ class RepeatableControl(
         return map
     }
 
+    override fun childContexts(controlContext: ControlContext): List<Pair<ControlContext, Control<*>>> {
+        @Suppress("UNCHECKED_CAST")
+        val rows = formState.getControlState(controlContext.fullStatePath)!!.value.value as List<RepeatableRow>
+        return rows.flatMap { row -> rowContexts(controlContext, row, rowControls) }
+    }
 
-    override val validator: ControlValidator<List<RepeatableRow>> = RepeatableValidator(
-        rowControls,
-        validationOptions
-    )
+    override val validator: ControlValidator<List<RepeatableRow>> = RepeatableValidator(validationOptions)
 
     override fun copyInitToValue(value: List<RepeatableRow>): List<RepeatableRow> {
         // Dla globalnego stanu nie trzeba kopiować stanów - są już w FormState
@@ -84,18 +83,7 @@ class RepeatableControl(
 
         // 1. Utwórz wiersze i stany dla danych początkowych
         val initialModelRows = initialDataRows.mapIndexed { index, dataRow ->
-            val row = RepeatableRow(index = index)
-
-            // Dla każdego pola w danych, stwórz stan kontrolki-dziecka
-            rowControls.forEach { (fieldName, control) ->
-                val fieldValue = dataRow[fieldName]
-                val childContext = controlContext.forRepeatableChild(fieldName, row.id)
-
-                // Rekurencyjne wywołanie! Tworzymy stan dla dziecka.
-                val childState = control.setInitValue(childContext, fieldValue)
-                formState.setControlState(childContext.fullStatePath, childState)
-            }
-            row
+            createRow(index, controlContext, rowControls, formState, dataRow)
         }
 
         // 2. Dodaj puste wiersze, jeśli wymagane przez minItems
@@ -161,20 +149,16 @@ class RepeatableControl(
     ): ControlResultData {
         @Suppress("UNCHECKED_CAST")
         val controlState = state as ControlState<List<RepeatableRow>>
-        val states = formState.getAllStates()
 
         val (newRows, deletedRows, changedRows) = getRowTypes(
             controlState,
             controlContext,
             rowControls,
-            states
+            formState
         )
 
         fun rowValues(row: RepeatableRow): FormResultData =
-            rowControls.mapValues { (fieldName, control) ->
-                val hierarchicalContext = controlContext.forRepeatableChild(fieldName, row.id)
-                control.getResult(hierarchicalContext, states.getValue(hierarchicalContext.fullStatePath))
-            }
+            formState.collectLevel(rowContexts(controlContext, row, rowControls))
 
         // Zbieranie danych niczego nie zmienia w stanie. Stany usuniętych wierszy z bazy muszą
         // przetrwać, bo ich wartości początkowe idą do deletedRows przy KAŻDYM zbieraniu, a to

@@ -23,9 +23,9 @@ class BookFormDataManager : FormDataManager() {
         from("books.books", "b")
 
         map("id")
-        map("title_pl")
-        map("title_eng")
-        map("status")
+        map("basic_info/title_pl")
+        map("basic_info/title_eng")
+        map("basic_info/status")
 
         // Relacja N-do-M z autorami
         mapRelatedList("authors") {
@@ -67,9 +67,9 @@ class BookFormDataManager : FormDataManager() {
         val bookIdRef: TransactionValue<Int>
 
         val bookData = mapOf(
-            "title_pl" to formResultData.getCurrent("title_pl"),
-            "title_eng" to formResultData.getCurrent("title_eng"),
-            "status" to formResultData.getCurrent("status")
+            "title_pl" to formResultData.getCurrent("basic_info/title_pl"),
+            "title_eng" to formResultData.getCurrent("basic_info/title_eng"),
+            "status" to formResultData.getCurrent("basic_info/status")
         )
 
         if (loadedId != null) {

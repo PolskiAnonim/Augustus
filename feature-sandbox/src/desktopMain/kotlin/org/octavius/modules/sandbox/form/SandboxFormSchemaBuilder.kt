@@ -28,64 +28,65 @@ import org.octavius.navigation.AppRouter
 class SandboxFormSchemaBuilder : FormSchemaBuilder() {
 
     override fun defineControls(): Map<String, Control<*>> = mapOf(
-        "name" to StringControl(
-            SandboxTr.Form.name(),
-            required = true
-        ),
-        "quantity" to IntegerControl(
-            SandboxTr.Form.quantity(),
-            validationOptions = IntegerValidation(min = 0)
-        ),
-        "active" to CheckboxControl(
-            SandboxTr.Form.active(),
-            required = true
-        ),
-        "priority" to EnumControl(
-            SandboxTr.Form.priority(),
-            SandboxPriority::class,
-            required = true
-        ),
-        "start_date" to DateControl(
-            SandboxTr.Form.startDate()
-        ),
-        "tags" to StringListControl(
-            SandboxTr.Form.tags()
-        ),
-        "radio_test" to RadioGroupControl(
-            label = "Test Radio (Poziom)",
-            options = listOf(
-                SelectionOption("opcja1", "Opcja 1"),
-                SelectionOption("opcja2", "Opcja 2"),
-                SelectionOption("opcja3", "Opcja 3")
-            ),
-            orientation = ControlOrientation.HORIZONTAL
-        ),
-        "checkbox_test" to CheckboxGroupControl(
-            label = "Test Checkbox (Pion)",
-            options = listOf(
-                SelectionOption("opcjaA", "Opcja A"),
-                SelectionOption("opcjaB", "Opcja B"),
-                SelectionOption("opcjaC", "Opcja C")
-            ),
-            orientation = ControlOrientation.VERTICAL
-        ),
-        "multiline_test" to MultilineStringControl(
-            label = "Test Multiline (Rozszerzalne)",
-            required = false
-        ),
-        "switch_test" to SwitchControl(
-            label = "Test Switch (Przełącznik)"
-        ),
-        "file_picker_path" to FilePickerControl<String>(
-            label = "Wybór pliku (Ścieżka)",
-            mode = FilePickerMode.PATH_STRING
-        ),
-        "file_picker_bytes" to FilePickerControl<ByteArray>(
-            label = "Wybór pliku (Zawartość)",
-            mode = FilePickerMode.CONTENT_BYTES
-        ),
         "basic_info" to SectionControl(
-            controls = listOf("name", "quantity", "active", "priority", "start_date", "tags", "radio_test", "checkbox_test", "multiline_test", "switch_test", "file_picker_path", "file_picker_bytes"),
+            controls = mapOf(
+                "name" to StringControl(
+                    SandboxTr.Form.name(),
+                    required = true
+                ),
+                "quantity" to IntegerControl(
+                    SandboxTr.Form.quantity(),
+                    validationOptions = IntegerValidation(min = 0)
+                ),
+                "active" to CheckboxControl(
+                    SandboxTr.Form.active(),
+                    required = true
+                ),
+                "priority" to EnumControl(
+                    SandboxTr.Form.priority(),
+                    SandboxPriority::class,
+                    required = true
+                ),
+                "start_date" to DateControl(
+                    SandboxTr.Form.startDate()
+                ),
+                "tags" to StringListControl(
+                    SandboxTr.Form.tags()
+                ),
+                "radio_test" to RadioGroupControl(
+                    label = "Test Radio (Poziom)",
+                    options = listOf(
+                        SelectionOption("opcja1", "Opcja 1"),
+                        SelectionOption("opcja2", "Opcja 2"),
+                        SelectionOption("opcja3", "Opcja 3")
+                    ),
+                    orientation = ControlOrientation.HORIZONTAL
+                ),
+                "checkbox_test" to CheckboxGroupControl(
+                    label = "Test Checkbox (Pion)",
+                    options = listOf(
+                        SelectionOption("opcjaA", "Opcja A"),
+                        SelectionOption("opcjaB", "Opcja B"),
+                        SelectionOption("opcjaC", "Opcja C")
+                    ),
+                    orientation = ControlOrientation.VERTICAL
+                ),
+                "multiline_test" to MultilineStringControl(
+                    label = "Test Multiline (Rozszerzalne)",
+                    required = false
+                ),
+                "switch_test" to SwitchControl(
+                    label = "Test Switch (Przełącznik)"
+                ),
+                "file_picker_path" to FilePickerControl<String>(
+                    label = "Wybór pliku (Ścieżka)",
+                    mode = FilePickerMode.PATH_STRING
+                ),
+                "file_picker_bytes" to FilePickerControl<ByteArray>(
+                    label = "Wybór pliku (Zawartość)",
+                    mode = FilePickerMode.CONTENT_BYTES
+                )
+            ),
             collapsible = true,
             initiallyExpanded = true,
             columns = 2,

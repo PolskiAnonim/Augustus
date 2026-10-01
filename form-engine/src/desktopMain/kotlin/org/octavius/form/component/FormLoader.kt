@@ -15,9 +15,16 @@ data class ExistenceFlag(val controlName: String, val checkColumn: String)
 interface MappingContainer {
     val relations: MutableList<RelationMapping>
 
+    /**
+     * @param controlName Nazwa kontrolki albo ścieżka do niej, np. `"basic_info/name"` dla pola w sekcji.
+     * @param dbColumn Kolumna; domyślnie ostatni segment ścieżki w snake_case.
+     */
     fun map(controlName: String, dbColumn: String? = null) {
-        val finalDbColumn = dbColumn
-            ?: CaseConverter.convert(controlName, CaseConvention.CAMEL_CASE, CaseConvention.SNAKE_CASE_LOWER)
+        val finalDbColumn = dbColumn ?: CaseConverter.convert(
+            controlName.substringAfterLast(PathResolver.SEPARATOR),
+            CaseConvention.CAMEL_CASE,
+            CaseConvention.SNAKE_CASE_LOWER
+        )
         relations.add(SimpleMapping(FieldMapping(controlName, finalDbColumn)))
     }
 
@@ -101,6 +108,10 @@ data class RelatedDataMapping(val controlName: String, val builder: RelatedDataM
 
 // --- Helper do budowy SQL ---
 
+// Nazwa kontrolki bywa ścieżką ("basic_info/name"), więc alias musi być w cudzysłowie. Formularz
+// rozłoży takie klucze po sekcjach sam, przy inicjalizacji stanów.
+private fun alias(controlName: String) = "\"$controlName\""
+
 class QueryScope(
     val isTopLevel: Boolean
 ) {
@@ -112,7 +123,7 @@ class QueryScope(
             when (rel) {
                 is SimpleMapping -> {
                     if (isTopLevel) {
-                        fieldExpressions.add("${rel.mapping.dbColumn} AS ${rel.mapping.controlName}")
+                        fieldExpressions.add("${rel.mapping.dbColumn} AS ${alias(rel.mapping.controlName)}")
                     } else {
                         fieldExpressions.add("'${rel.mapping.controlName}', ${rel.mapping.dbColumn}")
                     }
@@ -122,7 +133,7 @@ class QueryScope(
                     rel.existenceFlag?.let { flag ->
                         val expr = "CASE WHEN ${flag.checkColumn} IS NOT NULL THEN TRUE ELSE FALSE END"
                         if (isTopLevel) {
-                            fieldExpressions.add("$expr AS ${flag.controlName}")
+                            fieldExpressions.add("$expr AS ${alias(flag.controlName)}")
                         } else {
                             fieldExpressions.add("'${flag.controlName}', $expr")
                         }
@@ -151,7 +162,7 @@ class QueryScope(
                     """.trimIndent()
 
                     if (isTopLevel) {
-                        fieldExpressions.add("($subquery) AS ${rel.controlName}")
+                        fieldExpressions.add("($subquery) AS ${alias(rel.controlName)}")
                     } else {
                         fieldExpressions.add("'${rel.controlName}', ($subquery)")
                     }

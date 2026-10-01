@@ -81,7 +81,7 @@ class GameSeriesReportStructureBuilder : ReportStructureBuilder() {
         ReportRowAction(GamesTr.Report.addGameInSeries(), Icons.Default.Add) {
             val seriesId = rowData["id"] as? Int
             if (seriesId != null) {
-                val payload = mapOf("series" to seriesId)
+                val payload = mapOf("basic_info/series" to seriesId)
                 AppRouter.navigateTo(GameFormScreen.create(null, payload))
             }
         }

@@ -28,21 +28,22 @@ class BookFormSchemaBuilder : FormSchemaBuilder() {
         "id" to IntegerControl(null),
 
         // Podstawowe informacje
-        "title_pl" to StringControl(
-            BooksTr.Form.titlePl(),
-            required = true
-        ),
-        "title_eng" to StringControl(
-            BooksTr.Form.titleEng(),
-            required = false
-        ),
-        "status" to EnumControl(
-            BooksTr.Form.status(),
-            ReadingStatus::class,
-            required = true
-        ),
         "basic_info" to SectionControl(
-            controls = listOf("title_pl", "title_eng", "status"),
+            controls = mapOf(
+                "title_pl" to StringControl(
+                    BooksTr.Form.titlePl(),
+                    required = true
+                ),
+                "title_eng" to StringControl(
+                    BooksTr.Form.titleEng(),
+                    required = false
+                ),
+                "status" to EnumControl(
+                    BooksTr.Form.status(),
+                    ReadingStatus::class,
+                    required = true
+                )
+            ),
             collapsible = false,
             initiallyExpanded = true,
             columns = 1,

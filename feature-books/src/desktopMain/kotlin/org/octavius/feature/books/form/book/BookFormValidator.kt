@@ -17,7 +17,7 @@ class BookFormValidator : FormValidator() {
     }
 
     private fun validateTitleUniqueness(formResultData: FormResultData): Boolean {
-        val titlePl = formResultData.getCurrentAs<String>("title_pl")
+        val titlePl = formResultData.getCurrentAs<String>("basic_info/title_pl")
         val id = formResultData.getCurrentAs<Int?>("id")
 
         val whereClause = listOfNotNull(
@@ -33,7 +33,7 @@ class BookFormValidator : FormValidator() {
         return when (result) {
             is DataResult.Success -> {
                 if ((result.value) > 0) {
-                    errorManager.setFieldErrors("title_pl",listOf(BooksTr.Validation.titleExists()))
+                    errorManager.setFieldErrors("basic_info/title_pl", listOf(BooksTr.Validation.titleExists()))
                     false
                 } else {
                     true

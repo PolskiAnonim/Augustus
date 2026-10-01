@@ -6,11 +6,17 @@ import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import org.octavius.form.control.base.ComparisonType
 import org.octavius.form.control.base.Control
+import org.octavius.form.control.base.ControlDependency
 import org.octavius.form.control.base.ControlState
+import org.octavius.form.control.base.DependencyType
 import org.octavius.form.control.base.FormResultData
 import org.octavius.form.control.base.RepeatableValidation
+import org.octavius.form.control.base.getCurrent
 import org.octavius.form.control.base.getCurrentAs
+import org.octavius.form.control.base.getInitial
+import org.octavius.form.control.type.container.SectionControl
 import org.octavius.form.control.type.primitive.StringControl
 import org.octavius.form.control.type.repeatable.RepeatableControl
 import org.octavius.form.control.type.repeatable.RepeatableResultValue
@@ -99,6 +105,144 @@ class FormHandlerTest {
         assertThat(saved).isFalse()
         assertThat(handler.errorManager.fieldErrors.keys).singleElement()
             .satisfies({ assertThat(it).matches("outer\\[.+]/inner\\[.+]/text") })
+    }
+
+    // Sekcja widoczna tylko, gdy kontrolka "show" ma wartość "tak".
+    private fun sectionShownBy(vararg controls: Pair<String, Control<*>>) = SectionControl(
+        controls = mapOf(*controls),
+        label = "sekcja",
+        dependencies = mapOf(
+            "visible" to ControlDependency(
+                controlPath = "show",
+                value = "tak",
+                dependencyType = DependencyType.Visible,
+                comparisonType = ComparisonType.Equals
+            )
+        )
+    )
+
+    @Test
+    fun `child of hidden section does not pass its value to save`() {
+        var savedName: Any? = "nie zapisano"
+        var initialName: Any? = null
+        val handler = handler(
+            controls = mapOf(
+                "show" to StringControl(null),
+                "section" to sectionShownBy("name" to StringControl(null))
+            ),
+            initData = mapOf("show" to "nie", "section/name" to "z bazy")
+        ) { formData ->
+            savedName = formData.getCurrent("section/name")
+            initialName = formData.getInitial("section/name")
+            true
+        }
+
+        runBlocking { handler.triggerAction("save", validates = false) }
+
+        assertThat(savedName).isNull()
+        assertThat(initialName).isEqualTo("z bazy")
+    }
+
+    @Test
+    fun `required child of section is validated`() {
+        val handler = handler(
+            controls = mapOf(
+                "section" to SectionControl(controls = mapOf("name" to StringControl(null, required = true)), label = "sekcja")
+            )
+        ) { true }
+
+        val result = runBlocking { handler.triggerAction("save", validates = true) }
+
+        assertThat(result).isFalse()
+        assertThat(handler.errorManager.fieldErrors.keys).containsExactly("section/name")
+    }
+
+    @Test
+    fun `same name in two sections keeps two values`() {
+        var saved: List<Any?> = emptyList()
+        val handler = handler(
+            controls = mapOf(
+                "first" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "pierwsza"),
+                "second" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "druga")
+            ),
+            // Wartości początkowe przyjmuje i pod ścieżką, i jako zagnieżdżoną mapę.
+            initData = mapOf("first/name" to "pierwsza", "second" to mapOf("name" to "druga"))
+        ) { formData -> saved = listOf(formData.getCurrent("first/name"), formData.getCurrent("second/name")); true }
+
+        runBlocking { handler.triggerAction("save", validates = false) }
+
+        assertThat(saved).containsExactly("pierwsza", "druga")
+    }
+
+    @Test
+    fun `dependency on a control that does not exist fails loudly`() {
+        val handler = handler(
+            controls = mapOf(
+                "name" to StringControl(
+                    null,
+                    dependencies = mapOf(
+                        "visible" to ControlDependency(
+                            controlPath = "missing",
+                            value = true,
+                            dependencyType = DependencyType.Visible,
+                            comparisonType = ComparisonType.Equals
+                        )
+                    )
+                )
+            )
+        ) { true }
+
+        assertThatThrownBy { runBlocking { handler.triggerAction("save", validates = true) } }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("'missing'")
+    }
+
+    @Test
+    fun `required child of section nested in hidden section is not validated`() {
+        var saved = false
+        val handler = handler(
+            controls = mapOf(
+                "show" to StringControl(null),
+                "outer" to sectionShownBy(
+                    "inner" to SectionControl(controls = mapOf("name" to StringControl(null, required = true)), label = "wewnętrzna")
+                )
+            ),
+            initData = mapOf("show" to "nie")
+        ) { saved = true; true }
+
+        val result = runBlocking { handler.triggerAction("save", validates = true) }
+
+        assertThat(result).isTrue()
+        assertThat(saved).isTrue()
+    }
+
+    @Test
+    fun `section inside repeatable row keeps its children in the row`() {
+        var modifiedRows: List<FormResultData> = emptyList()
+        val handler = handler(
+            controls = mapOf(
+                "items" to RepeatableControl(
+                    rowControls = mapOf(
+                        "details" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "szczegóły")
+                    ),
+                    rowOrder = listOf("details"),
+                    label = null
+                )
+            ),
+            initData = mapOf("items" to listOf(mapOf("details/name" to "z bazy")))
+        ) { formData -> modifiedRows = formData.getCurrentAs<RepeatableResultValue>("items").modifiedRows; true }
+
+        @Suppress("UNCHECKED_CAST")
+        val rowId = (handler.getControlState("items") as ControlState<List<RepeatableRow>>).value.value!!.single().id
+        @Suppress("UNCHECKED_CAST")
+        val name = handler.getControlState("items[$rowId]/details/name") as ControlState<String>
+        assertThat(name.value.value).isEqualTo("z bazy")
+        name.value.value = "zmienione"
+
+        runBlocking { handler.triggerAction("save", validates = false) }
+
+        assertThat(modifiedRows).singleElement()
+            .satisfies({ assertThat(it.getCurrent("details/name")).isEqualTo("zmienione") })
     }
 
     @Test

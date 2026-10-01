@@ -1,6 +1,5 @@
 package org.octavius.form.control.validator.repeatable
 
-import org.octavius.form.control.base.Control
 import org.octavius.form.control.base.ControlContext
 import org.octavius.form.control.base.ControlState
 import org.octavius.form.control.base.ControlValidator
@@ -17,9 +16,10 @@ import org.octavius.form.localization.FormTr
  * Funkcjonalności:
  * - Sprawdzanie unikalności wartości w określonych polach
  * - Walidacja minimalnej i maksymalnej liczby elementów
+ *
+ * Pól wierszy nie waliduje - silnik schodzi do nich sam przez `childContexts`, jak do dzieci sekcji.
  */
 class RepeatableValidator(
-    private val rowControls: Map<String, Control<*>>,
     private val validationOptions: RepeatableValidation? = null
 ) : ControlValidator<List<RepeatableRow>>() {
 
@@ -42,10 +42,7 @@ class RepeatableValidator(
         @Suppress("UNCHECKED_CAST")
         val rows = state.value.value as List<RepeatableRow>
 
-        // 1. Walidacja kontrolek-dzieci (zawsze musi być wykonana)
-        validateChildControls(rows, controlContext)
-
-        // 2. Walidacja reguł samej listy
+        // 1. Walidacja reguł samej listy
         val allErrors = mutableListOf<String>()
 
         validationOptions?.let { options ->
@@ -58,7 +55,7 @@ class RepeatableValidator(
             }
         }
 
-        // 3. Ustaw błędy dla GŁÓWNEJ kontrolki
+        // 2. Ustaw błędy dla GŁÓWNEJ kontrolki
         errorManager.setFieldErrors(controlContext.fullStatePath, allErrors)
     }
 
@@ -116,19 +113,5 @@ class RepeatableValidator(
         }
 
         return errors
-    }
-
-    private fun validateChildControls(
-        rows: List<RepeatableRow>,
-        controlContext: ControlContext
-    ) {
-        val allStates = formState.getAllStates()
-        for (row in rows) {
-            for ((fieldName, fieldControl) in rowControls) {
-                val hierarchicalContext = controlContext.forRepeatableChild(fieldName, row.id)
-                val fieldState = allStates.getValue(hierarchicalContext.fullStatePath)
-                fieldControl.validateControl(hierarchicalContext, fieldState)
-            }
-        }
     }
 }

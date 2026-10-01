@@ -51,23 +51,42 @@ class FormState {
     /**
      * Inicjalizuje stany wszystkich kontrolek na podstawie wartości początkowych.
      *
-     * Dla każdej kontrolki ze schematu:
-     * 1. Pobiera odpowiednią wartość z mapy inicjalnych
-     * 2. Wywołuje setInitValue() na kontrolce
-     * 3. Zapisuje utworzony stan w mapie reaktywnej
-     *
      * @param schema Schemat formularza z definicjami kontrolek.
      * @param initValues Mapa wartości początkowych (klucz = nazwa kontrolki).
      */
     internal fun initializeStates(schema: FormSchema, initValues: Map<String, Any?>) {
-        // Potem inicjalizuj stany kontrolek
-        schema.getAllControls().forEach { (controlName, control) ->
-            if (control.hierarchyRole != ControlHierarchyRole.AGGREGATED_CHILD) {
-                val value = initValues[controlName]
-                _controlStates[controlName] = control.setInitValue(ControlContext(controlName), value)
+        initializeLevel(schema.rootContexts(), initValues)
+    }
+
+    /**
+     * Tworzy stany kontrolek jednego poziomu danych - formularza, sekcji albo wiersza repeatable -
+     * z wartości pod ich nazwami. Kontenery zakładają w `setInitValue` swoje poziomy same, tą samą funkcją.
+     *
+     * Wartości mogą przyjść pod ścieżkami (`"basic_info/name"`), bo tak oddaje je `loadData` i tak łatwo
+     * je łączyć z domyślnymi, albo już zagnieżdżone (`"basic_info" to mapOf("name" to ...)`).
+     */
+    internal fun initializeLevel(controls: List<Pair<ControlContext, Control<*>>>, values: Map<String, Any?>) {
+        val valuesByName = valuesByName(values)
+        controls.forEach { (controlContext, control) ->
+            _controlStates[controlContext.fullStatePath] = control.setInitValue(controlContext, valuesByName[controlContext.localName])
+        }
+    }
+
+    // Grupuje ścieżki po pierwszym segmencie: "basic_info/name" trafia do mapy "basic_info" jako "name".
+    // Głębsze segmenty rozłoży kolejny poziom, gdy sekcja przekaże mu swoją mapę.
+    private fun valuesByName(values: Map<String, Any?>): Map<String, Any?> {
+        return values.entries.groupBy { it.key.substringBefore(PathResolver.SEPARATOR) }.mapValues { (name, entries) ->
+            val nested = entries.filter { it.key != name }
+            if (nested.isEmpty()) {
+                entries.single().value
+            } else {
+                @Suppress("UNCHECKED_CAST")
+                val ownMap = entries.find { it.key == name }?.value as Map<String, Any?>? ?: emptyMap()
+                ownMap + nested.associate { it.key.substringAfter(PathResolver.SEPARATOR) to it.value }
             }
         }
     }
+
     /**
      * Funkcja ustawia stan kontrolki o danej nazwie (może być hierarchiczna)
      * Automatycznie triggeruje recomposition dzięki mutableStateMapOf
@@ -96,24 +115,21 @@ class FormState {
     /**
      * Zbiera i przetwarza dane ze wszystkich kontrolek formularza.
      *
-     * Dla każdej kontrolki ze schematu:
-     * 1. Pobiera jej aktualny stan
-     * 2. Wywołuje getResult() na kontrolce
-     * 3. Zwraca mapę z wynikami gotowymi do walidacji i zapisu
-     *
      * @param schema Schemat formularza z definicjami kontrolek.
      * @return FormResultData - mapa wyników (klucz = nazwa kontrolki, wartość = ControlResultData).
      */
     internal fun collectFormData(schema: FormSchema): FormResultData {
-        val result = mutableMapOf<String, ControlResultData>()
+        return collectLevel(schema.rootContexts())
+    }
 
-        schema.getAllControls().forEach { (controlName, control) ->
-            if (control.hierarchyRole != ControlHierarchyRole.AGGREGATED_CHILD) {
-                val state = _controlStates[controlName]!!
-                result[controlName] = control.getResult(ControlContext(controlName), state) // TODO poprawienie kontekstu dla sekcji - nie jest używany ale technicznie jest niespójność
-            }
+    /**
+     * Zbiera wyniki kontrolek jednego poziomu danych pod ich nazwami. Kontenery zbierają swoje poziomy
+     * same, tą samą funkcją: sekcja raz, repeatable per wiersz. Każda kontrolka dostaje kontekst
+     * z rodzicem, bo dopiero on mówi, czy jest widoczna - a niewidoczna nie przekazuje wartości do zapisu.
+     */
+    internal fun collectLevel(controls: List<Pair<ControlContext, Control<*>>>): FormResultData {
+        return controls.associate { (controlContext, control) ->
+            controlContext.localName to control.getResult(controlContext, _controlStates.getValue(controlContext.fullStatePath))
         }
-
-        return result.toMap()
     }
 }

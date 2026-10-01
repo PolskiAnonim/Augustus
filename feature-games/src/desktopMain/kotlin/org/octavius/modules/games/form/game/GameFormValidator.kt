@@ -26,7 +26,7 @@ class GameFormValidator : FormValidator() {
      * @return `true` jeśli tytuł jest unikalny, `false` jeśli tytuł już istnieje lub wystąpił błąd.
      */
     private fun checkTitleUniqueness(formResultData: FormResultData): Boolean {
-        val title = formResultData.getCurrentAs<String>("name")
+        val title = formResultData.getCurrentAs<String>("basic_info/name")
         val id = formResultData.getCurrentAs<Int?>("id")
         val whereClause = listOfNotNull(
             "name = @title" withParam ("title" to title),
@@ -39,7 +39,7 @@ class GameFormValidator : FormValidator() {
             is DataResult.Success -> {
                 if ((result.value) > 0) {
                     // Tytuł już istnieje. Ustawiamy błąd dla konkretnego pola 'name'.
-                    errorManager.setFieldErrors("name", listOf(GamesTr.Validation.nameExists()))
+                    errorManager.setFieldErrors("basic_info/name", listOf(GamesTr.Validation.nameExists()))
                     false // Walidacja się nie powiodła.
                 } else {
                     true // Tytuł jest unikalny. Walidacja powiodła się.

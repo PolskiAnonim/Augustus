@@ -83,7 +83,7 @@ class AsianMediaReportStructureBuilder() : ReportStructureBuilder() {
                         "status" to PublicationStatus.Trash,
                         "track_progress" to false
                     )
-                ), "language" to PublicationLanguage.Korean
+                ), "title_info/language" to PublicationLanguage.Korean
             )
             AppRouter.navigateTo(
                 AsianMediaFormScreen.create(null, payload)

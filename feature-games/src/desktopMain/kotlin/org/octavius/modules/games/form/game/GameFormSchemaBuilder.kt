@@ -25,63 +25,64 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
 
     override fun defineControls(): Map<String, Control<*>> = mapOf(
         "id" to IntegerControl(null),
-        // Podstawowe dane
-        "visible_characters_section" to CheckboxControl(
-            GamesTr.Form.visibleCharacterSection(),
-            required = true
-        ),
         "play_time_exists" to CheckboxControl(null),
         "ratings_exists" to CheckboxControl(null),
         "characters_exists" to CheckboxControl(null),
         // Sekcja podstawowych informacji
-        "name" to StringControl(
-            GamesTr.General.gameName(),
-            required = true
-        ),
-        "series" to DatabaseControl(
-            label = GamesTr.Form.series(),
-            query = QueryFragment("SELECT id, name FROM series"),
-            displayColumn = "name"
-        ),
-        "status" to EnumControl(
-            GamesTr.Form.status(),
-            GameStatus::class,
-            required = true
-        ),
         "basic_info" to SectionControl(
-            controls = listOf("name", "series", "status", "visible_characters_section"),
+            controls = mapOf(
+                "name" to StringControl(
+                    GamesTr.General.gameName(),
+                    required = true
+                ),
+                "series" to DatabaseControl(
+                    label = GamesTr.Form.series(),
+                    query = QueryFragment("SELECT id, name FROM series"),
+                    displayColumn = "name"
+                ),
+                "status" to EnumControl(
+                    GamesTr.Form.status(),
+                    GameStatus::class,
+                    required = true
+                ),
+                "visible_characters_section" to CheckboxControl(
+                    GamesTr.Form.visibleCharacterSection(),
+                    required = true
+                )
+            ),
             collapsible = false,
             initiallyExpanded = true,
             columns = 1,
             label = GamesTr.Form.basicInfo()
         ),
         // Sekcja czasu gry
-        "play_time_hours" to DoubleControl(
-            GamesTr.Form.playTimeHours(),
-            validationOptions = DoubleValidation(min = 0.0, decimalPlaces = 2)
-        ),
-        "completion_count" to IntegerControl(
-            GamesTr.Form.playCount(),
-            required = true, // Automatycznie pomijana walidacja jak niewidoczna kontrolka
-            dependencies = mapOf(
-                "visible" to ControlDependency(
-                    controlPath = "status",
-                    value = listOf(GameStatus.Playing, GameStatus.Played),
-                    dependencyType = DependencyType.Visible,
-                    comparisonType = ComparisonType.OneOf
+        "play_time_section" to SectionControl(
+            controls = mapOf(
+                "play_time_hours" to DoubleControl(
+                    GamesTr.Form.playTimeHours(),
+                    validationOptions = DoubleValidation(min = 0.0, decimalPlaces = 2)
+                ),
+                "completion_count" to IntegerControl(
+                    GamesTr.Form.playCount(),
+                    required = true, // Automatycznie pomijana walidacja jak niewidoczna kontrolka
+                    dependencies = mapOf(
+                        "visible" to ControlDependency(
+                            controlPath = "/basic_info/status",
+                            value = listOf(GameStatus.Playing, GameStatus.Played),
+                            dependencyType = DependencyType.Visible,
+                            comparisonType = ComparisonType.OneOf
+                        )
+                    ),
+                    validationOptions = IntegerValidation(min = 0)
                 )
             ),
-            validationOptions = IntegerValidation(min = 0)
-        ),
-        "play_time_section" to SectionControl(
-            controls = listOf("play_time_hours", "completion_count"),
             collapsible = false,
             initiallyExpanded = true,
             columns = 2,
             label = GamesTr.Form.playTime(),
             dependencies = mapOf(
                 "visible" to ControlDependency(
-                    controlPath = "status",
+                    controlPath = "/basic_info/status",
                     value = listOf(
                         GameStatus.Playing,
                         GameStatus.Played,
@@ -93,28 +94,29 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
             )
         ),
         // Sekcja ocen
-        "story_rating" to IntegerControl(
-            GamesTr.Form.storyRating(),
-            validationOptions = IntegerValidation(min = 0, max = 10)
-        ),
-        "gameplay_rating" to IntegerControl(
-            GamesTr.Form.gameplayRating(),
-            required = true,
-            validationOptions = IntegerValidation(min = 0, max = 10)
-        ),
-        "atmosphere_rating" to IntegerControl(
-            GamesTr.Form.atmosphereRating(),
-            validationOptions = IntegerValidation(min = 0, max = 10)
-        ),
         "ratings_section" to SectionControl(
-            controls = listOf("story_rating", "gameplay_rating", "atmosphere_rating"),
+            controls = mapOf(
+                "story_rating" to IntegerControl(
+                    GamesTr.Form.storyRating(),
+                    validationOptions = IntegerValidation(min = 0, max = 10)
+                ),
+                "gameplay_rating" to IntegerControl(
+                    GamesTr.Form.gameplayRating(),
+                    required = true,
+                    validationOptions = IntegerValidation(min = 0, max = 10)
+                ),
+                "atmosphere_rating" to IntegerControl(
+                    GamesTr.Form.atmosphereRating(),
+                    validationOptions = IntegerValidation(min = 0, max = 10)
+                )
+            ),
             collapsible = true,
             initiallyExpanded = true,
             columns = 3,
             label = GamesTr.Form.ratings(),
             dependencies = mapOf(
                 "visible" to ControlDependency(
-                    controlPath = "status",
+                    controlPath = "/basic_info/status",
                     value = listOf(GameStatus.Played, GameStatus.WithoutTheEnd),
                     dependencyType = DependencyType.Visible,
                     comparisonType = ComparisonType.OneOf
@@ -122,27 +124,28 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
             )
         ),
         // Sekcja postaci
-        "has_distinctive_character" to CheckboxControl(
-            GamesTr.Form.distinctiveCharacters(),
-            required = true
-        ),
-        "has_distinctive_protagonist" to CheckboxControl(
-            GamesTr.Form.distinctiveProtagonist(),
-            required = true
-        ),
-        "has_distinctive_antagonist" to CheckboxControl(
-            GamesTr.Form.distinctiveAntagonist(),
-            required = true
-        ),
         "characters_section" to SectionControl(
-            controls = listOf("has_distinctive_character", "has_distinctive_protagonist", "has_distinctive_antagonist"),
+            controls = mapOf(
+                "has_distinctive_character" to CheckboxControl(
+                    GamesTr.Form.distinctiveCharacters(),
+                    required = true
+                ),
+                "has_distinctive_protagonist" to CheckboxControl(
+                    GamesTr.Form.distinctiveProtagonist(),
+                    required = true
+                ),
+                "has_distinctive_antagonist" to CheckboxControl(
+                    GamesTr.Form.distinctiveAntagonist(),
+                    required = true
+                )
+            ),
             collapsible = true,
             initiallyExpanded = true,
             columns = 1,
             label = GamesTr.Form.characters(),
             dependencies = mapOf(
                 "visible" to ControlDependency(
-                    controlPath = "visible_characters_section",
+                    controlPath = "/basic_info/visible_characters_section",
                     value = true,
                     dependencyType = DependencyType.Visible,
                     comparisonType = ComparisonType.Equals

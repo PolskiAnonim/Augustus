@@ -19,12 +19,13 @@ class GameSeriesFormSchemaBuilder : FormSchemaBuilder() {
     override fun defineControls(): Map<String, Control<*>> =
         mapOf(
             "id" to IntegerControl(null),
-            "name" to StringControl(
-                GamesTr.Series.name(),
-                required = true
-            ),
             "basic_info" to SectionControl(
-                controls = listOf("name"),
+                controls = mapOf(
+                    "name" to StringControl(
+                        GamesTr.Series.name(),
+                        required = true
+                    )
+                ),
                 collapsible = false,
                 initiallyExpanded = true,
                 columns = 1,
