@@ -5,17 +5,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import org.octavius.form.component.FormSchema
 import org.octavius.form.component.FormState
+import org.octavius.form.control.base.Control
 import org.octavius.form.control.base.ControlContext
 import org.octavius.theme.FormSpacing
 
 @Composable
 internal fun SectionContent(
-    controlContext: ControlContext,
-    controlNames: List<String>,
+    children: List<Pair<ControlContext, Control<*>>>,
     columns: Int,
-    formSchema: FormSchema,
     formState: FormState
 ) {
     Surface(
@@ -29,10 +27,10 @@ internal fun SectionContent(
         ) {
             if (columns > 1) {
                 // Logika dla wielu kolumn
-                RenderMultiColumnContent(controlContext, controlNames, columns, formSchema, formState)
+                RenderMultiColumnContent(children, columns, formState)
             } else {
                 // Logika dla jednej kolumny
-                RenderSingleColumnContent(controlContext, controlNames, formSchema, formState)
+                RenderSingleColumnContent(children, formState)
             }
         }
     }
@@ -40,26 +38,24 @@ internal fun SectionContent(
 
 @Composable
 private fun RenderMultiColumnContent(
-    controlContext: ControlContext,
-    controlNames: List<String>,
+    children: List<Pair<ControlContext, Control<*>>>,
     columns: Int,
-    formSchema: FormSchema,
     formState: FormState
 ) {
     // Dzielimy listę kontrolek na grupy dla każdej kolumny
-    val controlGroups = controlNames.chunked(
-        (controlNames.size + columns - 1) / columns
+    val childGroups = children.chunked(
+        (children.size + columns - 1) / columns
     )
 
     Row(modifier = Modifier.fillMaxWidth()) {
-        controlGroups.forEach { group ->
+        childGroups.forEach { group ->
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = FormSpacing.fieldPaddingHorizontal)
             ) {
-                group.forEach { controlName ->
-                    RenderControlByName(controlContext, controlName, formSchema, formState)
+                group.forEach { (childContext, child) ->
+                    RenderChild(childContext, child, formState)
                     Spacer(modifier = Modifier.height(FormSpacing.sectionContentSpacing))
                 }
             }
@@ -69,14 +65,12 @@ private fun RenderMultiColumnContent(
 
 @Composable
 private fun RenderSingleColumnContent(
-    controlContext: ControlContext,
-    controlNames: List<String>,
-    formSchema: FormSchema,
+    children: List<Pair<ControlContext, Control<*>>>,
     formState: FormState,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        controlNames.forEach { controlName ->
-            RenderControlByName(controlContext, controlName, formSchema, formState)
+        children.forEach { (childContext, child) ->
+            RenderChild(childContext, child, formState)
             Spacer(modifier = Modifier.height(FormSpacing.sectionHeaderPaddingBottom))
         }
     }
@@ -84,15 +78,12 @@ private fun RenderSingleColumnContent(
 
 // Wyodrębniamy powtarzającą się logikę renderowania pojedynczej kontrolki
 @Composable
-private fun RenderControlByName(
-    controlContext: ControlContext,
-    controlName: String,
-    formSchema: FormSchema,
+private fun RenderChild(
+    childContext: ControlContext,
+    child: Control<*>,
     formState: FormState
 ) {
-    formSchema.getControl(controlName)?.let { control ->
-        formState.getControlState(controlName)?.let { state ->
-            control.Render(controlContext.forSectionChild(controlName), state)
-        }
+    formState.getControlState(childContext.fullStatePath)?.let { state ->
+        child.Render(childContext, state)
     }
 }

@@ -20,7 +20,7 @@ import org.octavius.form.control.base.ControlContext
  * @throws IllegalArgumentException jeśli nazwy w listach porządkujących nie istnieją w mapie controls.
  */
 class FormSchema(
-    definedControls: Map<String, Control<*>>,
+    private val definedControls: Map<String, Control<*>>,
     val contentOrder: List<String>,
     val actionBarOrder: List<String>
 ) {
@@ -44,6 +44,14 @@ class FormSchema(
      * Zwraca wszystkie kontrolki zdefiniowane w tej klasie
      */
     fun getAllControls(): Map<String, Control<*>> = controls
+
+    /**
+     * Kontrolki z górnego poziomu definicji, z kontekstem bez rodzica. Od nich silnik schodzi
+     * w dół drzewa przez [Control.childContexts].
+     */
+    internal fun rootContexts(): List<Pair<ControlContext, Control<*>>> {
+        return definedControls.map { (name, control) -> ControlContext(name) to control }
+    }
 }
 
 /**

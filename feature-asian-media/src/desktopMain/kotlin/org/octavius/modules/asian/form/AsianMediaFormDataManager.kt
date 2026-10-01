@@ -22,8 +22,8 @@ class AsianMediaFormDataManager : FormDataManager() {
 
         // Proste mapowania z tabeli 'titles'
         map("id")
-        map("titles")
-        map("language")
+        map("title_info/titles")
+        map("title_info/language")
 
         // Relacja 1-do-N z 'categories'
         mapRelatedList("publications") {
@@ -89,8 +89,8 @@ class AsianMediaFormDataManager : FormDataManager() {
         val titleIdRef: TransactionValue<Int>
 
         val titleData = mapOf(
-            "titles" to formResultData.getCurrent("titles"),
-            "language" to formResultData.getCurrent("language")
+            "titles" to formResultData.getCurrent("title_info/titles"),
+            "language" to formResultData.getCurrent("title_info/language")
         )
 
         if (formResultData.getInitial("id") != null) {

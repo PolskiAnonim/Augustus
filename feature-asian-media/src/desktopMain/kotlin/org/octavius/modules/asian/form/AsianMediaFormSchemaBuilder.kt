@@ -30,21 +30,22 @@ class AsianMediaFormSchemaBuilder : FormSchemaBuilder() {
             null
         ),
         "title_info" to SectionControl(
-            controls = listOf("titles", "language"),
+            controls = mapOf(
+                "titles" to StringListControl(
+                    AsianMediaTr.Form.titles(),
+                    required = true,
+                    validationOptions = StringListValidation(minItems = 1)
+                ),
+                "language" to EnumControl(
+                    AsianMediaTr.Form.originalLanguage(),
+                    PublicationLanguage::class,
+                    required = true
+                )
+            ),
             collapsible = false,
             initiallyExpanded = true,
             columns = 2,
             label = AsianMediaTr.Form.titleInfo()
-        ),
-        "titles" to StringListControl(
-            AsianMediaTr.Form.titles(),
-            required = true,
-            validationOptions = StringListValidation(minItems = 1)
-        ),
-        "language" to EnumControl(
-            AsianMediaTr.Form.originalLanguage(),
-            PublicationLanguage::class,
-            required = true
         ),
 
         // Sekcja publikacji - używa RepeatableControl

@@ -46,44 +46,31 @@ data class ActionContext<T>(
      * wartości, tylko ją uzupełnia - na przykład dokłada do listy tytuły z kolejnego źródła,
      * zamiast kasować to, co już w niej jest.
      *
-     * Zwraca `null`, gdy kontrolki nie ma pod tą ścieżką albo nie ma wartości - wołający i tak
-     * nie odróżnia tych przypadków, skoro sama wartość też bywa pusta.
+     * Zwraca `null`, gdy kontrolka nie ma wartości. Ścieżka bez kontrolki rzuca wyjątek.
      */
     fun <V : Any> readControl(controlPath: String): V? {
-        val resolvedName = PathResolver.resolvePath(controlPath, sourceControlContext)
         // Rzutowanie "unsafe" tak samo jak w updateControl - za zgodność typu odpowiada programista.
         @Suppress("UNCHECKED_CAST")
-        return (formState.getControlState(resolvedName) as? ControlState<V>)?.value?.value
+        return stateAt(controlPath).value.value as V?
     }
 
     /**
      * Aktualizuje wartość kontrolki używając ścieżki względnej (./, ../) lub bezwzględnej.
      */
     fun <V: Any> updateControl(controlPath: String, newValue: V?) {
-        val resolvedName = PathResolver.resolvePath(controlPath, sourceControlContext)
-        formState.getControlState(resolvedName)?.let { state ->
-            // Używamy "unsafe" cast, ponieważ programista jest odpowiedzialny za poprawny typ
-            @Suppress("UNCHECKED_CAST")
-            val typedState = state as ControlState<V>
-            typedState.value.value = newValue
-            // Tekst opisywał starą wartość, więc przestaje obowiązywać. Kontrolka wyznaczy go
-            // ponownie - liczba od razu, dropdown zapytaniem.
-            typedState.displayText.value = null
-        }
+        setValue(stateAt(controlPath), newValue)
     }
 
     /**
      * Aktualizuje wartości wielu kontrolek pasujących do wzorca (np. z wildcardem *).
+     * Wzorzec może nie trafić w nic - lista wierszy bywa pusta. Ścieżka bez wildcardu działa
+     * jak [updateControl], więc bez kontrolki rzuca wyjątek.
      */
     fun <V: Any> updateControls(controlPath: String, newValue: V?) {
-        val resolvedNames = PathResolver.resolvePaths(controlPath, sourceControlContext, formState)
-        resolvedNames.forEach { resolvedName ->
-            formState.getControlState(resolvedName)?.let { state ->
-                @Suppress("UNCHECKED_CAST")
-                val typedState = state as ControlState<V>
-                typedState.value.value = newValue
-                typedState.displayText.value = null
-            }
+        if ("*" !in controlPath) return updateControl(controlPath, newValue)
+
+        PathResolver.resolvePaths(controlPath, sourceControlContext, formState).forEach { resolvedName ->
+            setValue(formState.getControlState(resolvedName)!!, newValue)
         }
     }
 
@@ -91,9 +78,25 @@ data class ActionContext<T>(
      * Aktualizuje etykietę kontrolki (nadpisuje domyślną).
      */
     fun updateLabel(controlPath: String, newLabel: String?) {
+        stateAt(controlPath).labelOverride.value = newLabel
+    }
+
+    // Zła ścieżka to błąd w schemacie - po cichu pominięta akcja ukryłaby go na zawsze.
+    private fun stateAt(controlPath: String): ControlState<*> {
         val resolvedName = PathResolver.resolvePath(controlPath, sourceControlContext)
-        formState.getControlState(resolvedName)?.let { state ->
-            state.labelOverride.value = newLabel
-        }
+        return formState.getControlState(resolvedName) ?: throw IllegalArgumentException(
+            "Akcja kontrolki '${sourceControlContext.fullStatePath}' wskazuje '$controlPath' " +
+                "(rozwiązane do '$resolvedName'), ale w formularzu nie ma takiej kontrolki"
+        )
+    }
+
+    private fun <V : Any> setValue(state: ControlState<*>, newValue: V?) {
+        // Używamy "unsafe" cast, ponieważ programista jest odpowiedzialny za poprawny typ
+        @Suppress("UNCHECKED_CAST")
+        val typedState = state as ControlState<V>
+        typedState.value.value = newValue
+        // Tekst opisywał starą wartość, więc przestaje obowiązywać. Kontrolka wyznaczy go
+        // ponownie - liczba od razu, dropdown zapytaniem.
+        typedState.displayText.value = null
     }
 }

@@ -41,6 +41,15 @@ abstract class Control<T : Any> internal constructor(
         return emptyMap()
     }
 
+    /**
+     * Dzieci tej kontrolki w bieżącym stanie formularza, każde z kontekstem, w którym ta kontrolka
+     * jest rodzicem: sekcja ma jeden zestaw, repeatable - po jednym na wiersz. Po nich silnik schodzi
+     * w dół drzewa przy inicjalizacji, walidacji i zbieraniu danych.
+     */
+    internal open fun childContexts(controlContext: ControlContext): List<Pair<ControlContext, Control<*>>> {
+        return emptyList()
+    }
+
 
     // --- 3. Cykl Życia i Kontekst Formularza ---
     // Referencje wstrzykiwane przez FormHandler przy inicjalizacji.
@@ -138,11 +147,6 @@ abstract class Control<T : Any> internal constructor(
     internal fun validateControl(controlContext: ControlContext, state: ControlState<*>) {
         validator.validate(controlContext, state, this)
     }
-
-    /**
-     * Flaga określająca, rolę kontrolki w hierarchii.
-     */
-    internal var hierarchyRole: ControlHierarchyRole = ControlHierarchyRole.ROOT
 
     // --- 6. Obsługa Akcji ---
     /**

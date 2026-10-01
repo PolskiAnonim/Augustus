@@ -14,7 +14,7 @@ class GameSeriesFormDataManager : FormDataManager() {
     private fun loadData(loadedId: Any?) = loadData(loadedId) {
         from("games.series", "s")
         map("id")
-        map("name")
+        map("basic_info/name")
     }
 
     override fun initData(
@@ -32,15 +32,16 @@ class GameSeriesFormDataManager : FormDataManager() {
 
     private fun processSave(formResultData: FormResultData): Boolean {
         val loadedId = formResultData.getInitial("id")
+        val name = formResultData.getCurrent("basic_info/name")
         val plan = TransactionPlan()
         if (loadedId != null) {
             plan.add(
                 db.update("games.series").setValues(listOf("name")).where("id = @id").asStep()
-                    .update("name" to formResultData.getCurrent("name"), "id" to loadedId)
+                    .update("name" to name, "id" to loadedId)
             )
         } else {
             plan.add(
-                db.insertInto("games.series").values(listOf("name")).asStep().update("name" to formResultData.getCurrent("name"))
+                db.insertInto("games.series").values(listOf("name")).asStep().update("name" to name)
             )
         }
         return when (val result = dbResult { db.executeTransactionPlan(plan) }) {

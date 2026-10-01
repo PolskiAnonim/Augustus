@@ -6,6 +6,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.octavius.form.component.ErrorManager
 import org.octavius.form.component.FormActionTrigger
@@ -64,7 +65,7 @@ class ControlActionTest {
     }
 
     @Test
-    fun `readControl should return current value and null for unknown path`() {
+    fun `readControl should return current value and fail on unknown path`() {
         // Arrange
         val formState = mockk<FormState>()
         val context = ActionContext(
@@ -84,6 +85,27 @@ class ControlActionTest {
         // Act & Assert
         assertThat(context.readControl<List<String>>("titles"))
             .containsExactly("Solo Leveling", "Na Honjaman Level Up")
-        assertThat(context.readControl<String>("nie_ma")).isNull()
+        assertThatThrownBy { context.readControl<String>("nie_ma") }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("'nie_ma'")
+    }
+
+    @Test
+    fun `update and label on unknown path fail loudly`() {
+        val formState = mockk<FormState>()
+        val context = ActionContext(
+            sourceValue = "trigger",
+            sourceControlContext = ControlContext(localName = "triggerSource"),
+            formState = formState,
+            formSchema = mockk<FormSchema>(),
+            errorManager = mockk<ErrorManager>(),
+            trigger = mockk<FormActionTrigger>(),
+            coroutineScope = CoroutineScope(Dispatchers.Unconfined)
+        )
+        every { formState.getControlState("nie_ma") } returns null
+
+        assertThatThrownBy { context.updateControl("nie_ma", "x") }.isInstanceOf(IllegalArgumentException::class.java)
+        assertThatThrownBy { context.updateControls("nie_ma", "x") }.isInstanceOf(IllegalArgumentException::class.java)
+        assertThatThrownBy { context.updateLabel("nie_ma", "x") }.isInstanceOf(IllegalArgumentException::class.java)
     }
 }

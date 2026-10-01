@@ -10,14 +10,12 @@ class SandboxFormDataManager : FormDataManager() {
 
     override fun initData(payload: Map<String, Any?>): Map<String, Any?> {
         return mapOf(
-            "basic_info" to mapOf(
-                "name" to "",
-                "quantity" to null,
-                "active" to false,
-                "priority" to SandboxPriority.Medium,
-                "start_date" to null,
-                "tags" to emptyList<String>()
-            ),
+            "basic_info/name" to "",
+            "basic_info/quantity" to null,
+            "basic_info/active" to false,
+            "basic_info/priority" to SandboxPriority.Medium,
+            "basic_info/start_date" to null,
+            "basic_info/tags" to emptyList<String>(),
             "elements" to emptyList<Map<String, Any?>>(),
             "nested_repeatable" to emptyList<Map<String, Any?>>()
         ) + payload

@@ -246,7 +246,8 @@ Control visibility and requirements based on other control values:
 
 `comparisonType` also accepts `ComparisonType.OneOf`, matching against a `Collection` passed as `value`, and
 `ComparisonType.NotEquals`. A hidden control's `currentValue` is forced to `null` before it reaches
-`FormResultData`, so conditionally-shown fields never leak stale data into a save.
+`FormResultData`, so conditionally-shown fields never leak stale data into a save. A dependency whose path
+doesn't resolve to a control throws — a typo there would otherwise silently count as met.
 
 ## Control Actions and Path Resolution
 
@@ -266,12 +267,41 @@ a `RepeatableControl` adds a row). The action lambda runs with `ActionContext<T>
 - `updateControl(path, value)` / `updateControls(path, value)` — write one or many control values by path
 - `updateLabel(path, label)` — override a control's rendered label
 
-Paths are resolved relative to the acting control's container: `./name` addresses a sibling, and a bare `name`
-is treated as absolute for backward compatibility. Only `RepeatableControl` actually nests state paths — each
-row appends `[rowId]` — so `../name` is what steps out, from a field inside a row back to the level containing
-the `RepeatableControl` itself. `SectionControl` doesn't add a path level: its children share the section's own
-`statePath`, so paths resolve straight through it as if the section weren't there. `updateControls` additionally
-accepts a `*` wildcard segment (e.g. `"rows/*/total"`) and updates every matching control in `FormState`.
+Paths are resolved relative to the acting control's container: `./name` addresses a sibling, a leading `/`
+starts from the root (`/basic_info/status`), and a bare `name` is treated as absolute for backward compatibility.
+Both containers nest state paths: a `SectionControl` appends its name (`basic_info/name`), a `RepeatableControl`
+appends its name and the row (`authors[rowId]/name`), and `../name` steps out one container. `updateControls`
+additionally accepts a `*` wildcard segment (e.g. `"rows/*/total"`) and updates every matching control in
+`FormState`. A path that doesn't resolve to a control throws; only a `*` pattern may match nothing, since a
+list can have no rows.
+
+## Sections
+
+A `SectionControl` groups controls in a titled card and owns them, the same way a `RepeatableControl` owns its
+row controls:
+
+```kotlin
+"play_time_section" to SectionControl(
+    label = "Play time",
+    columns = 2,
+    controls = mapOf(
+        "play_time_hours" to DoubleControl(label = "Hours"),
+        "completion_count" to IntegerControl(label = "Completions")
+    ),
+    dependencies = mapOf("visible" to ControlDependency("/basic_info/status", GameStatus.Played, DependencyType.Visible, ComparisonType.Equals))
+)
+```
+
+A section is one data level — a repeatable row without the `[rowId]` — so everything under it is addressed by
+path: `getCurrent("play_time_section/play_time_hours")` in a save action, `setFieldErrors("basic_info/name", ...)`
+in a validator, `map("play_time_section/play_time_hours")` in `loadData` (the column defaults to the last
+segment), and `"/basic_info/status"` in a dependency reaching another section. Initial values come keyed by those
+paths too, which keeps `defaults + loaded + payload` a plain map `+` — a section passed as a nested map
+(`"basic_info" to mapOf(...)`) would be replaced whole by the next map, so it's rejected.
+
+Hiding a section hides its children too: they skip validation and `getCurrent` returns `null` for them, while
+`getInitial` still returns what was loaded. A section works inside a repeatable row as well, where its fields
+land in that row (`rowData.getCurrent("details/name")`).
 
 ## Repeatable Sections
 

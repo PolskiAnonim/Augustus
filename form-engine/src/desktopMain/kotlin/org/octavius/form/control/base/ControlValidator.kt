@@ -46,7 +46,11 @@ abstract class ControlValidator<T : Any> {
         val states = formState.getAllStates()
 
         val resolvedControlName = PathResolver.resolvePath(dependency.controlPath, controlContext)
-        val dependentState = states[resolvedControlName] ?: return true // Jeśli kontrolka nie istnieje, traktujemy zależność jako spełnioną
+        // Zła ścieżka to błąd w schemacie - po cichu spełniona zależność ukryłaby go na zawsze.
+        val dependentState = states[resolvedControlName] ?: throw IllegalArgumentException(
+            "Zależność kontrolki '${controlContext.fullStatePath}' wskazuje '${dependency.controlPath}' " +
+                "(rozwiązane do '$resolvedControlName'), ale w formularzu nie ma takiej kontrolki"
+        )
 
         val dependentValue = dependentState.value.value
 

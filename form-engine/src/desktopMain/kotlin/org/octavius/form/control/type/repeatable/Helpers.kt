@@ -33,27 +33,36 @@ data class RepeatableResultValue(
 )
 
 /**
+ * Kontrolki wiersza, każda z kontekstem, w którym rodzicem jest kontrolka powtarzalna.
+ * Wiersz to osobny poziom danych: stany jego kontrolek leżą pod `nazwa[rowId]/...`.
+ */
+internal fun rowContexts(
+    parentContext: ControlContext,
+    row: RepeatableRow,
+    rowControls: Map<String, Control<*>>
+): List<Pair<ControlContext, Control<*>>> {
+    return rowControls.map { (controlName, control) -> parentContext.forRepeatableChild(controlName, row.id) to control }
+}
+
+/**
  * Tworzy nowy wiersz i dodaje stany jego kontrolek do globalnego FormState.
  *
  * @param index pozycja wiersza w liście
  * @param parentContext kontekst kontrolki powtarzalnej
  * @param rowControls mapa kontrolek które mają być w wierszu
  * @param formState globalny stan formularza
+ * @param values wartości początkowe pól wiersza (klucz = nazwa kontrolki), dla nowego wiersza puste
  * @return nowy wiersz z ustawionym indeksem
  */
 internal fun createRow(
     index: Int,
     parentContext: ControlContext, // Np. "publications" lub "projects[uuid].tasks"
     rowControls: Map<String, Control<*>>,
-    formState: FormState
+    formState: FormState,
+    values: Map<String, Any?> = emptyMap()
 ): RepeatableRow {
     val row = RepeatableRow(index = index)
-    // Utwórz stany dla wszystkich kontrolek w wierszu
-    rowControls.forEach { (controlName, control) ->
-        val childControlContext = parentContext.forRepeatableChild(controlName, row.id)
-        val state = control.setInitValue(childControlContext, null) // Inicjalizujemy z null
-        formState.setControlState(childControlContext.fullStatePath, state)
-    }
+    formState.initializeLevel(rowContexts(parentContext, row, rowControls), values)
     return row
 }
 
@@ -64,14 +73,14 @@ internal fun createRow(
  * @param controlState stan kontrolki powtarzalnej
  * @param controlContext kontekst kontrolki powtarzalnej (do budowania hierarchicznych nazw)
  * @param rowControls mapa kontrolek w wierszu
- * @param globalStates mapa wszystkich stanów formularza
+ * @param formState globalny stan formularza
  * @return Triple(nowe wiersze, usunięte wiersze, zmienione wiersze)
  */
 internal fun getRowTypes(
     controlState: ControlState<List<RepeatableRow>>,
     controlContext: ControlContext,
     rowControls: Map<String, Control<*>>,
-    globalStates: Map<String, ControlState<*>>
+    formState: FormState
 ): Triple<List<RepeatableRow>, List<RepeatableRow>, List<RepeatableRow>> {
     val currentRowIds = controlState.value.value!!.map { it.id }.toSet()
     val initialRowIds = controlState.initValue.value!!.map { it.id }.toSet()
@@ -86,12 +95,17 @@ internal fun getRowTypes(
     val changedRows = controlState.value.value!!.filter { currentRow ->
         if (currentRow.id !in initialRowIds) return@filter false
 
-        // Sprawdź czy jakiekolwiek pole w tym wierszu jest zmienione
-        rowControls.keys.any { fieldName ->
-            val hierarchicalContext = controlContext.forRepeatableChild(fieldName, currentRow.id)
-            val state = globalStates[hierarchicalContext.fullStatePath]!!
-            state.initValue.value != state.value.value
+        rowContexts(controlContext, currentRow, rowControls).any { (fieldContext, field) ->
+            isChanged(fieldContext, field, formState)
         }
     }
     return Triple(newRows, deletedRows, changedRows)
+}
+
+// Kontrolka jest zmieniona, gdy zmieniła się jej wartość albo cokolwiek pod nią - pole sekcji
+// w wierszu czy wiersz zagnieżdżonego repeatable.
+private fun isChanged(controlContext: ControlContext, control: Control<*>, formState: FormState): Boolean {
+    val state = formState.getControlState(controlContext.fullStatePath)!!
+    return state.initValue.value != state.value.value ||
+        control.childContexts(controlContext).any { (childContext, child) -> isChanged(childContext, child, formState) }
 }

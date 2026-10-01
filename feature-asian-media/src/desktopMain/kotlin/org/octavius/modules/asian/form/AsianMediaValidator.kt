@@ -16,18 +16,18 @@ class AsianMediaValidator: FormValidator() {
     }
 
     private fun validateTitleDuplication(formResultData: FormResultData): Boolean {
-        val titles = formResultData.getCurrentAs<List<String>>("titles")
+        val titles = formResultData.getCurrentAs<List<String>>("title_info/titles")
         val hasDuplicates = titles.size != titles.toSet().size
 
         if (hasDuplicates) {
-            errorManager.addFieldError("titles", AsianMediaTr.Form.duplicateTitles())
+            errorManager.addFieldError("title_info/titles", AsianMediaTr.Form.duplicateTitles())
         }
 
         return !hasDuplicates
     }
 
     fun validateTitlesAgainstDatabase(formResultData: FormResultData): Boolean {
-        val titles = formResultData.getCurrentAs<List<String>>("titles")
+        val titles = formResultData.getCurrentAs<List<String>>("title_info/titles")
         val id = formResultData.getCurrentAs<Int?>("id")
 
         if (titles.isEmpty()) return true

@@ -25,17 +25,17 @@ class GameFormDataManager : FormDataManager() {
 
         // Proste mapowania z tabeli 'games'
         map("id")
-        map("name")
-        map("series")
-        map("status")
+        map("basic_info/name")
+        map("basic_info/series")
+        map("basic_info/status")
 
         // Relacja 1-do-1 z 'play_time'
         mapOneToOne {
             from("play_time", "pt")
             on("g.id = pt.game_id")
             existenceFlag("play_time_exists", "pt.game_id")
-            map("play_time_hours", "play_time_hours")
-            map("completion_count", "completion_count")
+            map("play_time_section/play_time_hours")
+            map("play_time_section/completion_count")
         }
 
         // Relacja 1-do-1 z 'ratings'
@@ -43,9 +43,9 @@ class GameFormDataManager : FormDataManager() {
             from("ratings", "r")
             on("g.id = r.game_id")
             existenceFlag("ratings_exists", "r.game_id")
-            map("story_rating", "story_rating")
-            map("gameplay_rating", "gameplay_rating")
-            map("atmosphere_rating", "atmosphere_rating")
+            map("ratings_section/story_rating")
+            map("ratings_section/gameplay_rating")
+            map("ratings_section/atmosphere_rating")
         }
 
         // Relacja 1-do-1 z 'characters'
@@ -53,9 +53,9 @@ class GameFormDataManager : FormDataManager() {
             from("characters", "c")
             on("g.id = c.game_id")
             existenceFlag("characters_exists", "c.game_id")
-            map("has_distinctive_character", "has_distinctive_character")
-            map("has_distinctive_protagonist", "has_distinctive_protagonist")
-            map("has_distinctive_antagonist", "has_distinctive_antagonist")
+            map("characters_section/has_distinctive_character")
+            map("characters_section/has_distinctive_protagonist")
+            map("characters_section/has_distinctive_antagonist")
         }
 
         // Relacja 1-do-N z 'categories'
@@ -72,14 +72,14 @@ class GameFormDataManager : FormDataManager() {
 
         val defaultData = if (loadedId == null) {
             mapOf(
-                "visible_characters_section" to false,
+                "basic_info/visible_characters_section" to false,
                 "play_time_exists" to false,
                 "ratings_exists" to false,
                 "characters_exists" to false,
                 "categories" to emptyList<Map<String, Any?>>()
             )
         } else {
-            mapOf("visible_characters_section" to (loadedData["characters_exists"] as Boolean))
+            mapOf("basic_info/visible_characters_section" to (loadedData["characters_exists"] as Boolean))
         }
 
         // Kolejność łączenia: Domyślne -> Załadowane z DB -> Payload (nadpisuje wszystko)
@@ -123,9 +123,9 @@ class GameFormDataManager : FormDataManager() {
         val gameIdRef: TransactionValue<Int>
 
         val gameData = mapOf(
-            "name" to formResultData.getCurrent("name"),
-            "series" to formResultData.getCurrent("series"),
-            "status" to formResultData.getCurrent("status")
+            "name" to formResultData.getCurrent("basic_info/name"),
+            "series" to formResultData.getCurrent("basic_info/series"),
+            "status" to formResultData.getCurrent("basic_info/status")
         )
 
         // W zależności od tego, czy tworzymy nową grę, czy edytujemy istniejącą,
@@ -153,7 +153,7 @@ class GameFormDataManager : FormDataManager() {
             ).value()
         }
 
-        val status = formResultData.getCurrentAs<GameStatus>("status")
+        val status = formResultData.getCurrentAs<GameStatus>("basic_info/status")
 
         // =================================================================================
         // KROK 2: Obsługa tabel zależnych 1-do-1
@@ -166,8 +166,8 @@ class GameFormDataManager : FormDataManager() {
             conditionMet = status in statusesWithDetails,
             tableName = "games.play_time",
             data = mapOf(
-                "play_time_hours" to formResultData.getCurrent("play_time_hours"),
-                "completion_count" to formResultData.getCurrent("completion_count")
+                "play_time_hours" to formResultData.getCurrent("play_time_section/play_time_hours"),
+                "completion_count" to formResultData.getCurrent("play_time_section/completion_count")
             ),
             gameIdRef = gameIdRef
         )
@@ -179,9 +179,9 @@ class GameFormDataManager : FormDataManager() {
             conditionMet = status in statusesWithDetails,
             tableName = "games.ratings",
             data = mapOf(
-                "story_rating" to formResultData.getCurrent("story_rating"),
-                "gameplay_rating" to formResultData.getCurrent("gameplay_rating"),
-                "atmosphere_rating" to formResultData.getCurrent("atmosphere_rating")
+                "story_rating" to formResultData.getCurrent("ratings_section/story_rating"),
+                "gameplay_rating" to formResultData.getCurrent("ratings_section/gameplay_rating"),
+                "atmosphere_rating" to formResultData.getCurrent("ratings_section/atmosphere_rating")
             ),
             gameIdRef = gameIdRef
         )
@@ -190,12 +190,12 @@ class GameFormDataManager : FormDataManager() {
         handleDependentTable(
             plan = plan,
             exists = formResultData.getCurrentAs("characters_exists"),
-            conditionMet = formResultData.getCurrentAs("visible_characters_section"),
+            conditionMet = formResultData.getCurrentAs("basic_info/visible_characters_section"),
             tableName = "games.characters",
             data = mapOf(
-                "has_distinctive_character" to formResultData.getCurrent("has_distinctive_character"),
-                "has_distinctive_protagonist" to formResultData.getCurrent("has_distinctive_protagonist"),
-                "has_distinctive_antagonist" to formResultData.getCurrent("has_distinctive_antagonist")
+                "has_distinctive_character" to formResultData.getCurrent("characters_section/has_distinctive_character"),
+                "has_distinctive_protagonist" to formResultData.getCurrent("characters_section/has_distinctive_protagonist"),
+                "has_distinctive_antagonist" to formResultData.getCurrent("characters_section/has_distinctive_antagonist")
             ),
             gameIdRef = gameIdRef
         )

@@ -3,8 +3,8 @@ package org.octavius.form.component
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import io.github.octaviusframework.client.OctaviusClient
+import org.octavius.form.control.base.Control
 import org.octavius.form.control.base.ControlContext
-import org.octavius.form.control.base.ControlHierarchyRole
 import org.octavius.form.control.base.FormResultData
 
 /**
@@ -42,19 +42,17 @@ open class FormValidator : KoinComponent {
      */
     internal fun validateFields(): Boolean {
 
-        for ((controlName, control) in formSchema.getAllControls()) {
-            // Dzieci sekcji i repeatable zostaną pominięte, bo ich
-            // walidację uruchomi walidator rodzica.
-            if (control.hierarchyRole == ControlHierarchyRole.ROOT) {
-                val state = formState.getControlState(controlName)!!
-
-                // Zwykłe kontrolki nie mają rodzica, tworzymy prosty kontekst.
-                control.validateControl(ControlContext(localName = controlName), state)
-            }
-        }
+        formSchema.rootContexts().forEach { (controlContext, control) -> validateTree(controlContext, control) }
 
         // Sprawdź czy są jakieś błędy pól
         return !errorManager.hasFieldErrors() && !errorManager.hasFormatErrors()
+    }
+
+    // Każda kontrolka waliduje się sama, w kontekście znającym rodzica, więc dziecko ukrytej sekcji
+    // albo ukrytego repeatable pominie walidację samo - widoczność sprawdza w górę drzewa.
+    private fun validateTree(controlContext: ControlContext, control: Control<*>) {
+        control.validateControl(controlContext, formState.getControlState(controlContext.fullStatePath)!!)
+        control.childContexts(controlContext).forEach { (childContext, child) -> validateTree(childContext, child) }
     }
 
     /**

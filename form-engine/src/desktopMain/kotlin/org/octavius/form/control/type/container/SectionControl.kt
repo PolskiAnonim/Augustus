@@ -9,25 +9,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import org.octavius.form.component.ErrorManager
-import org.octavius.form.component.FormActionTrigger
-import org.octavius.form.component.FormSchema
-import org.octavius.form.component.FormState
 import org.octavius.form.control.base.*
 import org.octavius.form.control.layout.section.SectionContent
 import org.octavius.form.control.layout.section.SectionHeader
-import org.octavius.form.control.validator.section.SectionValidator
 import org.octavius.theme.FormSpacing
 
 /**
  * Kontrolka do grupowania i organizacji innych kontrolek w sekcje.
  *
- * Renderuje grupę kontrolek w karcie z nagłówkiem. Obsługuje składanie/rozwijanie sekcji,
- * układanie kontrolek w kolumnach oraz zarządzanie relacjami rodzic-dziecko między kontrolkami.
- * Umożliwia logiczne organizowanie formularza w tematyczne sekcje.
+ * Renderuje grupę kontrolek w karcie z nagłówkiem. Obsługuje składanie/rozwijanie sekcji
+ * i układanie kontrolek w kolumnach. Umożliwia logiczne organizowanie formularza w tematyczne sekcje.
+ *
+ * Sekcja to jeden poziom danych, jak wiersz repeatable: jej dzieci leżą pod `sekcja/nazwa`,
+ * a wynik sekcji niesie mapę ich wyników. Widoczność dzieci zależy od widoczności sekcji.
+ *
+ * @param controls Kontrolki sekcji, w kolejności wyświetlania.
  */
 class SectionControl(
-    val controls: List<String>,
+    val controls: Map<String, Control<*>>,
     val collapsible: Boolean = true,
     val initiallyExpanded: Boolean = true,
     val columns: Int = 1,
@@ -35,19 +34,31 @@ class SectionControl(
     dependencies: Map<String, ControlDependency<*>>? = null
 ) : Control<Unit>(label, false, dependencies, hasStandardLayout = false) {
 
-    override val validator: ControlValidator<Unit> = SectionValidator(controls)
-
-    override fun initializeControlLifecycle(
-        formState: FormState,
-        formSchema: FormSchema,
-        errorManager: ErrorManager,
-        formActionTrigger: FormActionTrigger
-    ) {
-        super.initializeControlLifecycle(formState, formSchema, errorManager, formActionTrigger)
-        // Kluczowy moment: informujemy dzieci, że ich walidacja nie jest niezależna.
-        controls.forEach { controlName ->
-            formSchema.getControl(controlName)?.hierarchyRole = ControlHierarchyRole.GROUPED_CHILD
+    override fun registerChildrenInGlobalMap(controlContext: ControlContext): Map<String, Control<*>> {
+        val map = mutableMapOf<String, Control<*>>()
+        childContexts(controlContext).forEach { (childControlContext, child) ->
+            map[childControlContext.fullControlPath] = child
+            map.putAll(child.registerChildrenInGlobalMap(childControlContext))
         }
+        return map
+    }
+
+    override fun childContexts(controlContext: ControlContext): List<Pair<ControlContext, Control<*>>> {
+        return controls.map { (childName, child) -> controlContext.forSectionChild(childName) to child }
+    }
+
+    // Wartość sekcji to mapa jej pól, którą FormState złożył ze ścieżek `sekcja/pole`.
+    override fun setInitValue(controlContext: ControlContext, value: Any?): ControlState<Unit> {
+        @Suppress("UNCHECKED_CAST")
+        formState.initializeLevel(childContexts(controlContext), (value as Map<String, Any?>?).orEmpty())
+        return ControlState()
+    }
+
+    // Sekcja nie ma własnej wartości - niesie wyniki dzieci, w obu polach, bo każde dziecko ma
+    // i bieżącą, i początkową. Ukryta sekcja traci bieżącą mapę, ale jej dzieci i tak oddają `null`.
+    override fun convertToResult(controlContext: ControlContext, state: ControlState<*>): ControlResultData {
+        val children = formState.collectLevel(childContexts(controlContext))
+        return ControlResultData(currentValue = children, initialValue = children)
     }
 
     @Composable
@@ -69,10 +80,8 @@ class SectionControl(
 
                 AnimatedVisibility(visible = isExpanded.value) {
                     SectionContent(
-                        controlContext = controlContext,
-                        controlNames = controls,
+                        children = childContexts(controlContext),
                         columns = columns,
-                        formSchema = this@SectionControl.formSchema,
                         formState = this@SectionControl.formState
                     )
                 }
