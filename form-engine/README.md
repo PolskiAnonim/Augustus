@@ -272,7 +272,8 @@ starts from the root (`/basic_info/status`), and a bare `name` is treated as abs
 Both containers nest state paths: a `SectionControl` appends its name (`basic_info/name`), a `RepeatableControl`
 appends its name and the row (`authors[rowId]/name`), and `../name` steps out one container. `updateControls`
 additionally accepts a `*` wildcard segment (e.g. `"rows/*/total"`) and updates every matching control in
-`FormState`.
+`FormState`. A path that doesn't resolve to a control throws; only a `*` pattern may match nothing, since a
+list can have no rows.
 
 ## Sections
 
