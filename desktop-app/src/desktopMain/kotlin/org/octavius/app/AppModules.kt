@@ -17,19 +17,6 @@ import javax.sql.DataSource
 private val appSchemas = listOf("public", "asian_media", "games", "books")
 
 /**
- * Dokleja `search_path` do URL-a, o ile użytkownik sam go nie podał.
- *
- * Sterownik traktuje nierozpoznane parametry URL-a jako parametry startowe połączenia, więc ustawiony
- * w ten sposób `search_path` jest częścią tożsamości połączenia - nie ma czego czyścić przy oddaniu
- * go do puli i nie ma jak wyciec do następnego pożyczającego.
- */
-private fun String.withSearchPath(): String {
-    if (contains("search_path=")) return this
-    val separator = if (contains('?')) "&" else "?"
-    return "$this${separator}search_path=${appSchemas.joinToString(",")}"
-}
-
-/**
  * Moduł Koin konfigurujący zależności związane z bazą danych.
  *
  * Kolejność jest tu istotna: migracje idą przed zbudowaniem klienta, bo to one tworzą typy
