@@ -295,8 +295,9 @@ row controls:
 A section is one data level — a repeatable row without the `[rowId]` — so everything under it is addressed by
 path: `getCurrent("play_time_section/play_time_hours")` in a save action, `setFieldErrors("basic_info/name", ...)`
 in a validator, `map("play_time_section/play_time_hours")` in `loadData` (the column defaults to the last
-segment), and `"/basic_info/status"` in a dependency reaching another section. Initial values may come keyed by
-those paths or as nested maps (`"basic_info" to mapOf("name" to ...)`).
+segment), and `"/basic_info/status"` in a dependency reaching another section. Initial values come keyed by those
+paths too, which keeps `defaults + loaded + payload` a plain map `+` — a section passed as a nested map
+(`"basic_info" to mapOf(...)`) would be replaced whole by the next map, so it's rejected.
 
 Hiding a section hides its children too: they skip validation and `getCurrent` returns `null` for them, while
 `getInitial` still returns what was loaded. A section works inside a repeatable row as well, where its fields

@@ -165,8 +165,7 @@ class FormHandlerTest {
                 "first" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "pierwsza"),
                 "second" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "druga")
             ),
-            // Wartości początkowe przyjmuje i pod ścieżką, i jako zagnieżdżoną mapę.
-            initData = mapOf("first/name" to "pierwsza", "second" to mapOf("name" to "druga"))
+            initData = mapOf("first/name" to "pierwsza", "second/name" to "druga")
         ) { formData -> saved = listOf(formData.getCurrent("first/name"), formData.getCurrent("second/name")); true }
 
         runBlocking { handler.triggerAction("save", validates = false) }

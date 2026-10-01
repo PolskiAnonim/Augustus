@@ -62,8 +62,8 @@ class FormState {
      * Tworzy stany kontrolek jednego poziomu danych - formularza, sekcji albo wiersza repeatable -
      * z wartości pod ich nazwami. Kontenery zakładają w `setInitValue` swoje poziomy same, tą samą funkcją.
      *
-     * Wartości mogą przyjść pod ścieżkami (`"basic_info/name"`), bo tak oddaje je `loadData` i tak łatwo
-     * je łączyć z domyślnymi, albo już zagnieżdżone (`"basic_info" to mapOf("name" to ...)`).
+     * Pola sekcji przychodzą pod ścieżkami (`"basic_info/name"`), bo tak oddaje je `loadData` i tylko
+     * wtedy łączenie wartości domyślnych, z bazy i z payloadu zwykłym `+` nie gubi pól.
      */
     internal fun initializeLevel(controls: List<Pair<ControlContext, Control<*>>>, values: Map<String, Any?>) {
         val valuesByName = valuesByName(values)
@@ -76,13 +76,16 @@ class FormState {
     // Głębsze segmenty rozłoży kolejny poziom, gdy sekcja przekaże mu swoją mapę.
     private fun valuesByName(values: Map<String, Any?>): Map<String, Any?> {
         return values.entries.groupBy { it.key.substringBefore(PathResolver.SEPARATOR) }.mapValues { (name, entries) ->
-            val nested = entries.filter { it.key != name }
-            if (nested.isEmpty()) {
-                entries.single().value
-            } else {
-                @Suppress("UNCHECKED_CAST")
-                val ownMap = entries.find { it.key == name }?.value as Map<String, Any?>? ?: emptyMap()
-                ownMap + nested.associate { it.key.substringAfter(PathResolver.SEPARATOR) to it.value }
+            val ownValue = entries.singleOrNull { it.key == name }
+            // Żadna kontrolka nie trzyma mapy, więc mapa pod gołą nazwą to sekcja podana w całości.
+            // `+` na takich mapach podmienia całą sekcję, czyli po cichu gubi pola - stąd tylko ścieżki.
+            require(ownValue?.value !is Map<*, *>) {
+                "Wartość początkowa pod '$name' jest mapą - pola sekcji podaje się ścieżkami, np. '$name/pole'"
+            }
+            when {
+                ownValue == null -> entries.associate { it.key.substringAfter(PathResolver.SEPARATOR) to it.value }
+                entries.size == 1 -> ownValue.value
+                else -> throw IllegalArgumentException("Wartość początkowa jest i pod '$name', i pod ścieżkami w '$name/...'")
             }
         }
     }
