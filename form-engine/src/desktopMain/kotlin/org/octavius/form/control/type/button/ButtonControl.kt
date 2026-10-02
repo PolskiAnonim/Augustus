@@ -7,8 +7,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.form.control.base.*
 import org.octavius.theme.FormSpacing
 
@@ -39,7 +39,7 @@ class ButtonControl(
 ) {
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<Unit>, isRequired: Boolean) {
-        val scope = rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
 
         val modifier = Modifier
             .fillMaxWidth()

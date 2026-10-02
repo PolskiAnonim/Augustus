@@ -235,7 +235,10 @@ A row action's lambda runs with `ReportActionContext` as receiver:
 | `rowData`        | `Map<String, Any?>` of the clicked row — every selected column, not only the visible ones |
 | `reportState`    | current filters, sorting, pagination, data                                                |
 | `onEvent`        | send a `ReportEvent`, e.g. to reload after a mutation                                     |
-| `coroutineScope` | scope for asynchronous work                                                               |
+| `coroutineScope` | supervised scope for asynchronous work; a failed coroutine ends in the error dialog       |
+
+An exception thrown by a row or main action is logged and shown in the global error dialog instead of taking
+the window down (`showUnhandledError` from `ui-core`).
 
 `buildRowActions()` and `buildDefaultRowAction()` generate the `_actions` and `_quick_action` columns.
 They are prepended to the column list, excluded from column management, and never filtered or sorted.

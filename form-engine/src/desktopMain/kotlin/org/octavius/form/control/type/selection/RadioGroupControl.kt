@@ -7,11 +7,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.form.control.base.*
 import org.octavius.form.control.layout.ControlOrientation
 import org.octavius.theme.FormSpacing
@@ -40,7 +40,7 @@ class RadioGroupControl<T : Any>(
         controlState: ControlState<T>,
         isRequired: Boolean
     ) {
-        val scope = rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
         val currentValue = controlState.value.value
 
         val content = @Composable {

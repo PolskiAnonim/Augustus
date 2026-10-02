@@ -17,6 +17,7 @@ import androidx.compose.ui.draganddrop.DragData
 import androidx.compose.ui.draganddrop.dragData
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.form.control.base.*
 import org.octavius.theme.FormSpacing
 import java.awt.FileDialog
@@ -58,7 +59,7 @@ class FilePickerControl<T : Any>(
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<T>, isRequired: Boolean) {
-        val scope = rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
         var selectedFileName by remember { mutableStateOf<String?>(null) }
         var isDragging by remember { mutableStateOf(false) }
 

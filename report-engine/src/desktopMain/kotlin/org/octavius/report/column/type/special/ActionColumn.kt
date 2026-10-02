@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.report.ReportActionContext
 import org.octavius.report.ReportEvent
 import org.octavius.report.ReportRowAction
@@ -42,7 +43,7 @@ class ActionColumn(
         modifier: Modifier
     ) {
         var expanded by remember { mutableStateOf(false) }
-        val scope = rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
 
         @Suppress("UNCHECKED_CAST")
         val rowData = item as? Map<String, Any?> ?: return
@@ -71,7 +72,7 @@ class ActionColumn(
                         },
                         onClick = {
                             val context = ReportActionContext(rowData, reportState, onEvent, scope)
-                            reportAction.action.invoke(context)
+                            reportAction.execute(context)
                             expanded = false
                         }
                     )

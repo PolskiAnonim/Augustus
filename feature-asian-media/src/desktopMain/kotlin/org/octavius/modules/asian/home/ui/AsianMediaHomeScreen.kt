@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.modules.asian.form.ui.AsianMediaFormScreen
 import org.octavius.modules.asian.home.model.AsianMediaHomeHandler
 import org.octavius.modules.asian.home.model.AsianMediaHomeState
@@ -25,7 +26,7 @@ import org.octavius.navigation.Screen
 class AsianMediaHomeScreen(override val title: String) : Screen {
     @Composable
     override fun Content() {
-        val composableScope = rememberCoroutineScope()
+        val composableScope = rememberSupervisedCoroutineScope()
 
         val handler = remember(composableScope) {
             AsianMediaHomeHandler(composableScope)

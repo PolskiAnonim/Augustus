@@ -5,6 +5,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.form.control.base.*
 import org.octavius.form.control.validator.datetime.DateTimeValidator
 import org.octavius.ui.datetime.DateTimePickerDialog
@@ -26,7 +27,7 @@ class DateTimeControl<T : Any>(
 
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<T>, isRequired: Boolean) {
-        val scope = rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
         var showDialog by remember { mutableStateOf(false) }
 
         PickerTextField(

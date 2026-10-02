@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.form.control.base.*
 import org.octavius.form.control.layout.RenderNormalLabel
 import org.octavius.form.localization.FormTr
@@ -65,7 +66,7 @@ abstract class DropdownControlBase<T : Any>(
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<T>, isRequired: Boolean) {
         var expanded by remember { mutableStateOf(false) }
-        val scope = rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
 
         // Wartość mamy z bazy, tekstu do niej nie - i jego wyznaczenie potrafi kosztować zapytanie
         // albo round-trip po sieci, więc nie może się dziać przy każdej rekompozycji. Rozwiązujemy

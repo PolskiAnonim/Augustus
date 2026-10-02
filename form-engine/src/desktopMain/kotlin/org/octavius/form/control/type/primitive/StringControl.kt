@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.form.control.base.*
 import org.octavius.form.control.validator.primitive.StringValidator
 import org.octavius.theme.FormSpacing
@@ -35,7 +35,7 @@ class StringControl(
 
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<String>, isRequired: Boolean) {
-        val scope = rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
 
         OutlinedTextField(
             value = controlState.value.value.orEmpty(),

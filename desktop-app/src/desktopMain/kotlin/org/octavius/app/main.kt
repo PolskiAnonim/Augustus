@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -23,6 +24,7 @@ import org.octavius.app.settings.form.database.DatabaseSettingsFormScreen
 import org.octavius.app.settings.AppSettingsManager
 import org.octavius.contract.FeatureModule
 import org.octavius.contract.ScreenFactory
+import org.octavius.error.showUnhandledError
 import org.octavius.feature.books.BooksFeature
 import org.octavius.modules.asian.AsianMediaFeature
 import org.octavius.modules.games.GamesFeature
@@ -41,6 +43,10 @@ private enum class AppState {
 }
 
 fun main() {
+    // Wyjątek, który przeleciał przez wszystko (np. korutyna na Dispatchers.IO bez własnego handlera),
+    // trafia do logu i dialogu, a nie tylko na konsolę.
+    Thread.setDefaultUncaughtExceptionHandler { _, error -> showUnhandledError(error) }
+
     val settingsManager = AppSettingsManager()
     settingsManager.applySettings()
 
@@ -169,6 +175,7 @@ private fun ApplicationScope.DatabaseErrorWindow(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun ApplicationScope.MainAppScreen(onCloseRequest: () -> Unit, settingsManager: AppSettingsManager) {
     // ==============================================================================
@@ -186,15 +193,24 @@ private fun ApplicationScope.MainAppScreen(onCloseRequest: () -> Unit, settingsM
 
     AppLifecycleManager(apiModules, tabs)
 
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = AppTr.App.name(),
-        state = rememberWindowState(size = DpSize(1280.dp, 720.dp))
-    ) {
-        NavigationHandler(screenFactories)
+    val windowRecovery = remember { MainWindowRecovery() }
+    // Poza `key`, żeby odbudowane okno zachowało rozmiar i położenie.
+    val windowState = rememberWindowState(size = DpSize(1280.dp, 720.dp))
 
-        // Renderowanie UI aplikacji
-        App(tabs, settingsManager)
+    key(windowRecovery.generation) {
+        val exceptionHandlerFactory = remember { windowRecovery.exceptionHandlerFactory() }
+        CompositionLocalProvider(LocalWindowExceptionHandlerFactory provides exceptionHandlerFactory) {
+            Window(
+                onCloseRequest = ::exitApplication,
+                title = AppTr.App.name(),
+                state = windowState
+            ) {
+                NavigationHandler(screenFactories)
+
+                // Renderowanie UI aplikacji
+                App(tabs, settingsManager)
+            }
+        }
     }
 }
 

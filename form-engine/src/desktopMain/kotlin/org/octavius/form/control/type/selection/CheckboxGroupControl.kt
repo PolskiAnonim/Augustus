@@ -6,11 +6,11 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.form.control.base.*
 import org.octavius.form.control.layout.ControlOrientation
 import org.octavius.theme.FormSpacing
@@ -43,7 +43,7 @@ class CheckboxGroupControl<T : Any>(
         controlState: ControlState<List<T>>,
         isRequired: Boolean
     ) {
-        val scope = rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
         val currentList = controlState.value.value ?: emptyList()
 
         val content = @Composable {

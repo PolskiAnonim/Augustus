@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.form.control.base.*
 import org.octavius.form.control.layout.RenderCheckboxLabel
 import org.octavius.theme.FormSpacing
@@ -34,7 +34,7 @@ class SwitchControl(
 ) {
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<Boolean>, isRequired: Boolean) {
-        val scope = rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
         Surface(
             modifier = Modifier
                 .fillMaxWidth()

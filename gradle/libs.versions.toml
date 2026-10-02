@@ -16,7 +16,7 @@ junit = "6.0.2"
 assertj-core = "4.0.0-M1"
 mockk = "1.14.9"
 logback = "1.5.32"
-kotlin-logging = "7.0.14"
+kotlin-logging = "8.0.4"
 hikari = "7.1.0"
 [libraries]
 # octavius-postgresql

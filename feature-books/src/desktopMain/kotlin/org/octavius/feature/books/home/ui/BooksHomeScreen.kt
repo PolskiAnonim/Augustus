@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.feature.books.form.book.ui.BookFormScreen
 import org.octavius.feature.books.home.model.BookDashboardItem
 import org.octavius.feature.books.home.model.BooksDashboardData
@@ -30,7 +31,7 @@ class BooksHomeScreen(override val title: String) : Screen {
 
     @Composable
     override fun Content() {
-        val composableScope = rememberCoroutineScope()
+        val composableScope = rememberSupervisedCoroutineScope()
         val handler = remember(composableScope) { BooksHomeHandler(composableScope) }
         val state by handler.state.collectAsState()
 

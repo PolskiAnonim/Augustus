@@ -74,7 +74,7 @@ fun ReportView(reportHandler: ReportHandler) {
                             DropdownMenuItem(
                                 text = { Text(action.label) },
                                 onClick = {
-                                    action.action.invoke()
+                                    action.execute()
                                     uiState.addMenuExpanded.value = false // Zamknij menu po kliknięciu
                                 },
                                 leadingIcon = action.icon?.let {

@@ -275,6 +275,11 @@ additionally accepts a `*` wildcard segment (e.g. `"rows/*/total"`) and updates 
 `FormState`. A path that doesn't resolve to a control throws; only a `*` pattern may match nothing, since a
 list can have no rows.
 
+Actions run in a supervised scope (`rememberSupervisedCoroutineScope()` from `ui-core`), which is also the
+`coroutineScope` in `ActionContext`. An exception thrown by an action, or by a coroutine it launches there, is
+logged and shown in the global error dialog instead of taking the window down. That is a safety net for bugs:
+expected failures should still be reported through `DataResult`, a dialog and `false`.
+
 ## Sections
 
 A `SectionControl` groups controls in a titled card and owns them, the same way a `RepeatableControl` owns its

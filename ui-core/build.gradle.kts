@@ -34,6 +34,7 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 implementation(libs.octavius.driver)
+                implementation(libs.kotlin.logging)
             }
         }
         val jsMain by getting

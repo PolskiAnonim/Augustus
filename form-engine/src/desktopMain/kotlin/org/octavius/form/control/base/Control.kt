@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.form.component.ErrorManager
 import org.octavius.form.component.FormActionTrigger
 import org.octavius.form.component.FormSchema
@@ -205,7 +206,7 @@ abstract class Control<T : Any> internal constructor(
     internal fun Render(controlContext: ControlContext, controlState: ControlState<*>) {
         val isVisible = validator.isControlVisible(this, controlContext)
         val isRequired = validator.isControlRequired(this, controlContext)
-        val scope = androidx.compose.runtime.rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
 
         @Suppress("UNCHECKED_CAST")
         val typedState = controlState as ControlState<T>

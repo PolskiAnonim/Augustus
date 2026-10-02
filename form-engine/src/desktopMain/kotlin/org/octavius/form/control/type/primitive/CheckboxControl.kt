@@ -8,10 +8,10 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.state.ToggleableState
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.form.control.base.*
 import org.octavius.form.control.layout.RenderCheckboxLabel
 import org.octavius.theme.FormSpacing
@@ -37,7 +37,7 @@ class CheckboxControl(
 ) {
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<Boolean>, isRequired: Boolean) {
-        val scope = rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
         Surface(
             modifier = Modifier
                 .fillMaxWidth()

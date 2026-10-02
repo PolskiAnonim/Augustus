@@ -8,10 +8,10 @@ import androidx.compose.material.icons.filled.Start
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.report.ReportActionContext
 import org.octavius.report.ReportEvent
 import org.octavius.report.ReportRowAction
@@ -42,7 +42,7 @@ class QuickActionColumn(
         onEvent: (ReportEvent) -> Unit,
         modifier: Modifier
     ) {
-        val scope = rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
 
         @Suppress("UNCHECKED_CAST")
         val rowData = item as? Map<String, Any?> ?: return
@@ -53,7 +53,7 @@ class QuickActionColumn(
         ) {
             IconButton(onClick = {
                 val context = ReportActionContext(rowData, reportState, onEvent, scope)
-                action.action.invoke(context)
+                action.execute(context)
             }) {
                 Icon(
                     imageVector = Icons.Default.Start,

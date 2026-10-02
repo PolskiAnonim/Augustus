@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.localization.Tr
 import org.octavius.modules.games.form.game.ui.GameFormScreen
 import org.octavius.modules.games.localization.GamesTr
@@ -23,7 +24,7 @@ import org.octavius.navigation.Screen
 class GameStatisticsScreen(override val title: String) : Screen {
     @Composable
     override fun Content() {
-        val composableScope = rememberCoroutineScope()
+        val composableScope = rememberSupervisedCoroutineScope()
 
         val handler = remember(composableScope) {
             GameStatisticsHandler(composableScope)

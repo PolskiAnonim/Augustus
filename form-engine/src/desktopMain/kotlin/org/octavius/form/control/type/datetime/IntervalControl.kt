@@ -1,6 +1,7 @@
 package org.octavius.form.control.type.datetime
 
 import androidx.compose.runtime.*
+import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.form.control.base.*
 import org.octavius.form.control.validator.datetime.IntervalValidator
 import org.octavius.ui.datetime.IntervalPickerDialog
@@ -27,7 +28,7 @@ class IntervalControl(
 
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<Duration>, isRequired: Boolean) {
-        val scope = rememberCoroutineScope()
+        val scope = rememberSupervisedCoroutineScope()
         var showDialog by remember { mutableStateOf(false) }
 
         PickerTextField(

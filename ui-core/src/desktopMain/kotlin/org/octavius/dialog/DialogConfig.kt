@@ -40,10 +40,10 @@ fun ErrorDialogConfig(title: String, message: String): DialogConfig {
 }
 
 /**
- * Wyświetla dialog błędu na podstawie wyjątku z bazy danych.
+ * Wyświetla dialog błędu na podstawie wyjątku. Wyjątek z bazy danych dostaje tytuł błędu bazy.
  */
-fun ErrorDialogConfig(error: OctaviusException): DialogConfig {
-    val title = Tr.Error.Database.title()
+fun ErrorDialogConfig(error: Throwable): DialogConfig {
+    val title = if (error is OctaviusException) Tr.Error.Database.title() else Tr.Dialog.error()
     return DialogConfig(title,
         error.toString(),
         null,
