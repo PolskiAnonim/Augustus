@@ -7,29 +7,38 @@ plugins {
 }
 
 kotlin {
-    // Definiujemy, że ten moduł jest tylko dla desktopa
     jvm("desktop")
+    // Dla wtyczki: DTO API we wspólnym kodzie, odczyt stron SteamDB w jsMain
+    js {
+        browser()
+    }
 
     sourceSets {
         val desktopMain by getting
+        val jsMain by getting
 
         commonMain.dependencies {
             implementation(projects.uiCore)
             implementation(projects.navigation)
             implementation(composeLibs.components.resources)
-
+            implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
+
+            implementation(libs.octavius.pg.model)
         }
 
         desktopMain.dependencies {
             implementation(projects.formEngine)
             implementation(projects.reportEngine)
             implementation(projects.featureContract)
+            implementation(projects.apiContract)
 
             implementation(project.dependencies.platform(libs.koin.bom))
 
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+
+            implementation(libs.ktor.server.core)
         }
     }
 }

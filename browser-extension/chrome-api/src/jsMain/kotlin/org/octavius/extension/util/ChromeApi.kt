@@ -16,6 +16,8 @@ external interface Chrome {
 
 external interface Runtime {
     val onMessage: OnMessage
+    /** Z content scriptu trafia do tła wtyczki. */
+    fun sendMessage(message: dynamic, responseCallback: (dynamic) -> Unit)
     /** Ustawiane na czas callbacku, gdy wywołanie się nie udało - np. karta, do której pisaliśmy, jest już zamknięta. */
     val lastError: dynamic
 }
