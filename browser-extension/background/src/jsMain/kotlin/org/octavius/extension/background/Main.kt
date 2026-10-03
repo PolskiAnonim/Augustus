@@ -11,8 +11,9 @@ import org.octavius.extension.util.chrome
 import org.w3c.dom.url.URL
 import kotlin.js.Promise
 
-private const val LIST_MOVE_URL = "http://localhost:8080/api/asian-media/novelupdates/list-move"
-private const val PENDING_KEY = "pendingNovelUpdatesListMoves"
+private const val NOVEL_UPDATES_LIST_MOVE_URL = "http://localhost:8080/api/asian-media/novelupdates/list-move"
+private const val STEAM_IGNORE_URL = "http://localhost:8080/api/games/steam/ignore"
+private const val PENDING_KEY = "pendingRequests"
 
 external fun fetch(input: String, init: dynamic): Promise<dynamic>
 
@@ -21,22 +22,29 @@ external fun fetch(input: String, init: dynamic): Promise<dynamic>
 private val queueLock = Mutex()
 
 /**
- * Tło wtyczki: podsłuchuje przeniesienia serii między listami lektur na NovelUpdates i przekazuje je
- * aplikacji. Każde przeniesienie - z series findera, strony serii czy strony listy - idzie jednym
- * zapytaniem do `updatelist.php`, więc wystarczy obserwować ten adres; do NovelUpdates nie wysyłamy nic.
+ * Tło wtyczki: przekazuje aplikacji zmiany zrobione na stronach, tak żeby Augustus je powtórzył.
+ * - Przeniesienia serii między listami lektur na NovelUpdates. Każde przeniesienie - z series findera,
+ *   strony serii czy strony listy - idzie jednym zapytaniem do `updatelist.php`, więc wystarczy
+ *   obserwować ten adres; do NovelUpdates nie wysyłamy nic.
+ * - Gry zignorowane na SteamDB. Te podsłuchuje content script (patrz `listenToSteamDbIgnores`) i
+ *   przysyła tutaj gotowy opis gry.
  *
- * Przeniesienie, którego nie udało się wysłać, bo Augustus nie działa, czeka w `chrome.storage` i idzie
- * przy następnym przeniesieniu albo następnym starcie tła.
+ * Zmiana, której nie udało się wysłać, bo Augustus nie działa, czeka w `chrome.storage` i idzie przy
+ * następnej zmianie albo następnym starcie tła.
  */
 @OptIn(DelicateCoroutinesApi::class)
 fun main() {
-    // Nasłuch musi się zarejestrować przy pierwszym przebiegu skryptu - inaczej przepada zdarzenie,
+    // Nasłuchy muszą się zarejestrować przy pierwszym przebiegu skryptu - inaczej przepada zdarzenie,
     // które właśnie obudziło service worker.
     chrome.webRequest.onCompleted.addListener(::onUpdateList, js("({ urls: ['https://www.novelupdates.com/updatelist.php*'] })"))
+    chrome.runtime.onMessage.addListener { message, sender, _ ->
+        val tabId = sender.tab?.id
+        if (message.action == "mirrorSteamIgnore" && tabId != null) send(STEAM_IGNORE_URL, message.ignore as String, tabId)
+        false
+    }
     GlobalScope.launch { queueLock.withLock { flush() } }
 }
 
-@OptIn(DelicateCoroutinesApi::class)
 private fun onUpdateList(details: WebRequestDetails) {
     if (details.statusCode != 200 || details.tabId < 0) return
     val params = URL(details.url).searchParams
@@ -57,15 +65,22 @@ private fun onUpdateList(details: WebRequestDetails) {
             toast(details.tabId, "nie rozpoznałem serii $sid na tej stronie, nic nie wysłano", false)
             return@sendMessage
         }
-        GlobalScope.launch {
-            queueLock.withLock {
-                val pendingMove: dynamic = js("({})")
-                pendingMove.move = move
-                pendingMove.tabId = details.tabId
-                save(pending().toMutableList().apply { add(pendingMove) })
-                val left = flush()
-                if (left > 0) toast(details.tabId, "aplikacja nie odpowiada - czeka w kolejce ($left), pójdzie przy następnym przeniesieniu", false)
-            }
+        send(NOVEL_UPDATES_LIST_MOVE_URL, move, details.tabId)
+    }
+}
+
+/** Dopisuje zmianę do kolejki i wysyła kolejkę; komunikat o wyniku trafia na kartę [tabId]. */
+@OptIn(DelicateCoroutinesApi::class)
+private fun send(url: String, body: String, tabId: Int) {
+    GlobalScope.launch {
+        queueLock.withLock {
+            val request: dynamic = js("({})")
+            request.url = url
+            request.body = body
+            request.tabId = tabId
+            save(pending().toMutableList().apply { add(request) })
+            val left = flush()
+            if (left > 0) toast(tabId, "aplikacja nie odpowiada - czeka w kolejce ($left), pójdzie przy następnej zmianie", false)
         }
     }
 }
@@ -76,7 +91,7 @@ private suspend fun flush(): Int {
     while (queue.isNotEmpty()) {
         val item = queue.first()
         val response = try {
-            fetch(LIST_MOVE_URL, jsonPost(item.move as String)).await()
+            fetch(item.url as String, jsonPost(item.body as String)).await()
         } catch (e: Throwable) {
             return queue.size
         }
@@ -88,7 +103,7 @@ private suspend fun flush(): Int {
             val body = response.json().unsafeCast<Promise<dynamic>>().await()
             toast(item.tabId as Int, body.message as String, body.saved as Boolean)
         } else {
-            toast(item.tabId as Int, "aplikacja odpowiedziała ${response.status}, przeniesienie nie zostało zapisane", false)
+            toast(item.tabId as Int, "aplikacja odpowiedziała ${response.status}, nic nie zostało zapisane", false)
         }
     }
     return 0
@@ -116,7 +131,7 @@ private fun jsonPost(body: String): dynamic {
     return init
 }
 
-// Karta, z której przyszło przeniesienie, mogła zostać zamknięta, zanim kolejka doszła do niej.
+// Karta, z której przyszła zmiana, mogła zostać zamknięta, zanim kolejka doszła do niej.
 private fun toast(tabId: Int, text: String, saved: Boolean) {
     val message: dynamic = js("({})")
     message.action = "showAugustusToast"

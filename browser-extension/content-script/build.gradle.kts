@@ -14,6 +14,7 @@ kotlin {
                 implementation(projects.browserExtension.chromeApi)
                 implementation(projects.apiContract)
                 implementation(projects.featureAsianMedia)
+                implementation(projects.featureGames)
                 // Ale potrzebuje wrapperów do komunikacji
                 implementation(browserLibs.kotlin.browser)
                 implementation(libs.kotlinx.serialization.json)

@@ -16,6 +16,8 @@ import org.octavius.modules.asian.parser.NovelUpdatesParser
 fun main() {
     println("Augustus Content Script (z logiką) załadowany!")
 
+    if (window.location.hostname == "steamdb.info") listenToSteamDbIgnores()
+
     val availableParsers: List<Parser<*>> = listOf(
         MangaUpdatesParser,
         NovelUpdatesParser

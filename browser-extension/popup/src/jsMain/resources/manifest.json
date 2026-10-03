@@ -20,7 +20,8 @@
     {
       "matches": [
         "https://www.mangaupdates.com/*",
-        "https://www.novelupdates.com/*"
+        "https://www.novelupdates.com/*",
+        "https://steamdb.info/*"
       ],
       "js": [
         "content-script.js"
