@@ -82,10 +82,22 @@ class OneToOneMappingBuilder : BaseTableMappingBuilder() {
 class RelatedDataMappingBuilder : BaseTableMappingBuilder() {
     private lateinit var linkColumn: String
     private var parentColumn: String = "@id"
+    var orderBy: String? = null
+        private set
 
     fun linkedBy(foreignKeyColumn: String, parentColumn: String = "@id") {
         this.linkColumn = foreignKeyColumn
         this.parentColumn = parentColumn
+    }
+
+    /**
+     * Kolejność wierszy listy. Bez niej PostgreSQL oddaje je w dowolnej kolejności, a ta potrafi się
+     * zmienić po każdym UPDATE.
+     *
+     * @param expression Treść `ORDER BY`, np. `"p.publication_type, p.id DESC"`.
+     */
+    fun orderBy(expression: String) {
+        this.orderBy = expression
     }
 
     fun validate() {
@@ -147,10 +159,12 @@ class QueryScope(
 
                     val mapEntries = subScope.fieldExpressions.joinToString(",\n                            ")
                     val subJoins = subScope.joins.joinToString(" ")
-                    
+                    val orderBy = builder.orderBy?.let { "ORDER BY $it" } ?: ""
+
                     // ROW(klucz, wartość, ...) czyta się jako Map<String, Any?>, a tablica takich
                     // rekordów jako List<Map<String, Any?>> - i wartości idą przez pełny łańcuch
-                    // konwerterów, więc enum wraca enumem, a nie tekstem.
+                    // konwerterów, więc enum wraca enumem, a nie tekstem. ARRAY(podzapytanie)
+                    // zachowuje kolejność z ORDER BY.
                     val subquery = """
                         ARRAY(
                             SELECT ROW(
@@ -158,6 +172,7 @@ class QueryScope(
                             )
                             FROM ${builder.fromTable} $subJoins
                             WHERE ${builder.buildWhereClause()}
+                            $orderBy
                         )::record[]
                     """.trimIndent()
 

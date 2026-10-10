@@ -198,6 +198,7 @@ override fun initData(payload: Map<String, Any?>): Map<String, Any?> {
         mapRelatedList("authors") {
             from("book_authors", "ba")
             linkedBy("ba.book_id") // defaults to matching against the main row's "@id"
+            orderBy("ba.position") // optional; without it rows come back in no particular order
             map("name")
             map("role")
         }
@@ -208,7 +209,8 @@ override fun initData(payload: Map<String, Any?>): Map<String, Any?> {
 Everything compiles down to a single query: `mapOneToOne` becomes a `LEFT JOIN`, `mapRelatedList` becomes a
 correlated `ARRAY(SELECT ROW(...))::record[]` subquery — an anonymous record read back as a
 `Map<String, Any?>` per row, keys and values alternating, which is what a repeatable control wants and what
-no declared type covers. `id` is assumed as the main table's primary key; override it with `idColumn("uuid")`
+no declared type covers. `orderBy` lands inside that subquery verbatim, and the array keeps its order, so the
+repeatable shows rows in that order. `id` is assumed as the main table's primary key; override it with `idColumn("uuid")`
 if it's named differently. If `id` (the value passed to `loadData`) is `null`, loading is skipped and an empty
 map is returned — the natural path for a "new record" form.
 

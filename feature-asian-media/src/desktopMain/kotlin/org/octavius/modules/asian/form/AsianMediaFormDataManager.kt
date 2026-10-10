@@ -25,10 +25,12 @@ class AsianMediaFormDataManager : FormDataManager() {
         map("title_info/titles")
         map("title_info/language")
 
-        // Relacja 1-do-N z 'categories'
+        // Relacja 1-do-N z 'publications'
         mapRelatedList("publications") {
             from("asian_media.publications", "p")
             linkedBy("p.title_id")
+            // Typ jest unikalny w obrębie tytułu, więc kolejność enuma w bazie wystarcza
+            orderBy("p.publication_type")
 
             map("id")
             map("publication_type")
