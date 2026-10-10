@@ -9,6 +9,8 @@ import org.octavius.navigation.Tab
 
 object GamesFeature : FeatureModule {
     override val name: String = "games"
+    override val order: Int = 20
+    override val schema: String = "games"
     override fun getTab(): Tab = GameTab()
     override fun getApiModules(): List<ApiModule> = listOf(GamesApi())
     override fun getScreenFactories(): List<ScreenFactory>? = null

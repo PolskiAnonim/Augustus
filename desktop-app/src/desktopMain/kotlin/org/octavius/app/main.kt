@@ -19,16 +19,11 @@ import org.koin.dsl.module
 import org.octavius.api.contract.ApiModule
 import org.octavius.api.server.EmbeddedServer
 import org.octavius.app.localization.AppTr
-import org.octavius.app.settings.SettingsFeature
 import org.octavius.app.settings.form.database.DatabaseSettingsFormScreen
 import org.octavius.app.settings.AppSettingsManager
 import org.octavius.contract.FeatureModule
 import org.octavius.contract.ScreenFactory
 import org.octavius.error.showUnhandledError
-import org.octavius.feature.books.BooksFeature
-import org.octavius.modules.asian.AsianMediaFeature
-import org.octavius.modules.games.GamesFeature
-import org.octavius.modules.sandbox.SandboxFeature
 import org.octavius.navigation.AppRouter
 import org.octavius.navigation.NavigationEvent
 import org.octavius.navigation.NavigationEventBus
@@ -50,12 +45,16 @@ fun main() {
     val settingsManager = AppSettingsManager()
     settingsManager.applySettings()
 
+    // Przed bazą, bo schematy featurów wyznaczają search_path i to, co się migruje.
+    val features = discoverFeatures()
+    val featureSchemas = features.mapNotNull { it.schema }
+
     val koin = startKoin {
         printLogger()
         allowOverride(true)
         modules(
             module { single { settingsManager } },
-            databaseModule
+            databaseModule(featureSchemas)
         )
     }.koin
 
@@ -77,7 +76,7 @@ fun main() {
                     onCloseRequest = ::exitApplication,
                     onRetry = {
                         // Re-load the database module to pick up new settings
-                        koin.loadModules(listOf(databaseModule))
+                        koin.loadModules(listOf(databaseModule(featureSchemas)))
                         appState = AppState.Loading
                     },
                     settingsManager = settingsManager
@@ -85,7 +84,7 @@ fun main() {
             }
 
             AppState.Ready -> {
-                MainAppScreen(onCloseRequest = ::exitApplication, settingsManager = settingsManager)
+                MainAppScreen(features, onCloseRequest = ::exitApplication, settingsManager = settingsManager)
             }
         }
     }
@@ -177,13 +176,14 @@ private fun ApplicationScope.DatabaseErrorWindow(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun ApplicationScope.MainAppScreen(onCloseRequest: () -> Unit, settingsManager: AppSettingsManager) {
+private fun ApplicationScope.MainAppScreen(
+    features: List<FeatureModule>,
+    onCloseRequest: () -> Unit,
+    settingsManager: AppSettingsManager
+) {
     // ==============================================================================
     //  GŁÓWNA APLIKACJA (komponowana tylko raz, gdy stan jest Ready)
     // ==============================================================================
-    val features: List<FeatureModule> = remember {
-        listOf(AsianMediaFeature, GamesFeature, BooksFeature, SandboxFeature, SettingsFeature)
-    }
     val (tabs, apiModules, screenFactories) = remember {
         val tabs = features.mapNotNull { it.getTab() }
         val apiModules = features.flatMap { it.getApiModules().orEmpty() }

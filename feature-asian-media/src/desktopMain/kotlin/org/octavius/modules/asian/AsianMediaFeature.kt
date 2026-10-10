@@ -14,6 +14,8 @@ object AsianMediaFeature : FeatureModule {
     const val ASIAN_MEDIA_FORM_SCREEN_ID = "asianMediaForm"
 
     override val name: String = "asian-media"
+    override val order: Int = 10
+    override val schema: String = "asian_media"
     override fun getTab(): Tab = AsianMediaTab()
     override fun getApiModules(): List<ApiModule> = listOf(AsianMediaApi())
     override fun getScreenFactories(): List<ScreenFactory> = listOf(

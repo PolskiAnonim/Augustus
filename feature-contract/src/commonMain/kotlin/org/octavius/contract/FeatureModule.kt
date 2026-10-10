@@ -12,13 +12,33 @@ import org.octavius.navigation.Tab
  * - Zakładkę w UI (`Tab`)
  * - Endpointy API (`ApiModule`)
  * - Ekrany dostępne z zewnątrz (`ScreenFactory`)
+ * - Schemat bazy z własnymi migracjami
  *
- * Główna aplikacja (`desktop-app`) zbiera listę obiektów `FeatureModule` i automatycznie
- * konfiguruje na ich podstawie nawigację, serwer API i routing zdarzeń.
+ * Implementacją jest `object` w pakiecie `org.octavius`. Główna aplikacja (`desktop-app`) sama znajduje
+ * takie obiekty na classpathie i konfiguruje na ich podstawie nawigację, serwer API, routing zdarzeń
+ * i migracje. Nigdzie nie trzeba ich dopisywać.
  */
 interface FeatureModule {
     /** Nazwa modułu. */
     val name: String
+
+    /**
+     * Pozycja featura: mniejsza liczba stoi wcześniej. Wyznacza kolejność zakładek na pasku (pierwsza
+     * jest aktywna po starcie) i kolejność migracji schematów featurów. Odstępy co 10 zostawiają miejsce
+     * na feature wstawiony pomiędzy.
+     */
+    val order: Int
+
+    /**
+     * Schemat bazy, w którym feature trzyma swoje tabele, albo `null`, jeśli feature własnych tabel nie ma.
+     *
+     * Schemat trafia do `search_path`, a jego migracje leżą w zasobach modułu pod
+     * `db/migration/<schemat>/` i mają własną historię w `<schemat>.octavius_migration_history`.
+     * Migrator sam tworzy schemat razem z tą historią, więc pierwsza migracja nie potrzebuje
+     * `CREATE SCHEMA`. Migracje featura mogą korzystać z `public` (wykonuje się przed featurami), ale nie
+     * z tabel innych featurów. `public` nie należy do żadnego featura.
+     */
+    val schema: String?
 
     /**
      * Zwraca definicję zakładki UI dla tego modułu.

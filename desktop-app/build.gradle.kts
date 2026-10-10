@@ -26,14 +26,16 @@ kotlin {
             implementation(libs.octavius.client)
             implementation(libs.octavius.client.scanner)
             implementation(libs.octavius.migrations)
+            implementation(libs.classgraph)
             implementation(libs.hikaricp)
             implementation(projects.featureContract)
             implementation(projects.formEngine)
             implementation(projects.reportEngine)
-            implementation(projects.featureGames)
-            implementation(projects.featureAsianMedia)
-            implementation(projects.featureBooks)
-            implementation(projects.featureSandbox)
+            // Wszystkie featury, które settings.gradle.kts dołączył do builda. Aplikacja znajduje je
+            // w czasie działania (FeatureDiscovery), więc nie importuje żadnego z nazwy.
+            rootProject.childProjects.values
+                .filter { it.name.startsWith("feature-") && it.name != "feature-contract" }
+                .forEach { implementation(project(it.path)) }
             implementation(projects.apiServer)
             implementation(projects.apiContract)
             implementation(compose.desktop.currentOs)

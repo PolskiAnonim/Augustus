@@ -6,15 +6,10 @@ import io.github.octaviusframework.client.OctaviusClient
 import io.github.octaviusframework.client.scanner.registerAnnotatedTypes
 import io.github.octaviusframework.driver.exception.findOctaviusCause
 import io.github.octaviusframework.driver.jdbc.OctaviusDataSource
-import io.github.octaviusframework.migrations.MigratorConfig
-import io.github.octaviusframework.migrations.OctaviusMigrator
 import org.koin.dsl.module
 import org.koin.dsl.onClose
 import org.octavius.app.settings.AppSettingsManager
 import javax.sql.DataSource
-
-/** Schematy, w których żyje aplikacja - trafiają do `search_path` każdego połączenia. */
-private val appSchemas = listOf("public", "asian_media", "games", "books")
 
 /**
  * Moduł Koin konfigurujący zależności związane z bazą danych.
@@ -22,8 +17,11 @@ private val appSchemas = listOf("public", "asian_media", "games", "books")
  * Kolejność jest tu istotna: migracje idą przed zbudowaniem klienta, bo to one tworzą typy
  * (enumy, kompozyty), a katalog typów sterownik czyta raz na bazę. `install()` domyka to
  * przeładowaniem katalogu, więc rejestracja typów po nim widzi już wszystko, co migracje utworzyły.
+ *
+ * @param featureSchemas Schematy znalezionych featurów, w ich kolejności. Razem z `public` trafiają do
+ * `search_path` każdego połączenia i każdy z nich migruje się osobno (patrz [migrateDatabase]).
  */
-val databaseModule = module {
+fun databaseModule(featureSchemas: List<String>) = module {
     single<OctaviusClient> {
         val settings = get<AppSettingsManager>().currentSettings.database
 
@@ -34,7 +32,7 @@ val databaseModule = module {
                 user = settings.username
                 password = settings.password
                 logParameterValues = true
-                setProperty("search_path", appSchemas.joinToString(","))
+                setProperty("search_path", (listOf(PUBLIC_SCHEMA) + featureSchemas).joinToString(","))
             }
             dataSource = HikariDataSource(HikariConfig().apply {
                 this.dataSource = octavius
@@ -48,8 +46,7 @@ val databaseModule = module {
         // Cokolwiek pójdzie nie tak przed oddaniem klienta, pula zostaje bez właściciela - a ekran
         // błędu bazy pozwala spróbować ponownie, więc nieodebrana pula zostawałaby przy każdej próbie.
         try {
-            val report = OctaviusMigrator(dataSource, MigratorConfig(placeholders = mapOf("databaseName" to "augustus"))).migrate()
-            println("Octavius migrations: $report")
+            migrateDatabase(dataSource, featureSchemas)
 
             OctaviusClient.fromDataSource(dataSource, ownsDataSource = true).apply {
                 // Tworzy public.dynamic_dto wraz z konstruktorami i przeładowuje katalog typów.

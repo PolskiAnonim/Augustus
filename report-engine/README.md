@@ -338,7 +338,7 @@ report-engine/
 │
 └── resources/
     ├── i18n/                       # en/pl translations, generated into `ReportTr`
-    └── db/migration/               # report_configurations table and PG types
+    └── db/migration/public/        # report_configurations table and PG types (the app's `public` history)
 ```
 
 The module targets the desktop JVM target only and depends on `ui-core` for theme, dialogs and
