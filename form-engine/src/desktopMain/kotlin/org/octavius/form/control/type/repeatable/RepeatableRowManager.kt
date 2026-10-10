@@ -23,14 +23,16 @@ class RepeatableRowManager(
     fun deleteRow(
         controlContext: ControlContext,
         controlState: ControlState<List<RepeatableRow>>,
-        index: Int
+        rowId: String
     ) {
         val minRows = validationOptions?.minItems ?: 0
         if (controlState.value.value!!.size <= minRows) {
             return
         }
-        
+
         val currentRows = controlState.value.value!!.toMutableList()
+        val index = currentRows.indexOfFirst { it.id == rowId }
+        if (index < 0) return
         val rowToRemove = currentRows[index]
         
         // Sprawdź czy wiersz był w oryginalnych danych

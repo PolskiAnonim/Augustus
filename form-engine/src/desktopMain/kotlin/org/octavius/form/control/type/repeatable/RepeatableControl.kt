@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import org.octavius.form.component.ErrorManager
@@ -121,24 +122,29 @@ class RepeatableControl(
             Spacer(modifier = Modifier.height(FormSpacing.itemSpacing))
 
             controlState.value.value?.forEachIndexed { index, row ->
-                RepeatableRowCard(
-                    index = index,
-                    canDelete = rowManager.canDeleteRow(controlState),
-                    onDelete = {
-                        rowManager.deleteRow(controlContext, controlState, index)
-                    },
-                    content = {
-                        RepeatableRowContent(
-                            row = row,
-                            controlContext = controlContext,
-                            rowOrder = rowOrder,
-                            rowControls = rowControls,
-                            formState = formState
-                        )
-                    }
-                )
+                // Bez klucza Compose przypisuje stan (`remember`) po pozycji: po usunięciu wiersza ze
+                // środka zwinięcie karty i stan UI kontrolek przeszłyby na wiersz, który wskoczył na
+                // jego miejsce.
+                key(row.id) {
+                    RepeatableRowCard(
+                        index = index,
+                        canDelete = rowManager.canDeleteRow(controlState),
+                        onDelete = {
+                            rowManager.deleteRow(controlContext, controlState, row.id)
+                        },
+                        content = {
+                            RepeatableRowContent(
+                                row = row,
+                                controlContext = controlContext,
+                                rowOrder = rowOrder,
+                                rowControls = rowControls,
+                                formState = formState
+                            )
+                        }
+                    )
 
-                Spacer(modifier = Modifier.height(FormSpacing.itemSpacing))
+                    Spacer(modifier = Modifier.height(FormSpacing.itemSpacing))
+                }
             }
         }
     }
