@@ -6,7 +6,7 @@ import org.octavius.modules.games.localization.GamesTr
 
 @PgEnumType
 enum class GameStatus : EnumWithFormatter<GameStatus> {
-    NotPlaying,
+    Trash,
     WithoutTheEnd,
     Played,
     ToPlay,
@@ -14,7 +14,7 @@ enum class GameStatus : EnumWithFormatter<GameStatus> {
 
     override fun toDisplayString(): String {
         return when (this) {
-            NotPlaying -> GamesTr.Status.notPlaying()
+            Trash -> GamesTr.Status.trash()
             WithoutTheEnd -> GamesTr.Status.endless()
             Played -> GamesTr.Status.played()
             ToPlay -> GamesTr.Status.toPlay()

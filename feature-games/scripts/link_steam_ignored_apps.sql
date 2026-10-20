@@ -91,7 +91,7 @@ SELECT g.status, p.reason AS powod_na_steamie, count(*) AS gier
 FROM steam_plan p
          JOIN games.games g ON g.id = p.game_ids[1]
 WHERE cardinality(p.game_ids) = 1
-  AND g.status <> 'NOT_PLAYING'
+  AND g.status <> 'TRASH'
 GROUP BY g.status, p.reason
 ORDER BY g.status, p.reason;
 

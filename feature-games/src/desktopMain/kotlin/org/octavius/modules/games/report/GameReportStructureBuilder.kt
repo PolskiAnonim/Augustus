@@ -12,6 +12,7 @@ import org.octavius.report.ReportMainAction
 import org.octavius.report.ReportRowAction
 import org.octavius.report.column.ReportColumn
 import org.octavius.report.column.type.EnumColumn
+import org.octavius.report.column.type.InstantColumn
 import org.octavius.report.column.type.StringColumn
 import org.octavius.report.column.type.asList
 import org.octavius.report.component.ReportStructureBuilder
@@ -31,6 +32,8 @@ class GameReportStructureBuilder(
             "games.name AS game_name",
             "series.name AS series_name",
             "games.status",
+            "games.created_at",
+            "games.updated_at",
             """COALESCE(
                 (SELECT array_agg(c.name ORDER BY c.name)
                  FROM games.categories_to_games ctg
@@ -63,6 +66,8 @@ class GameReportStructureBuilder(
             GamesTr.General.status(), enumClass = GameStatus::class
         ),
         "categories" to StringColumn(GamesTr.Form.category(2)).asList(),
+        "created_at" to InstantColumn(GamesTr.Report.createdAt()),
+        "updated_at" to InstantColumn(GamesTr.Report.updatedAt()),
     )
 
     override fun buildDefaultRowAction(): ReportRowAction = ReportRowAction(

@@ -57,7 +57,9 @@
     "newSeries": "New Series",
     "title": "Games",
     "addGameInSeries": "Add New Game in Series",
-    "viewGames": "View Games"
+    "viewGames": "View Games",
+    "createdAt": "Date Added",
+    "updatedAt": "Date Updated"
   },
   "series": {
     "basicInfo": "Series Info",
@@ -95,7 +97,7 @@
   },
   "status": {
     "endless": "Endless",
-    "notPlaying": "Not Playing",
+    "trash": "Trash",
     "played": "Played",
     "playing": "Playing",
     "toPlay": "To Play"

@@ -48,9 +48,9 @@ class GamesApi : ApiModule, KoinComponent {
                     val outcome: String = row["result"]
                     val gameName: String = row["name"]
                     val previous: GameStatus? = row["previous_status"]
-                    val notPlaying = GameStatus.NotPlaying.toDisplayString()
+                    val trash = GameStatus.Trash.toDisplayString()
                     when (outcome) {
-                        "CREATED" -> SteamIgnoreResponse(true, "Dodano „$gameName”: $notPlaying")
+                        "CREATED" -> SteamIgnoreResponse(true, "Dodano „$gameName”: $trash")
                         "AMBIGUOUS" -> {
                             val candidates: List<String> = row["candidates"]
                             SteamIgnoreResponse(false, "Nie zapisano, „$gameName” pasuje do: ${candidates.joinToString(", ") { "„$it”" }}")
@@ -58,7 +58,7 @@ class GamesApi : ApiModule, KoinComponent {
                         // KNOWN albo LINKED, więc gra była już w bazie
                         else -> {
                             val linked = if (outcome == "LINKED") "Podpięto appid, " else ""
-                            val change = if (previous == GameStatus.NotPlaying) "już $notPlaying" else "${previous?.toDisplayString()} → $notPlaying"
+                            val change = if (previous == GameStatus.Trash) "już $trash" else "${previous?.toDisplayString()} → $trash"
                             SteamIgnoreResponse(true, "$linked„$gameName”: $change")
                         }
                     }
@@ -81,7 +81,7 @@ class GamesApi : ApiModule, KoinComponent {
  * - nic nie pasuje: nowa gra z appid,
  * - kilka gier o tej nazwie (duplikaty różniące się interpunkcją) jest niejednoznaczne i nic nie zapisuje.
  *
- * NOT_PLAYING nie ma czasu gry ani ocen, więc znikają one tak samo jak przy zmianie statusu w formularzu -
+ * TRASH nie ma czasu gry ani ocen, więc znikają one tak samo jak przy zmianie statusu w formularzu -
  * inaczej taka gra liczyłaby się w statystykach najczęściej granych i najwyżej ocenianych.
  */
 private const val STEAM_IGNORE_SQL = """
@@ -113,7 +113,7 @@ WITH known AS (
      ),
      new_game AS (
          INSERT INTO games.games (name, status)
-             SELECT @name, 'NOT_PLAYING'::games.game_status
+             SELECT @name, 'TRASH'::games.game_status
              FROM decision
              WHERE result = 'CREATED'
              RETURNING id
@@ -129,9 +129,9 @@ WITH known AS (
      ),
      updated_status AS (
          UPDATE games.games
-             SET status = 'NOT_PLAYING'
+             SET status = 'TRASH'
              WHERE id IN (SELECT id FROM existing)
-               AND status <> 'NOT_PLAYING'
+               AND status <> 'TRASH'
      ),
      deleted_play_time AS (
          DELETE FROM games.play_time

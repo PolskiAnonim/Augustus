@@ -164,10 +164,16 @@ class ReportHandler(
             }
         }
 
+        // Układ mógł powstać przy innym zestawie kolumn. Kolumny dodane później trafiają na koniec jako ukryte,
+        // bo zarządzanie kolumnami pokazuje tylko columnKeysOrder i inaczej nie dałoby się ich włączyć.
+        val allColumnKeys = reportStructure.getAllColumns().keys
+        val columnOrder = configuration.columnOrder.filter { it in allColumnKeys } +
+                (allColumnKeys - configuration.columnOrder.toSet())
+
         return state.copy(
             pagination = state.pagination.copy(currentPage = 0, pageSize = configuration.pageSize),
             visibleColumns = configuration.visibleColumns.toSet(),
-            columnKeysOrder = configuration.columnOrder,
+            columnKeysOrder = columnOrder,
             sortOrder = configuration.sortOrder.map { (columnName, sortDirection) -> columnName to sortDirection },
             filterData = newFilterDataMap
         )

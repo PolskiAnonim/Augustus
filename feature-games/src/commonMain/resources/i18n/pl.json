@@ -57,7 +57,9 @@
     "newSeries": "Nowa seria",
     "title": "Gry",
     "addGameInSeries": "Dodaj nową grę w serii",
-    "viewGames": "Zobacz gry"
+    "viewGames": "Zobacz gry",
+    "createdAt": "Data dodania",
+    "updatedAt": "Data aktualizacji"
   },
   "series": {
     "basicInfo": "Informacje o serii",
@@ -95,7 +97,7 @@
   },
   "status": {
     "endless": "Gra bez końca",
-    "notPlaying": "Nie gram",
+    "trash": "Śmieć",
     "played": "Grałem",
     "playing": "Gram",
     "toPlay": "Do zagrania"
