@@ -2,6 +2,7 @@ package org.octavius.report.filter.data.type
 
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import org.octavius.report.DateTimeFilterDataType
@@ -43,9 +44,9 @@ data class DateTimeFilterData<T : Any>(
                 kClass = kClass,
                 adapter = adapter,
                 filterType = data["filterType"]!!.jsonPrimitive.content.let { DateTimeFilterDataType.valueOf(it) },
-                value = data["value"]?.jsonPrimitive?.content?.takeIf { it.isNotEmpty() }?.let { adapter.deserialize(it) }, // Użyj adaptera do parsowania ze stringa
-                minValue = data["minValue"]?.jsonPrimitive?.content?.takeIf { it.isNotEmpty() }?.let { adapter.deserialize(it) },
-                maxValue = data["maxValue"]?.jsonPrimitive?.content?.takeIf { it.isNotEmpty() }?.let { adapter.deserialize(it) },
+                value = data["value"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotEmpty() }?.let { adapter.deserialize(it) }, // Użyj adaptera do parsowania ze stringa
+                minValue = data["minValue"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotEmpty() }?.let { adapter.deserialize(it) },
+                maxValue = data["maxValue"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotEmpty() }?.let { adapter.deserialize(it) },
                 nullHandling = data["nullHandling"]!!.jsonPrimitive.content.let { NullHandling.valueOf(it) },
                 mode = data["mode"]!!.jsonPrimitive.content.let { FilterMode.valueOf(it) }
             )
