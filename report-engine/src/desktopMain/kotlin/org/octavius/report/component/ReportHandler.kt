@@ -124,8 +124,12 @@ class ReportHandler(
 
             _state.value = _state.value.copy(isLoading = true, error = null)
 
-            // Wywołujemy naszą nową, bezpieczną metodę. Ona już nie rzuca wyjątków.
+            // Błąd bazy wraca jako ReportDataResult.Failure, nie wyjątkiem.
             val result = dataManager.fetchData(state)
+
+            // Zapytanie blokuje, więc anulowanie go nie przerywa. Job anulowany w trakcie, bo przyszło nowsze
+            // zapytanie, kończy się tutaj i nie nadpisuje jego wyniku.
+            ensureActive()
 
             when (result) {
                 is ReportDataResult.Success -> {
@@ -150,10 +154,13 @@ class ReportHandler(
     //-------------------------------------------Configuration----------------------------------------------------------
 
     private fun applyConfiguration(state: ReportState, configuration: ReportConfiguration): ReportState {
+        // Układ mógł powstać przy innym zestawie kolumn. Filtry, sortowanie i widoczność kolumn, których już nie
+        // ma, odpadają.
+        val allColumnKeys = reportStructure.getAllColumns().keys
 
         // Deserializuj filtry, tworząc nową mapę stanów filtrów
         val newFilterDataMap = state.filterData.toMutableMap()
-        configuration.filters.forEach { filterConfig ->
+        configuration.filters.filter { it.columnName in allColumnKeys }.forEach { filterConfig ->
             val columnKey = filterConfig.columnName
             val column = reportStructure.getColumn(columnKey)
 
@@ -164,17 +171,17 @@ class ReportHandler(
             }
         }
 
-        // Układ mógł powstać przy innym zestawie kolumn. Kolumny dodane później trafiają na koniec jako ukryte,
-        // bo zarządzanie kolumnami pokazuje tylko columnKeysOrder i inaczej nie dałoby się ich włączyć.
-        val allColumnKeys = reportStructure.getAllColumns().keys
+        // Kolumny dodane później trafiają na koniec jako ukryte, bo zarządzanie kolumnami pokazuje tylko
+        // columnKeysOrder i inaczej nie dałoby się ich włączyć.
         val columnOrder = configuration.columnOrder.filter { it in allColumnKeys } +
                 (allColumnKeys - configuration.columnOrder.toSet())
 
         return state.copy(
             pagination = state.pagination.copy(currentPage = 0, pageSize = configuration.pageSize),
-            visibleColumns = configuration.visibleColumns.toSet(),
+            visibleColumns = configuration.visibleColumns.filter { it in allColumnKeys }.toSet(),
             columnKeysOrder = columnOrder,
-            sortOrder = configuration.sortOrder.map { (columnName, sortDirection) -> columnName to sortDirection },
+            sortOrder = configuration.sortOrder.filter { it.columnName in allColumnKeys }
+                .map { (columnName, sortDirection) -> columnName to sortDirection },
             filterData = newFilterDataMap
         )
     }
