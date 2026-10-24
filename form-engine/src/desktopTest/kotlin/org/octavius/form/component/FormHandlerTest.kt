@@ -3,9 +3,12 @@ package org.octavius.form.component
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import org.octavius.dialog.GlobalDialogManager
 import org.octavius.form.control.base.ComparisonType
 import org.octavius.form.control.base.Control
 import org.octavius.form.control.base.ControlDependency
@@ -17,16 +20,20 @@ import org.octavius.form.control.base.getCurrent
 import org.octavius.form.control.base.getCurrentAs
 import org.octavius.form.control.base.getInitial
 import org.octavius.form.control.type.container.SectionControl
+import org.octavius.form.control.type.datetime.DateControl
+import org.octavius.form.control.type.number.DoubleControl
+import org.octavius.form.control.type.number.IntegerControl
 import org.octavius.form.control.type.primitive.StringControl
 import org.octavius.form.control.type.repeatable.RepeatableControl
 import org.octavius.form.control.type.repeatable.RepeatableResultValue
 import org.octavius.form.control.type.repeatable.RepeatableRow
+import java.math.BigDecimal
 
 class FormHandlerTest {
 
     private fun handler(
         controls: Map<String, Control<*>>,
-        initData: Map<String, Any?> = emptyMap(),
+        initData: Map<String, Any?>? = emptyMap(),
         validator: FormValidator = FormValidator(),
         save: (FormResultData) -> Boolean
     ) = FormHandler(
@@ -257,5 +264,90 @@ class FormHandlerTest {
         assertThatThrownBy { runBlocking { handler.triggerAction("save", validates = true) } }
             .isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("titlePl")
+    }
+
+    // Wczytuje formularz i oddaje etap wczytywania razem z treścią dialogu, który przy tym wyskoczył (null - żaden).
+    private fun loadWithDialog(handler: () -> FormHandler): Pair<FormLoadState, String?> {
+        GlobalDialogManager.dismiss()
+        val loadState = handler().loadState.value
+        return loadState to GlobalDialogManager.dialogConfig.value?.text
+    }
+
+    @Test
+    fun `value of wrong type fails the load with the control path`() {
+        val (loadState, dialog) = loadWithDialog {
+            handler(
+                controls = mapOf("play" to SectionControl(controls = mapOf("hours" to DoubleControl(null)), label = "czas")),
+                // numeric z bazy przychodzi jako BigDecimal, nie Double
+                initData = mapOf("play/hours" to BigDecimal("12.50"))
+            ) { true }
+        }
+
+        assertThat(loadState).isEqualTo(FormLoadState.Failed)
+        assertThat(dialog).contains("InitDataException", "'play/hours'", "BigDecimal", "DoubleControl")
+    }
+
+    @Test
+    fun `field of repeatable row with wrong type fails the load with its schema path`() {
+        val (loadState, dialog) = loadWithDialog {
+            handler(
+                controls = mapOf("items" to RepeatableControl(mapOf("count" to IntegerControl(null)), listOf("count"), null)),
+                initData = mapOf("items" to listOf(mapOf("count" to 5L)))
+            ) { true }
+        }
+
+        assertThat(loadState).isEqualTo(FormLoadState.Failed)
+        assertThat(dialog).contains("'items/count'", "Long")
+    }
+
+    @Test
+    fun `repeatable given something other than rows fails the load`() {
+        val (loadState, dialog) = loadWithDialog {
+            handler(
+                controls = mapOf("items" to RepeatableControl(mapOf("name" to StringControl(null)), listOf("name"), null)),
+                initData = mapOf("items" to "nie wiersze")
+            ) { true }
+        }
+
+        assertThat(loadState).isEqualTo(FormLoadState.Failed)
+        assertThat(dialog).contains("'items'")
+    }
+
+    @Test
+    fun `key without a control in a repeatable row fails the load`() {
+        val (loadState, dialog) = loadWithDialog {
+            handler(
+                controls = mapOf("items" to RepeatableControl(mapOf("name" to StringControl(null)), listOf("name"), null)),
+                initData = mapOf("items" to listOf(mapOf("nmae" to "literówka")))
+            ) { true }
+        }
+
+        assertThat(loadState).isEqualTo(FormLoadState.Failed)
+        assertThat(dialog).contains("'items/nmae'")
+    }
+
+    @Test
+    fun `date control accepts only the type of its adapter`() {
+        val controls = mapOf("date" to DateControl(null))
+
+        val (dateState, _) = loadWithDialog { handler(controls, mapOf("date" to LocalDate(2026, 10, 24))) { true } }
+        val (dateTimeState, dialog) = loadWithDialog {
+            handler(controls, mapOf("date" to LocalDateTime(2026, 10, 24, 12, 0))) { true }
+        }
+
+        assertThat(dateState).isEqualTo(FormLoadState.Loaded)
+        assertThat(dateTimeState).isEqualTo(FormLoadState.Failed)
+        assertThat(dialog).contains("'date'", "LocalDateTime")
+    }
+
+    @Test
+    fun `null from initData fails the load without a second dialog`() {
+        // null to porażka, którą data manager już pokazał - silnik nie dokłada dialogu nieobsłużonego wyjątku.
+        val (loadState, dialog) = loadWithDialog {
+            handler(controls = mapOf("name" to StringControl(null)), initData = null) { true }
+        }
+
+        assertThat(loadState).isEqualTo(FormLoadState.Failed)
+        assertThat(dialog).isNull()
     }
 }

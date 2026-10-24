@@ -93,7 +93,7 @@ class BookFormSchemaBuilder : FormSchemaBuilder() {
 ```kotlin
 class BookFormDataManager : FormDataManager() {
 
-    override fun initData(payload: Map<String, Any?>): Map<String, Any?> {
+    override fun initData(payload: Map<String, Any?>): Map<String, Any?>? {
         return loadData(payload["id"]) {
             from("books", "b")
             map("title")
@@ -165,8 +165,8 @@ AppRouter.navigateTo(BookFormScreen.create(bookId))
 Anything that can render a composable works just as well — a dialog, a second window, a tab host.
 
 `FormHandler` loads the initial data asynchronously and owns `FormState`, `ErrorManager` and the wiring between
-controls; `FormView` shows a spinner while `isLoading` is true and blocks input behind an overlay while an
-action is running (`actionTriggered`).
+controls; `FormView` shows a spinner while `loadState` is `Loading`, a "could not load" message instead of the
+controls once it is `Failed`, and blocks input behind an overlay while an action is running (`actionTriggered`).
 
 `triggerAction` returns `true` when the action ran and reported success. That single boolean is everything the
 engine hands back — what happens next (closing the screen, going somewhere else) is decided by the button's
@@ -177,7 +177,7 @@ lambda, which is application code and already knows the router.
 The `loadData` function provides a DSL for loading form data:
 
 ```kotlin
-override fun initData(payload: Map<String, Any?>): Map<String, Any?> {
+override fun initData(payload: Map<String, Any?>): Map<String, Any?>? {
     return loadData(payload["id"]) {
         // Main table
         from("books", "b")
@@ -213,6 +213,43 @@ no declared type covers. `orderBy` lands inside that subquery verbatim, and the 
 repeatable shows rows in that order. `id` is assumed as the main table's primary key; override it with `idColumn("uuid")`
 if it's named differently. If `id` (the value passed to `loadData`) is `null`, loading is skipped and an empty
 map is returned — the natural path for a "new record" form.
+
+If the query fails, or no row matches the `id`, `loadData` shows a dialog with the reason and returns `null`.
+`initData` passes it on and the form ends in `FormLoadState.Failed`:
+
+```kotlin
+override fun initData(payload: Map<String, Any?>): Map<String, Any?>? {
+    val loaded = loadBookData(payload["id"]) ?: return null
+    return defaults + loaded + payload
+}
+```
+
+### Initial data must fit the schema
+
+Every key returned by `initData` has to name a control, and every non-null value has to be one the control
+accepts (`Control.acceptsInitValue`). Otherwise loading throws `InitDataException` with the schema path of the
+value, e.g. `"basic_info/status"`, or `"publications/status"` for a field of repeatable rows.
+
+| Control | Accepts | Typical PostgreSQL column |
+|---|---|---|
+| `StringControl`, `MultilineStringControl` | `String` | `text`, `varchar` |
+| `IntegerControl` | `Int` | `integer` (`smallint` reads as `Short`, `bigint` as `Long` — neither fits) |
+| `DoubleControl` | `Double` | `double precision` (`real` reads as `Float`) |
+| `BigDecimalControl` | `BigDecimal` | `numeric` |
+| `CheckboxControl`, `SwitchControl` | `Boolean` | `boolean` |
+| `DateTimeControl<T>` | the adapter's `valueClass` | `date`, `time`, `timestamp`, `timestamptz` |
+| `IntervalControl` | `kotlin.time.Duration` | `interval` (through the application's converter) |
+| `EnumControl<T>` | a constant of `T` | the enum type registered with `@PgEnumType` |
+| `DatabaseControl` | `Int` | the `integer` key of the related row |
+| `RadioGroupControl<T>` | one of its option values | — |
+| `CheckboxGroupControl<T>` | a list of its option values | — |
+| `StringListControl` | `List<String>` | `text[]` |
+| `FilePickerControl<T>` | `String` (`PATH_STRING`) or `ByteArray` (`CONTENT_BYTES`) | `text` / `bytea` |
+| `RepeatableControl` | a list of row maps, as `mapRelatedList` returns them | — |
+| `SectionControl` | nothing under its own name — its fields go under `section/field` paths | — |
+| `ButtonControl` | nothing | — |
+
+Values are not converted: a `numeric` column under a `DoubleControl` fails.
 
 ## Dependencies
 
@@ -408,8 +445,9 @@ The active language is global —
 form-engine/
 ├── component/
 │   ├── FormSchema.kt          # FormSchema + FormSchemaBuilder (template method)
-│   ├── FormState.kt           # Reactive per-control state, keyed by hierarchical path
+│   ├── FormState.kt           # Reactive per-control state, keyed by hierarchical path; FormLoadState
 │   ├── FormHandler.kt         # Orchestrates load → validate → action
+│   ├── InitDataException.kt   # initData that does not fit the schema (unknown key, value the control rejects)
 │   ├── FormActionTrigger.kt   # triggerAction(actionKey, validates): Boolean — the whole outward contract
 │   ├── FormView.kt            # Composable rendering content + action bar
 │   ├── FormDataManager.kt     # initData() / definedFormActions() contract

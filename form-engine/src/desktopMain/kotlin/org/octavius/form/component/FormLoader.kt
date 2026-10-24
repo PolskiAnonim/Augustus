@@ -6,6 +6,8 @@ import io.github.octaviusframework.identifier.CaseConvention
 import io.github.octaviusframework.identifier.CaseConverter
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
+import org.octavius.form.localization.FormTr
+import org.octavius.localization.Tr
 
 // --- Główne klasy DSL ---
 
@@ -208,7 +210,14 @@ class DataLoaderBuilder(private val db: OctaviusClient) : MappingContainer {
         this.idColumn = name
     }
 
-    fun execute(id: Any?): Map<String, Any?> {
+    /**
+     * Wczytuje rekord o [id] jednym zapytaniem.
+     *
+     * @return Wartości pod nazwami kontrolek albo pusta mapa, gdy [id] to `null` (nowy rekord).
+     *   `null`, gdy wczytanie się nie udało: baza zgłosiła błąd albo rekordu o tym id nie ma. Powód
+     *   pokazuje dialog.
+     */
+    fun execute(id: Any?): Map<String, Any?>? {
         check(::mainTableName.isInitialized) { "Main table must be defined using from()" }
         if (id == null) return emptyMap()
 
@@ -226,10 +235,13 @@ class DataLoaderBuilder(private val db: OctaviusClient) : MappingContainer {
             .asResult().fetchObject<Map<String, Any?>>("id" to id)
 
         return when (query) {
-            is DataResult.Success -> query.value ?: emptyMap()
+            is DataResult.Success -> query.value ?: run {
+                GlobalDialogManager.show(ErrorDialogConfig(Tr.Dialog.error(), FormTr.Form.Load.notFound(id)))
+                null
+            }
             is DataResult.Failure -> {
                 GlobalDialogManager.show(ErrorDialogConfig(query.error))
-                emptyMap()
+                null
             }
         }
     }

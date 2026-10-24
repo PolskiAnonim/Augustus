@@ -18,8 +18,8 @@ class GameCategoryDataManager : FormDataManager() {
 
     override fun initData(
         payload: Map<String, Any?>
-    ): Map<String, Any?> {
-        val loadedData = loadData(payload["id"])
+    ): Map<String, Any?>? {
+        val loadedData = loadData(payload["id"]) ?: return null
         return loadedData + payload
     }
 

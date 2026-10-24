@@ -26,6 +26,8 @@ class DoubleControl(
 ) {
     override val validator: ControlValidator<Double> = DoubleValidator(validationOptions)
 
+    override fun acceptsInitValue(value: Any) = value is Double
+
     override fun parseValue(text: String): Double? {
         val cleanText = text.replace(",", ".")
         val doubleValue = cleanText.toDoubleOrNull()

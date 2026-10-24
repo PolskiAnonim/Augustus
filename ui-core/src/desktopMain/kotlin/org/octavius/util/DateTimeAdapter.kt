@@ -2,6 +2,7 @@ package org.octavius.util
 
 import kotlinx.datetime.*
 import kotlinx.datetime.format.char
+import kotlin.reflect.KClass
 import kotlin.time.Instant
 
 private val DATE_FORMAT = LocalDate.Format {
@@ -35,6 +36,8 @@ data class DateTimePickerState(
 )
 
 interface DateTimeAdapter<T : Any> {
+    /** Klasa wartości, po której kontrolka formularza sprawdza wartość początkową - [T] jest wymazane. */
+    val valueClass: KClass<T>
     val requiredComponents: Set<DateTimeComponent>
     fun format(value: T?): String
     fun getComponents(value: T?): DateTimePickerState
@@ -46,6 +49,7 @@ interface DateTimeAdapter<T : Any> {
 
 // --- Konkretne Implementacje ---
 object DateAdapter : DateTimeAdapter<LocalDate> {
+    override val valueClass = LocalDate::class
     override val requiredComponents = setOf(DateTimeComponent.DATE)
     override fun format(value: LocalDate?) = value?.format(DATE_FORMAT) ?: ""
     override fun getComponents(value: LocalDate?) = DateTimePickerState(date = value)
@@ -56,6 +60,7 @@ object DateAdapter : DateTimeAdapter<LocalDate> {
 }
 
 object LocalTimeAdapter : DateTimeAdapter<LocalTime> {
+    override val valueClass = LocalTime::class
     override val requiredComponents = setOf(DateTimeComponent.TIME)
     override fun format(value: LocalTime?) = value?.format(TIME_FORMAT) ?: ""
     override fun getComponents(value: LocalTime?) = DateTimePickerState(time = value)
@@ -66,6 +71,7 @@ object LocalTimeAdapter : DateTimeAdapter<LocalTime> {
 }
 
 object LocalDateTimeAdapter : DateTimeAdapter<LocalDateTime> {
+    override val valueClass = LocalDateTime::class
     override val requiredComponents = setOf(DateTimeComponent.DATE, DateTimeComponent.TIME)
     override fun format(value: LocalDateTime?) = value?.format(DATE_TIME_FORMAT) ?: ""
     override fun getComponents(value: LocalDateTime?) = DateTimePickerState(
@@ -85,6 +91,7 @@ object LocalDateTimeAdapter : DateTimeAdapter<LocalDateTime> {
  * UI pokaże datę, czas i offset, co daje użytkownikowi pełen kontekst.
  */
 class InstantAdapter(private val timeZone: TimeZone = TimeZone.currentSystemDefault()) : DateTimeAdapter<Instant> {
+    override val valueClass = Instant::class
     override val requiredComponents = setOf(DateTimeComponent.DATE, DateTimeComponent.TIME)
     override fun format(value: Instant?): String {
         return value?.let {

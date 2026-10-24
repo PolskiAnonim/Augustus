@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import kotlinx.coroutines.*
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
+import org.octavius.error.showUnhandledError
 import org.octavius.form.control.base.Control
 import org.octavius.form.control.base.ControlState
 import org.octavius.form.control.base.FormResultData
@@ -45,7 +46,7 @@ class FormHandler(
     internal val errorManager: ErrorManager = ErrorManager { path -> formState.getControlState(path) != null }
     private val formSchema: FormSchema = formSchemaBuilder.build()
 
-    val isLoading: State<Boolean> get() = formState.isLoading
+    val loadState: State<FormLoadState> get() = formState.loadState
     val actionTriggered: State<Boolean> get() = formState.actionTriggered
 
     init {
@@ -77,19 +78,28 @@ class FormHandler(
     internal fun getControlState(name: String): ControlState<*>? = formState.getControlState(name)
 
     /**
-     * Asynchronicznie ładuje dane dla edytowanej encji z bazy danych i inicjalizuje stan formularza.
+     * Asynchronicznie pobiera wartości początkowe z [FormDataManager.initData] (w `handlerScope`)
+     * i zakłada z nich stany kontrolek.
      *
-     * Proces ładowania:
-     * 1. Ustawia flagę isLoading na true
-     * 2. Pobiera wartości inicjalne z FormDataManager (w Dispatchers.IO)
-     * 3. Inicjalizuje stany wszystkich kontrolek
-     * 4. Ustawia flagę isLoading na false
+     * Każda porażka kończy się [FormLoadState.Failed]:
+     * - `null` z `initData` to porażka oczekiwana (baza), którą data manager już pokazał;
+     * - wyjątek to błąd w kodzie formularza, np. [InitDataException] przy danych niepasujących do
+     *   schematu, więc idzie do dialogu nieobsłużonego wyjątku i do logu.
      */
     private fun loadData() {
         handlerScope.launch {
-            val initValues = formDataManager.initData(payload)
-            formState.initializeStates(formSchema, initValues)
-            formState.isLoading.value = false
+            formState.loadState.value = try {
+                val initValues = formDataManager.initData(payload)
+                if (initValues == null) {
+                    FormLoadState.Failed
+                } else {
+                    formState.initializeStates(formSchema, initValues)
+                    FormLoadState.Loaded
+                }
+            } catch (e: Exception) {
+                showUnhandledError(e)
+                FormLoadState.Failed
+            }
         }
     }
 

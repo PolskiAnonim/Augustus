@@ -66,9 +66,9 @@ class GameFormDataManager : FormDataManager() {
         }
     }
 
-    override fun initData(payload: Map<String, Any?>): Map<String, Any?> {
+    override fun initData(payload: Map<String, Any?>): Map<String, Any?>? {
         val loadedId = payload["id"]
-        val loadedData = loadGameData(loadedId)
+        val loadedData = loadGameData(loadedId) ?: return null
 
         val defaultData = if (loadedId == null) {
             mapOf(

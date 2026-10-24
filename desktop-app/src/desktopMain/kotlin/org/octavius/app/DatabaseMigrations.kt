@@ -20,8 +20,7 @@ private const val HISTORY_TABLE = "octavius_migration_history"
  *
  * Osobne historie są po to, żeby feature nie musiał być wszędzie: może leżeć na gałęzi albo w katalogu,
  * którego nie ma na GitHubie. Baza, która wykonała jego migracje, dalej startuje z kodem bez niego, bo
- * jego historii nikt wtedy nie czyta. We wspólnej historii jego wiersze byłyby dla reszty migracjami bez
- * pliku i start by stanął, a jego wersje przeplatałyby się z wersjami reszty (out of order).
+ * jego historii nikt wtedy nie czyta.
  *
  * @param featureSchemas Schematy featurów w kolejności featurów, bez `public`.
  */

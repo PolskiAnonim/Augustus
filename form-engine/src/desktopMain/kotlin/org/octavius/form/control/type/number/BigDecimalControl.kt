@@ -27,6 +27,8 @@ class BigDecimalControl(
 ) {
     override val validator: ControlValidator<BigDecimal> = BigDecimalValidator(validationOptions)
 
+    override fun acceptsInitValue(value: Any) = value is BigDecimal
+
     override fun parseValue(text: String): BigDecimal? {
         // Zapewniamy obsługę zarówno kropki jak i przecinka jako separatora dziesiętnego
         val cleanText = text.replace(",", ".")

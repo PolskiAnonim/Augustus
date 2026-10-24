@@ -22,10 +22,8 @@ import org.octavius.report.ui.table.ReportTable
 /**
  * UI raportu - renderuje tabelę, filtry i paginację na podstawie [ReportHandler].
  *
- * Wcześniej była to klasa `ReportScreen` implementująca `org.octavius.navigation.Screen` - to było
- * jedyne powiązanie report-engine z nawigacją. Tytuł ekranu należy do nawigacji, nie do silnika,
- * więc moduł znający nawigację opakowuje to wywołaniem
- * `ComponentScreen(title) { ReportView(reportHandler) }`.
+ * Tytuł ekranu należy do nawigacji, nie do silnika, więc moduł znający nawigację opakowuje to
+ * wywołaniem `ComponentScreen(title) { ReportView(reportHandler) }`.
  */
 @Composable
 fun ReportView(reportHandler: ReportHandler) {

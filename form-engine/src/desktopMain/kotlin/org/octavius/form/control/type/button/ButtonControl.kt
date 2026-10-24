@@ -37,6 +37,9 @@ class ButtonControl(
     hasStandardLayout = false, // Pełna kontrola nad renderowaniem
     actions = actions
 ) {
+    // Przycisk nie ma wartości, więc nic nie jest jego wartością początkową.
+    override fun acceptsInitValue(value: Any) = false
+
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<Unit>, isRequired: Boolean) {
         val scope = rememberSupervisedCoroutineScope()

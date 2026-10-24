@@ -26,7 +26,6 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
 
     private fun buildGameStatisticsQuery(): String {
         // --- CTE 1: kpi_stats ---
-        // Bez zmian, było idealnie.
         val kpiStatsQuery = db.select(
             "COUNT(*) AS total_games",
             "(SELECT time_played FROM games.time_played) AS total_playtime_hours",

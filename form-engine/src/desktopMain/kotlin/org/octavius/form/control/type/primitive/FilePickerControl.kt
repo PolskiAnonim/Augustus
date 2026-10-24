@@ -56,6 +56,11 @@ class FilePickerControl<T : Any>(
     actions: List<ControlAction<T>>? = null
 ) : Control<T>(label, required, dependencies, hasStandardLayout = true, actions = actions) {
 
+    override fun acceptsInitValue(value: Any) = when (mode) {
+        FilePickerMode.PATH_STRING -> value is String
+        FilePickerMode.CONTENT_BYTES -> value is ByteArray
+    }
+
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<T>, isRequired: Boolean) {

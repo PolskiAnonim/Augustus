@@ -62,7 +62,7 @@ internal fun createRow(
     values: Map<String, Any?> = emptyMap()
 ): RepeatableRow {
     val row = RepeatableRow(index = index)
-    formState.initializeLevel(rowContexts(parentContext, row, rowControls), values)
+    formState.initializeLevel(parentContext.fullControlPath, rowContexts(parentContext, row, rowControls), values)
     return row
 }
 

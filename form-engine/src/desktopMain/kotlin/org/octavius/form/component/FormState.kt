@@ -22,10 +22,10 @@ import org.octavius.form.control.base.*
 class FormState {
 
     /**
-     * Flaga ładowania danych formularza (initData).
-     * True podczas początkowego pobierania danych z bazy.
+     * Etap wczytywania danych początkowych (initData). Dopóki nie jest [FormLoadState.Loaded],
+     * kontrolki nie mają stanów, więc nie ma czego rysować.
      */
-    val isLoading = mutableStateOf(true)
+    val loadState = mutableStateOf(FormLoadState.Loading)
 
     /**
      * Flaga wysyłania formularza (triggerAction).
@@ -53,9 +53,10 @@ class FormState {
      *
      * @param schema Schemat formularza z definicjami kontrolek.
      * @param initValues Mapa wartości początkowych (klucz = nazwa kontrolki).
+     * @throws InitDataException gdy wartości nie pasują do schematu.
      */
     internal fun initializeStates(schema: FormSchema, initValues: Map<String, Any?>) {
-        initializeLevel(schema.rootContexts(), initValues)
+        initializeLevel("", schema.rootContexts(), initValues)
     }
 
     /**
@@ -64,9 +65,19 @@ class FormState {
      *
      * Pola sekcji przychodzą pod ścieżkami (`"basic_info/name"`), bo tak oddaje je `loadData` i tylko
      * wtedy łączenie wartości domyślnych, z bazy i z payloadu zwykłym `+` nie gubi pól.
+     *
+     * Każda wartość musi trafić w kontrolkę tego poziomu.
+     *
+     * @param levelPath Ścieżka poziomu w schemacie (`""` dla korzenia, `"basic_info"`, `"publications"`),
+     *   do komunikatów o błędach.
+     * @throws InitDataException gdy wartość nie trafia w żadną kontrolkę albo kontrolka jej nie przyjmuje.
      */
-    internal fun initializeLevel(controls: List<Pair<ControlContext, Control<*>>>, values: Map<String, Any?>) {
-        val valuesByName = valuesByName(values)
+    internal fun initializeLevel(levelPath: String, controls: List<Pair<ControlContext, Control<*>>>, values: Map<String, Any?>) {
+        val valuesByName = valuesByName(levelPath, values)
+        val controlNames = controls.map { (controlContext, _) -> controlContext.localName }.toSet()
+        valuesByName.keys.firstOrNull { it !in controlNames }?.let { name ->
+            throw InitDataException(pathIn(levelPath, name), "w formularzu nie ma takiej kontrolki")
+        }
         controls.forEach { (controlContext, control) ->
             _controlStates[controlContext.fullStatePath] = control.setInitValue(controlContext, valuesByName[controlContext.localName])
         }
@@ -74,20 +85,25 @@ class FormState {
 
     // Grupuje ścieżki po pierwszym segmencie: "basic_info/name" trafia do mapy "basic_info" jako "name".
     // Głębsze segmenty rozłoży kolejny poziom, gdy sekcja przekaże mu swoją mapę.
-    private fun valuesByName(values: Map<String, Any?>): Map<String, Any?> {
+    private fun valuesByName(levelPath: String, values: Map<String, Any?>): Map<String, Any?> {
         return values.entries.groupBy { it.key.substringBefore(PathResolver.SEPARATOR) }.mapValues { (name, entries) ->
+            val path = pathIn(levelPath, name)
             val ownValue = entries.singleOrNull { it.key == name }
             // Żadna kontrolka nie trzyma mapy, więc mapa pod gołą nazwą to sekcja podana w całości.
             // `+` na takich mapach podmienia całą sekcję, czyli po cichu gubi pola - stąd tylko ścieżki.
-            require(ownValue?.value !is Map<*, *>) {
-                "Wartość początkowa pod '$name' jest mapą - pola sekcji podaje się ścieżkami, np. '$name/pole'"
+            if (ownValue?.value is Map<*, *>) {
+                throw InitDataException(path, "wartość jest mapą - pola sekcji podaje się ścieżkami, np. '$path/pole'")
             }
             when {
                 ownValue == null -> entries.associate { it.key.substringAfter(PathResolver.SEPARATOR) to it.value }
                 entries.size == 1 -> ownValue.value
-                else -> throw IllegalArgumentException("Wartość początkowa jest i pod '$name', i pod ścieżkami w '$name/...'")
+                else -> throw InitDataException(path, "wartość jest i pod '$path', i pod ścieżkami w '$path/...'")
             }
         }
+    }
+
+    private fun pathIn(levelPath: String, name: String): String {
+        return if (levelPath.isEmpty()) name else "$levelPath${PathResolver.SEPARATOR}$name"
     }
 
     /**
@@ -135,4 +151,21 @@ class FormState {
             controlContext.localName to control.getResult(controlContext, _controlStates.getValue(controlContext.fullStatePath))
         }
     }
+}
+
+/**
+ * Etap wczytywania danych początkowych formularza.
+ */
+enum class FormLoadState {
+    /** `initData` jeszcze trwa. */
+    Loading,
+
+    /** Stany kontrolek są gotowe, formularz można rysować. */
+    Loaded,
+
+    /**
+     * Wczytanie się nie udało, a powód pokazał już dialog. Stanów kontrolek nie ma albo są niepełne,
+     * więc formularza nie da się narysować ani zapisać.
+     */
+    Failed
 }

@@ -35,9 +35,9 @@ class BookFormDataManager : FormDataManager() {
         }
     }
 
-    override fun initData(payload: Map<String, Any?>): Map<String, Any?> {
+    override fun initData(payload: Map<String, Any?>): Map<String, Any?>? {
         val loadedId = payload["id"]
-        val loadedData = loadBookData(loadedId)
+        val loadedData = loadBookData(loadedId) ?: return null
 
         val defaultData = if (loadedId == null) {
             mapOf(

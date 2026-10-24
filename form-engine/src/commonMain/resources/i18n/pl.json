@@ -11,6 +11,10 @@
       "noSelection": "Brak wyboru",
       "selectOption": "Wybierz opcję"
     },
+    "load": {
+      "failed": "Nie udało się wczytać formularza",
+      "notFound": "Nie znaleziono rekordu o id {0}. Mógł zostać usunięty."
+    },
     "stringList": {
       "itemPlaceholder": "Wprowadź tekst..."
     }

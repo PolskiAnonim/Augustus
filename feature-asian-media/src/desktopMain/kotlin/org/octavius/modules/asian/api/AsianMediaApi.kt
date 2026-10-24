@@ -143,10 +143,9 @@ class AsianMediaApi : ApiModule, KoinComponent {
             val plan = TransactionPlan()
 
             // Tytuły przychodzą przefiltrowane przez parser we wtyczce, ale ten filtr jest pisany
-            // na zakresach znaków i przepuszcza pisma, których nikt nie wypisał - na jednej serii
-            // były to arabski, dewanagari i gruziński. Tutaj stoi filtr na skrypcie Unicode, więc
-            // ostatnie słowo ma aplikacja. Gdyby wyciął wszystko, bierzemy to, co przyszło:
-            // kolumna jest NOT NULL, a pusta lista jest gorsza niż lista do poprawienia.
+            // na zakresach znaków i przepuszcza pisma, których nikt nie wypisał. Tutaj stoi filtr na
+            // skrypcie Unicode, więc ostatnie słowo ma aplikacja. Gdyby wyciął wszystko, bierzemy to,
+            // co przyszło: kolumna jest NOT NULL, a pusta lista jest gorsza niż lista do poprawienia.
             val titles = request.titles.filter { it.isNotBlank() && it.isLatinScript() }
                 .ifEmpty { request.titles }
 

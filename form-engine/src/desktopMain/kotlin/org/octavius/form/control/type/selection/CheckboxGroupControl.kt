@@ -33,6 +33,9 @@ class CheckboxGroupControl<T : Any>(
     actions = actions
 ) {
 
+    override fun acceptsInitValue(value: Any) =
+        value is List<*> && value.all { item -> options.any { it.value == item } }
+
     override fun copyInitToValue(value: List<T>): List<T> {
         return value.toList()
     }

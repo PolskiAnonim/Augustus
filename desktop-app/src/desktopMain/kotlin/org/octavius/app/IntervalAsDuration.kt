@@ -17,8 +17,8 @@ import kotlin.time.Duration
  *
  * Sterownik oddaje `interval` jako [PgInterval] - miesiące, dni i czas osobno, bo tyle właśnie trzyma
  * PostgreSQL i tylko tak da się to oddać bez zgadywania długości miesiąca. Report engine
- * (`IntervalColumn`, `IntervalFilter`) mówi jednak [Duration] i tak było w starej bibliotece, więc
- * spłaszczenie zostaje - po regule `justify_interval`: miesiąc to 30 dni, dzień to 24 godziny.
+ * (`IntervalColumn`, `IntervalFilter`) mówi jednak [Duration], więc konwerter spłaszcza go po regule
+ * `justify_interval`: miesiąc to 30 dni, dzień to 24 godziny.
  */
 object PgIntervalAsDurationConverter : ResultConverter<Any, Duration> {
     // Rejestr szuka konwertera po dokładnej klasie wartości, a `PgInterval` jest sealed interface -

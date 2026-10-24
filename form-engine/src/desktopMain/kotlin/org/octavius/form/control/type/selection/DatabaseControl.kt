@@ -65,6 +65,8 @@ class DatabaseControl(
 
     private val db: OctaviusClient by inject()
 
+    override fun acceptsInitValue(value: Any) = value is Int
+
     /**
      * Wołane raz na wartość, poza renderowaniem, a wynik zapisuje się w `ControlState.displayText`.
      *
@@ -93,9 +95,6 @@ class DatabaseControl(
             val search = buildSearchFilter(searchQuery)
 
             // Bierzemy jeden wiersz ponad stronę: jeśli przyszedł, to jest co doczytywać.
-            // To zastępuje osobne COUNT(*), które szło do bazy przy każdym znaku obok właściwego
-            // zapytania - a przy doczytywaniu w trakcie przewijania liczba stron i tak nie jest
-            // nigdzie pokazywana.
             val optionsResult = db.select("*").fromSubquery(query.sql)
                 .where(search.sql)
                 .orderBy("$orderBy, $idColumn")

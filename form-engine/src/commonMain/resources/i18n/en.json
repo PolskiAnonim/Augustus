@@ -11,6 +11,10 @@
       "noSelection": "No selection",
       "selectOption": "Select option"
     },
+    "load": {
+      "failed": "Could not load the form",
+      "notFound": "Record with id {0} was not found. It may have been deleted."
+    },
     "stringList": {
       "itemPlaceholder": "Enter text..."
     }

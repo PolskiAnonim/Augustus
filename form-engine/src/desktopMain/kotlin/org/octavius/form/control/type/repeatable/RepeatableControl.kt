@@ -77,10 +77,12 @@ class RepeatableControl(
         return value.map { RepeatableRow(id = it.id, index = it.index) }
     }
 
-    override fun setInitValue(controlContext: ControlContext, value: Any?): ControlState<List<RepeatableRow>> {
+    override fun acceptsInitValue(value: Any) = value is List<*> && value.all { it is Map<*, *> }
 
+    override fun setInitValue(controlContext: ControlContext, value: Any?): ControlState<List<RepeatableRow>> {
+        if (value != null) requireInitValue(controlContext, value)
         @Suppress("UNCHECKED_CAST")
-        val initialDataRows = value as? List<Map<String, Any?>> ?: emptyList()
+        val initialDataRows = value as List<Map<String, Any?>>? ?: emptyList()
 
         // 1. Utwórz wiersze i stany dla danych początkowych
         val initialModelRows = initialDataRows.mapIndexed { index, dataRow ->

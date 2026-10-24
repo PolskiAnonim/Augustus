@@ -5,17 +5,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.octavius.dialog.ErrorDialogConfig
-import org.octavius.dialog.GlobalDialogManager
 import org.octavius.error.rememberSupervisedCoroutineScope
 import org.octavius.form.component.ErrorManager
 import org.octavius.form.component.FormActionTrigger
 import org.octavius.form.component.FormSchema
 import org.octavius.form.component.FormState
+import org.octavius.form.component.InitDataException
 import org.octavius.form.control.layout.RenderFieldError
 import org.octavius.form.control.layout.RenderNormalLabel
 import org.octavius.form.control.validator.DefaultValidator
-import org.octavius.localization.Tr
 
 /**
  * Abstrakcyjna klasa bazowa dla wszystkich kontrolek formularza.
@@ -82,6 +80,7 @@ abstract class Control<T : Any> internal constructor(
      * Ustawia początkową wartość kontrolki i tworzy jej stan (`ControlState`).
      * @param value Wartość z bazy danych lub wartość domyślna.
      * @return Utworzony stan kontrolki.
+     * @throws InitDataException gdy kontrolka nie przyjmuje [value].
      */
     internal open fun setInitValue(controlContext: ControlContext, value: Any?): ControlState<T> {
         val state = ControlState<T>()
@@ -89,19 +88,31 @@ abstract class Control<T : Any> internal constructor(
             return state
         }
 
-        try {
-            @Suppress("UNCHECKED_CAST")
-            state.initValue.value = value as T
-            state.value.value = copyInitToValue(value)
-        } catch (e: ClassCastException) {
-            GlobalDialogManager.show(
-                ErrorDialogConfig(
-                    Tr.Dialog.error(),
-                    "Nie można skonwertować wartości '$value' na typ kontrolki ${this::class.simpleName}"
-                )
+        requireInitValue(controlContext, value)
+        @Suppress("UNCHECKED_CAST")
+        state.initValue.value = value as T
+        state.value.value = copyInitToValue(value)
+        return state
+    }
+
+    /**
+     * Czy [value] może być wartością początkową tej kontrolki. Dla zwykłej kontrolki to wartość typu [T]
+     * (a dla wyboru z ustalonych opcji - jedna z nich). Kontenery przyjmują dane w swoim kształcie:
+     * sekcja mapę pól, lista powtarzalna listę wierszy.
+     */
+    protected abstract fun acceptsInitValue(value: Any): Boolean
+
+    /**
+     * Rzuca [InitDataException], gdy kontrolka nie przyjmuje [value] jako wartości początkowej.
+     */
+    protected fun requireInitValue(controlContext: ControlContext, value: Any) {
+        if (!acceptsInitValue(value)) {
+            val shown = value.toString().let { if (it.length > 100) it.take(100) + "…" else it }
+            throw InitDataException(
+                controlContext.fullControlPath,
+                "wartość '$shown' (${value::class.simpleName}) nie pasuje do ${this::class.simpleName}"
             )
         }
-        return state
     }
 
     /**

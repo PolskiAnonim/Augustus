@@ -35,6 +35,8 @@ class CheckboxControl(
     hasStandardLayout = false,
     actions = actions
 ) {
+    override fun acceptsInitValue(value: Any) = value is Boolean
+
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<Boolean>, isRequired: Boolean) {
         val scope = rememberSupervisedCoroutineScope()

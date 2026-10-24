@@ -35,6 +35,8 @@ class EnumControl<T>(
     label, required, dependencies, actions
 ) where T : Enum<T>, T : EnumWithFormatter<T> {
 
+    override fun acceptsInitValue(value: Any) = enumClass.isInstance(value)
+
     // Enum nosi swoją etykietę ze sobą, więc "rozwiązanie" jest natychmiastowe - suspend bierze się
     // z kontraktu bazowego, gdzie DatabaseControl musi odpytać bazę.
     override suspend fun resolveDisplayText(value: T): String = value.toDisplayString()

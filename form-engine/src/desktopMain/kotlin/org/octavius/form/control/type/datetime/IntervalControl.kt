@@ -19,6 +19,8 @@ class IntervalControl(
 ) {
     override val validator: ControlValidator<Duration> = IntervalValidator(validationOptions)
 
+    override fun acceptsInitValue(value: Any) = value is Duration
+
     private fun formatDuration(duration: Duration?): String {
         if (duration == null) return ""
         return duration.toComponents { hours, minutes, seconds, _ ->

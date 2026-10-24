@@ -48,9 +48,12 @@ class SectionControl(
     }
 
     // Wartość sekcji to mapa jej pól, którą FormState złożył ze ścieżek `sekcja/pole`.
+    override fun acceptsInitValue(value: Any) = value is Map<*, *>
+
     override fun setInitValue(controlContext: ControlContext, value: Any?): ControlState<Unit> {
+        if (value != null) requireInitValue(controlContext, value)
         @Suppress("UNCHECKED_CAST")
-        formState.initializeLevel(childContexts(controlContext), (value as Map<String, Any?>?).orEmpty())
+        formState.initializeLevel(controlContext.fullControlPath, childContexts(controlContext), (value as Map<String, Any?>?).orEmpty())
         return ControlState()
     }
 

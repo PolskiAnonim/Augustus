@@ -17,24 +17,30 @@ import org.octavius.form.localization.FormTr
 /**
  * UI formularza - renderuje kontrolki dostarczone przez [FormHandler].
  *
- * Wcześniej była to klasa `FormScreen` implementująca `org.octavius.navigation.Screen`. Interfejs
- * `Screen` zniknął stąd celowo: tytuł ekranu i miejsce na stosie nawigacji to sprawa nawigacji,
- * a nie silnika formularzy. Moduł, który zna nawigację, opakowuje to wywołaniem
- * `ComponentScreen(title) { FormView(formHandler) }`.
+ * Tytuł ekranu i miejsce na stosie nawigacji to sprawa nawigacji, a nie silnika formularzy. Moduł,
+ * który zna nawigację, opakowuje to wywołaniem `ComponentScreen(title) { FormView(formHandler) }`.
  */
 @Composable
 fun FormView(formHandler: FormHandler) {
-    val isLoading by formHandler.isLoading
+    val loadState by formHandler.loadState
     val actionTriggered by formHandler.actionTriggered
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (isLoading) {
-            // Podczas ładowania - tylko kręciołek, bez renderowania kontrolek
+        if (loadState != FormLoadState.Loaded) {
+            // Przed wczytaniem i po nieudanym wczytaniu kontrolki nie mają stanów, więc ich nie renderujemy.
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                if (loadState == FormLoadState.Loading) {
+                    CircularProgressIndicator()
+                } else {
+                    Text(
+                        text = FormTr.Form.Load.failed(),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         } else {
             // Formularz załadowany - renderuj kontrolki

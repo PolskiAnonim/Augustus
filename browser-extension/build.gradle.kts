@@ -18,8 +18,6 @@ tasks.register("assembleBrowserExtension") {
     )
 
     val extensionDir = project.layout.buildDirectory.dir("extension")
-    // Bez wejść Gradle uznawał zadanie za aktualne, dopóki nikt nie ruszył build/extension, i nowe
-    // pliki JS nie były kopiowane.
     inputs.dir(project(":browser-extension:popup").layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable"))
     inputs.dir(project(":browser-extension:content-script").layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable"))
     inputs.dir(project(":browser-extension:background").layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable"))

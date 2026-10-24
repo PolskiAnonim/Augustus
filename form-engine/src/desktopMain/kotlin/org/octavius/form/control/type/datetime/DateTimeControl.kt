@@ -25,6 +25,8 @@ class DateTimeControl<T : Any>(
 
     override val validator: ControlValidator<T> = DateTimeValidator(validationOptions, adapter)
 
+    override fun acceptsInitValue(value: Any) = adapter.valueClass.isInstance(value)
+
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<T>, isRequired: Boolean) {
         val scope = rememberSupervisedCoroutineScope()

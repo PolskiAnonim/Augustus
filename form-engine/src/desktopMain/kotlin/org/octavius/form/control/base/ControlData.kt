@@ -107,7 +107,6 @@ typealias FormResultData = Map<String, ControlResultData>
  * Pobiera bieżącą wartość kontrolki jako określony typ `T`.
  * Obsługuje rzutowanie na typ T
  *
- * Zastępuje: `formData["name"]!!.currentValue as String`
  * Użycie: `formData.getCurrentAs<String>("basic_info/name")`
  */
 inline fun <reified T> FormResultData.getCurrentAs(path: String): T {
@@ -116,8 +115,6 @@ inline fun <reified T> FormResultData.getCurrentAs(path: String): T {
 
 /**
  * Pobiera bieżącą wartość kontrolki jako Any?. Pole ukrytej sekcji ma `null`, jak każda ukryta kontrolka.
- *
- * Zastępuje: `formData["name"]!!.currentValue`
  */
 fun FormResultData.getCurrent(path: String): Any? {
     return resultAt(path) { it.currentValue }?.currentValue
@@ -126,7 +123,6 @@ fun FormResultData.getCurrent(path: String): Any? {
 /**
  * Pobiera początkową wartość kontrolki jako określony typ `T`.
  *
- * Zastępuje: `rowData["id"]!!.initialValue!! as Int`
  * Użycie: `rowData.getInitialAs<Int>("id")`
  */
 inline fun <reified T> FormResultData.getInitialAs(path: String): T {
@@ -137,7 +133,6 @@ inline fun <reified T> FormResultData.getInitialAs(path: String): T {
  * Pobiera początkową wartość kontrolki jako Any?. Ukrycie nie zmienia wartości początkowej,
  * także w ukrytej sekcji.
  *
- * Zastępuje: `rowData["id"]!!.initialValue`
  * Użycie: `rowData.getInitial("id")`
  */
 fun FormResultData.getInitial(path: String): Any? {
