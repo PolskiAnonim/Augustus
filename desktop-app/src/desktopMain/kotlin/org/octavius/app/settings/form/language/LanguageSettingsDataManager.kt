@@ -1,8 +1,8 @@
 package org.octavius.app.settings.form.language
 
-import org.octavius.form.component.FormDataManager
-import org.octavius.form.control.base.FormResultData
-import org.octavius.form.control.base.getCurrentAs
+import io.github.octaviusframework.form.component.FormDataManager
+import io.github.octaviusframework.form.control.base.FormResultData
+import io.github.octaviusframework.form.control.base.getCurrentAs
 import org.octavius.app.settings.AppSettingsManager
 import org.octavius.app.settings.domain.AppLanguage
 

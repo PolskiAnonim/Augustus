@@ -3,10 +3,10 @@ package org.octavius.modules.games.form.category
 import io.github.octaviusframework.client.DataResult
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
-import org.octavius.form.component.FormValidator
-import org.octavius.form.control.base.FormResultData
-import org.octavius.form.control.base.getCurrent
-import org.octavius.form.control.base.getCurrentAs
+import io.github.octaviusframework.form.component.FormValidator
+import io.github.octaviusframework.form.control.base.FormResultData
+import io.github.octaviusframework.form.control.base.getCurrent
+import io.github.octaviusframework.form.control.base.getCurrentAs
 import org.octavius.modules.games.localization.GamesTr
 
 class GameCategoryValidator: FormValidator() {

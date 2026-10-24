@@ -5,10 +5,10 @@ import io.github.octaviusframework.client.dbResult
 import io.github.octaviusframework.client.transaction.TransactionPlan
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
-import org.octavius.form.component.FormDataManager
-import org.octavius.form.control.base.FormResultData
-import org.octavius.form.control.base.getCurrent
-import org.octavius.form.control.base.getInitial
+import io.github.octaviusframework.form.component.FormDataManager
+import io.github.octaviusframework.form.control.base.FormResultData
+import io.github.octaviusframework.form.control.base.getCurrent
+import io.github.octaviusframework.form.control.base.getInitial
 
 class GameSeriesFormDataManager : FormDataManager() {
     private fun loadData(loadedId: Any?) = loadData(loadedId) {

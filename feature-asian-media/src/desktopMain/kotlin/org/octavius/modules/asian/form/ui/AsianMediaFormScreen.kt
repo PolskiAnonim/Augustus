@@ -1,7 +1,7 @@
 package org.octavius.modules.asian.form.ui
 
-import org.octavius.form.component.FormHandler
-import org.octavius.form.component.FormView
+import io.github.octaviusframework.form.component.FormHandler
+import io.github.octaviusframework.form.component.FormView
 import org.octavius.modules.asian.form.AsianMediaFormDataManager
 import org.octavius.modules.asian.form.AsianMediaFormSchemaBuilder
 import org.octavius.modules.asian.form.AsianMediaValidator

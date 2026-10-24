@@ -1,7 +1,7 @@
 package org.octavius.modules.sandbox.form
 
-import org.octavius.form.component.FormDataManager
-import org.octavius.form.control.base.FormResultData
+import io.github.octaviusframework.form.component.FormDataManager
+import io.github.octaviusframework.form.control.base.FormResultData
 import org.octavius.modules.sandbox.domain.SandboxPriority
 import org.octavius.modules.sandbox.localization.SandboxTr
 import org.octavius.ui.snackbar.SnackbarManager

@@ -419,13 +419,13 @@ and action validators can query the database and attach errors to specific field
 
 The engine owns its strings. `src/commonMain/resources/i18n/{en,pl}.json` are compiled by the
 [Octavius I18n](https://github.com/Octavius-Framework/octavius-i18n) plugin into
-`org.octavius.form.localization.FormTr`, generated from this module alone:
+`io.github.octaviusframework.form.localization.FormTr`, generated from this module alone:
 
 ```kotlin
 octaviusI18n {
     generators {
         create("form") {
-            targetPackage = "org.octavius.form.localization"
+            targetPackage = "io.github.octaviusframework.form.localization"
             objectName = "FormTr"
         }
     }

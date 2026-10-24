@@ -6,16 +6,16 @@ import org.octavius.dialog.DialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.feature.books.domain.ReadingStatus
 import org.octavius.feature.books.localization.BooksTr
-import org.octavius.form.component.FormSchemaBuilder
-import org.octavius.form.control.base.*
-import org.octavius.form.control.type.button.ButtonControl
-import org.octavius.form.control.type.button.ButtonType
-import org.octavius.form.control.type.container.SectionControl
-import org.octavius.form.control.type.number.IntegerControl
-import org.octavius.form.control.type.primitive.StringControl
-import org.octavius.form.control.type.repeatable.RepeatableControl
-import org.octavius.form.control.type.selection.DatabaseControl
-import org.octavius.form.control.type.selection.EnumControl
+import io.github.octaviusframework.form.component.FormSchemaBuilder
+import io.github.octaviusframework.form.control.base.*
+import io.github.octaviusframework.form.control.type.button.ButtonControl
+import io.github.octaviusframework.form.control.type.button.ButtonType
+import io.github.octaviusframework.form.control.type.container.SectionControl
+import io.github.octaviusframework.form.control.type.number.IntegerControl
+import io.github.octaviusframework.form.control.type.primitive.StringControl
+import io.github.octaviusframework.form.control.type.repeatable.RepeatableControl
+import io.github.octaviusframework.form.control.type.selection.DatabaseControl
+import io.github.octaviusframework.form.control.type.selection.EnumControl
 import org.octavius.localization.Tr
 import org.octavius.navigation.AppRouter
 

@@ -2,8 +2,8 @@ package org.octavius.app.settings.form.language
 
 import org.octavius.app.localization.AppTr
 import org.octavius.app.settings.AppSettingsManager
-import org.octavius.form.component.FormHandler
-import org.octavius.form.component.FormView
+import io.github.octaviusframework.form.component.FormHandler
+import io.github.octaviusframework.form.component.FormView
 import org.octavius.navigation.ComponentScreen
 import org.octavius.navigation.Screen
 

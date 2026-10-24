@@ -4,8 +4,8 @@ import org.octavius.feature.books.form.author.BookAuthorDataManager
 import org.octavius.feature.books.form.author.BookAuthorSchemaBuilder
 import org.octavius.feature.books.form.author.BookAuthorValidator
 import org.octavius.feature.books.localization.BooksTr
-import org.octavius.form.component.FormHandler
-import org.octavius.form.component.FormView
+import io.github.octaviusframework.form.component.FormHandler
+import io.github.octaviusframework.form.component.FormView
 import org.octavius.navigation.ComponentScreen
 import org.octavius.navigation.Screen
 

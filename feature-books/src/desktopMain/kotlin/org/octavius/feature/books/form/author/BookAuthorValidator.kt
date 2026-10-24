@@ -6,9 +6,9 @@ import io.github.octaviusframework.client.query.withParam
 import org.octavius.dialog.ErrorDialogConfig
 import org.octavius.dialog.GlobalDialogManager
 import org.octavius.feature.books.localization.BooksTr
-import org.octavius.form.component.FormValidator
-import org.octavius.form.control.base.FormResultData
-import org.octavius.form.control.base.getCurrentAs
+import io.github.octaviusframework.form.component.FormValidator
+import io.github.octaviusframework.form.control.base.FormResultData
+import io.github.octaviusframework.form.control.base.getCurrentAs
 
 class BookAuthorValidator : FormValidator() {
 

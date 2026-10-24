@@ -49,7 +49,7 @@ tasks.withType<Test> {
 octaviusI18n {
     generators {
         create("form") {
-            targetPackage = "org.octavius.form.localization"
+            targetPackage = "io.github.octaviusframework.form.localization"
             objectName = "FormTr"
         }
     }

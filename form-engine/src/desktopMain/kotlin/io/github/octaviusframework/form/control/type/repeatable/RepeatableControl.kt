@@ -1,0 +1,184 @@
+package io.github.octaviusframework.form.control.type.repeatable
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import io.github.octaviusframework.form.component.ErrorManager
+import io.github.octaviusframework.form.component.FormActionTrigger
+import io.github.octaviusframework.form.component.FormSchema
+import io.github.octaviusframework.form.component.FormState
+import io.github.octaviusframework.form.control.base.*
+import io.github.octaviusframework.form.control.layout.repeatable.RepeatableHeader
+import io.github.octaviusframework.form.control.layout.repeatable.RepeatableRowCard
+import io.github.octaviusframework.form.control.layout.repeatable.RepeatableRowContent
+import io.github.octaviusframework.form.control.validator.repeatable.RepeatableValidator
+import org.octavius.theme.FormSpacing
+
+/**
+ * Kontrolka do tworzenia dynamicznych list kontrolek (wierszy).
+ *
+ * Umożliwia użytkownikowi dodawanie i usuwanie wierszy, gdzie każdy wiersz
+ * zawiera zestaw kontrolek. Obsługuje walidację unikalności pól, ograniczenia
+ * minimalnej i maksymalnej liczby wierszy oraz składanie/rozwijanie wierszy.
+ * Każdy wiersz może być niezależnie edytowany i usuwany.
+ */
+class RepeatableControl(
+    val rowControls: Map<String, Control<*>>,
+    val rowOrder: List<String>,
+    label: String?,
+    required: Boolean? = false,
+    dependencies: Map<String, ControlDependency<*>>? = null,
+    validationOptions: RepeatableValidation? = null
+) : Control<List<RepeatableRow>>(
+    label,
+    required,
+    dependencies,
+    hasStandardLayout = false,
+    validationOptions = validationOptions
+) {
+    private lateinit var rowManager: RepeatableRowManager
+
+    override fun initializeControlLifecycle(
+        formState: FormState,
+        formSchema: FormSchema,
+        errorManager: ErrorManager,
+        formActionTrigger: FormActionTrigger
+    ) {
+        super.initializeControlLifecycle(formState, formSchema, errorManager, formActionTrigger)
+        this.rowManager = RepeatableRowManager(rowControls, formState, validationOptions as RepeatableValidation?)
+    }
+
+    override fun registerChildrenInGlobalMap(controlContext: ControlContext): Map<String, Control<*>> {
+        val map = mutableMapOf<String, Control<*>>()
+        rowControls.forEach { (key, value) ->
+            // rowId nie jest używane w tym przypadku
+            val childControlContext = controlContext.forRepeatableChild(key, "")
+            map[childControlContext.fullControlPath] = value
+            map.putAll(value.registerChildrenInGlobalMap(childControlContext))
+        }
+        return map
+    }
+
+    override fun childContexts(controlContext: ControlContext): List<Pair<ControlContext, Control<*>>> {
+        @Suppress("UNCHECKED_CAST")
+        val rows = formState.getControlState(controlContext.fullStatePath)!!.value.value as List<RepeatableRow>
+        return rows.flatMap { row -> rowContexts(controlContext, row, rowControls) }
+    }
+
+    override val validator: ControlValidator<List<RepeatableRow>> = RepeatableValidator(validationOptions)
+
+    override fun copyInitToValue(value: List<RepeatableRow>): List<RepeatableRow> {
+        // Dla globalnego stanu nie trzeba kopiować stanów - są już w FormState
+        return value.map { RepeatableRow(id = it.id, index = it.index) }
+    }
+
+    override fun acceptsInitValue(value: Any) = value is List<*> && value.all { it is Map<*, *> }
+
+    override fun setInitValue(controlContext: ControlContext, value: Any?): ControlState<List<RepeatableRow>> {
+        if (value != null) requireInitValue(controlContext, value)
+        @Suppress("UNCHECKED_CAST")
+        val initialDataRows = value as List<Map<String, Any?>>? ?: emptyList()
+
+        // 1. Utwórz wiersze i stany dla danych początkowych
+        val initialModelRows = initialDataRows.mapIndexed { index, dataRow ->
+            createRow(index, controlContext, rowControls, formState, dataRow)
+        }
+
+        // 2. Dodaj puste wiersze, jeśli wymagane przez minItems
+        val additionalModelRows = mutableListOf<RepeatableRow>()
+        val minRows = (validationOptions as? RepeatableValidation)?.minItems ?: 0
+        while (initialModelRows.size + additionalModelRows.size < minRows) {
+            val index = initialModelRows.size + additionalModelRows.size
+
+            // Używamy nowej funkcji pomocniczej
+            val newRow = createRow(index, controlContext, rowControls, formState)
+            additionalModelRows.add(newRow)
+        }
+
+        // 3. Zwróć stan dla samego RepeatableControl
+        val allInitialRows = initialModelRows + additionalModelRows
+        return ControlState(
+            initValue = mutableStateOf(initialModelRows),
+            value = mutableStateOf(copyInitToValue(allInitialRows)),
+        )
+    }
+
+    @Composable
+    override fun Display(controlContext: ControlContext, controlState: ControlState<List<RepeatableRow>>, isRequired: Boolean) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            RepeatableHeader(
+                label = label,
+                onAddClick = {
+                    rowManager.addRow(controlContext, controlState)
+                },
+                canAdd = rowManager.canAddRow(controlState)
+            )
+
+            DisplayFieldErrors(controlContext)
+
+            Spacer(modifier = Modifier.height(FormSpacing.itemSpacing))
+
+            controlState.value.value?.forEachIndexed { index, row ->
+                // Bez klucza Compose przypisuje stan (`remember`) po pozycji: po usunięciu wiersza ze
+                // środka zwinięcie karty i stan UI kontrolek przeszłyby na wiersz, który wskoczył na
+                // jego miejsce.
+                key(row.id) {
+                    RepeatableRowCard(
+                        index = index,
+                        canDelete = rowManager.canDeleteRow(controlState),
+                        onDelete = {
+                            rowManager.deleteRow(controlContext, controlState, row.id)
+                        },
+                        content = {
+                            RepeatableRowContent(
+                                row = row,
+                                controlContext = controlContext,
+                                rowOrder = rowOrder,
+                                rowControls = rowControls,
+                                formState = formState
+                            )
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(FormSpacing.itemSpacing))
+                }
+            }
+        }
+    }
+
+    override fun convertToResult(
+        controlContext: ControlContext,
+        state: ControlState<*>, // Ten state to ControlState<List<RepeatableRow>> dla RepeatableControl
+    ): ControlResultData {
+        @Suppress("UNCHECKED_CAST")
+        val controlState = state as ControlState<List<RepeatableRow>>
+
+        val (newRows, deletedRows, changedRows) = getRowTypes(
+            controlState,
+            controlContext,
+            rowControls,
+            formState
+        )
+
+        fun rowValues(row: RepeatableRow): FormResultData =
+            formState.collectLevel(rowContexts(controlContext, row, rowControls))
+
+        // Zbieranie danych niczego nie zmienia w stanie. Stany usuniętych wierszy z bazy muszą
+        // przetrwać, bo ich wartości początkowe idą do deletedRows przy KAŻDYM zbieraniu, a to
+        // powtarza się, gdy zapis nie przejdzie i użytkownik kliknie jeszcze raz.
+        return ControlResultData(
+            currentValue = RepeatableResultValue(
+                deletedRows = deletedRows.map(::rowValues),
+                addedRows = newRows.map(::rowValues),
+                modifiedRows = changedRows.map(::rowValues),
+                allCurrentRows = controlState.value.value!!.map(::rowValues)
+            ),
+            initialValue = null  // Oryginalne wartości są już zawarte w currentValue dla poszczególnych kontrolek
+        )
+    }
+}

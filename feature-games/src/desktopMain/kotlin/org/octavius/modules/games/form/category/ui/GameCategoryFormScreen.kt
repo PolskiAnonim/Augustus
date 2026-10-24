@@ -1,7 +1,7 @@
 package org.octavius.modules.games.form.category.ui
 
-import org.octavius.form.component.FormHandler
-import org.octavius.form.component.FormView
+import io.github.octaviusframework.form.component.FormHandler
+import io.github.octaviusframework.form.component.FormView
 import org.octavius.modules.games.form.category.GameCategoryDataManager
 import org.octavius.modules.games.form.category.GameCategorySchemaBuilder
 import org.octavius.modules.games.form.category.GameCategoryValidator

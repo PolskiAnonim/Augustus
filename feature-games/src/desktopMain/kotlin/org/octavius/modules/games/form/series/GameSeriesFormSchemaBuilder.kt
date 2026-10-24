@@ -1,13 +1,13 @@
 package org.octavius.modules.games.form.series
 
-import org.octavius.form.component.FormSchemaBuilder
-import org.octavius.form.control.base.Control
-import org.octavius.form.control.base.ControlAction
-import org.octavius.form.control.type.button.ButtonControl
-import org.octavius.form.control.type.button.ButtonType
-import org.octavius.form.control.type.container.SectionControl
-import org.octavius.form.control.type.number.IntegerControl
-import org.octavius.form.control.type.primitive.StringControl
+import io.github.octaviusframework.form.component.FormSchemaBuilder
+import io.github.octaviusframework.form.control.base.Control
+import io.github.octaviusframework.form.control.base.ControlAction
+import io.github.octaviusframework.form.control.type.button.ButtonControl
+import io.github.octaviusframework.form.control.type.button.ButtonType
+import io.github.octaviusframework.form.control.type.container.SectionControl
+import io.github.octaviusframework.form.control.type.number.IntegerControl
+import io.github.octaviusframework.form.control.type.primitive.StringControl
 import org.octavius.localization.Tr
 import org.octavius.modules.games.localization.GamesTr
 import org.octavius.navigation.AppRouter
