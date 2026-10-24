@@ -11,6 +11,17 @@
       "noSelection": "Brak wyboru",
       "selectOption": "Wybierz opcję"
     },
+    "filePicker": {
+      "chooseFile": "Wybierz plik",
+      "dragOrClick": "Przeciągnij i upuść plik lub kliknij przycisk",
+      "dropHere": "Upuść plik tutaj",
+      "file": "Plik",
+      "loadedBytes": {
+        "_one": "Załadowano plik ({0} bajt)",
+        "_few": "Załadowano plik ({0} bajty)",
+        "_many": "Załadowano plik ({0} bajtów)"
+      }
+    },
     "load": {
       "failed": "Nie udało się wczytać formularza",
       "notFound": "Nie znaleziono rekordu o id {0}. Mógł zostać usunięty."

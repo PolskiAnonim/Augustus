@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.octavius.error.rememberSupervisedCoroutineScope
 import io.github.octaviusframework.form.control.base.*
+import io.github.octaviusframework.form.localization.FormTr
 import org.octavius.theme.FormSpacing
 import java.awt.FileDialog
 import java.awt.Frame
@@ -55,7 +56,7 @@ class FilePickerControl<T : Any>(
     actions: List<ControlAction<T>>? = null
 ) : Control<T>(label, required, dependencies, hasStandardLayout = true, actions = actions) {
 
-    override fun acceptsInitValue(value: Any) = when (mode) {
+    override fun acceptsValue(value: Any) = when (mode) {
         FilePickerMode.PATH_STRING -> value is String
         FilePickerMode.CONTENT_BYTES -> value is ByteArray
     }
@@ -73,7 +74,7 @@ class FilePickerControl<T : Any>(
                 if (mode == FilePickerMode.PATH_STRING && v is String) {
                     selectedFileName = File(v).name
                 } else if (mode == FilePickerMode.CONTENT_BYTES && v is ByteArray) {
-                    selectedFileName = "Załadowano plik (${v.size} bajtów)"
+                    selectedFileName = FormTr.Form.FilePicker.loadedBytes(v.size)
                 }
             }
         }
@@ -145,13 +146,13 @@ class FilePickerControl<T : Any>(
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                     Icon(
                         imageVector = Icons.Default.UploadFile,
-                        contentDescription = "Plik",
+                        contentDescription = FormTr.Form.FilePicker.file(),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
                         Text(
-                            text = if (isDragging) "Upuść plik tutaj" else (selectedFileName ?: "Przeciągnij i upuść plik lub kliknij przycisk"),
+                            text = if (isDragging) FormTr.Form.FilePicker.dropHere() else (selectedFileName ?: FormTr.Form.FilePicker.dragOrClick()),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
@@ -162,7 +163,7 @@ class FilePickerControl<T : Any>(
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = {
-                        val fileDialog = FileDialog(null as Frame?, "Wybierz plik", FileDialog.LOAD)
+                        val fileDialog = FileDialog(null as Frame?, FormTr.Form.FilePicker.chooseFile(), FileDialog.LOAD)
                         fileDialog.isVisible = true
                         val dir = fileDialog.directory
                         val file = fileDialog.file
@@ -171,7 +172,7 @@ class FilePickerControl<T : Any>(
                         }
                     }
                 ) {
-                    Text("Wybierz plik")
+                    Text(FormTr.Form.FilePicker.chooseFile())
                 }
             }
         }

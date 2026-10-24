@@ -25,7 +25,7 @@
     "basicInfo": "Basic Info",
     "category": {
       "_one": "Category",
-      "_many": "Categories"
+      "_other": "Categories"
     },
     "characters": "Characters",
     "distinctiveAntagonist": "Distinctive Antagonist",

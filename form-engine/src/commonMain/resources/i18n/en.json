@@ -11,6 +11,16 @@
       "noSelection": "No selection",
       "selectOption": "Select option"
     },
+    "filePicker": {
+      "chooseFile": "Choose file",
+      "dragOrClick": "Drag and drop a file or click the button",
+      "dropHere": "Drop the file here",
+      "file": "File",
+      "loadedBytes": {
+        "_one": "File loaded ({0} byte)",
+        "_other": "File loaded ({0} bytes)"
+      }
+    },
     "load": {
       "failed": "Could not load the form",
       "notFound": "Record with id {0} was not found. It may have been deleted."
@@ -32,8 +42,7 @@
     "maxItems": "Maximum {0} items",
     "maximumItems": {
       "_one": "Maximum {0} item",
-      "_few": "Maximum {0} items",
-      "_many": "Maximum {0} items"
+      "_other": "Maximum {0} items"
     },
     "maxLength": "Maximum length is {0} characters",
     "maxValue": "Value must be less than or equal to {0}",
@@ -41,8 +50,7 @@
     "minItems": "Minimum {0} items required",
     "minimumItems": {
       "_one": "Minimum {0} item required",
-      "_few": "Minimum {0} items required",
-      "_many": "Minimum {0} items required"
+      "_other": "Minimum {0} items required"
     },
     "minLength": "Minimum length is {0} characters",
     "minValue": "Value must be greater than or equal to {0}",
