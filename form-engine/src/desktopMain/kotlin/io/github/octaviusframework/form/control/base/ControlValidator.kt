@@ -159,12 +159,14 @@ abstract class ControlValidator<T : Any> {
             return
         }
 
-        // Additional, control-specific validation
-        validateSpecific(controlContext, state)
+        // Nothing more to check on null; acceptsValue keeps any other value a T.
+        @Suppress("UNCHECKED_CAST")
+        val value = state.value.value as T? ?: return
+        validateSpecific(controlContext, value)
     }
 
     /**
-     * Validation specific to the control type.
+     * Validation specific to the control type, run for a non-null value.
      *
      * Subclasses implement it for the validation of their control type (e.g. checking an email format,
      * a number range, uniqueness of values, etc.).
@@ -172,7 +174,7 @@ abstract class ControlValidator<T : Any> {
      * The default implementation does no additional validation.
      *
      * @param controlContext control context
-     * @param state control state to validate
+     * @param value the control's value
      */
-    abstract fun validateSpecific(controlContext: ControlContext, state: ControlState<*>)
+    abstract fun validateSpecific(controlContext: ControlContext, value: T)
 }

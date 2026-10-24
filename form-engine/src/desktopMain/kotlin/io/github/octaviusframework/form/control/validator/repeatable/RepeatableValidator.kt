@@ -1,7 +1,6 @@
 package io.github.octaviusframework.form.control.validator.repeatable
 
 import io.github.octaviusframework.form.control.base.ControlContext
-import io.github.octaviusframework.form.control.base.ControlState
 import io.github.octaviusframework.form.control.base.ControlValidator
 import io.github.octaviusframework.form.control.base.RepeatableValidation
 import io.github.octaviusframework.form.control.type.repeatable.RepeatableRow
@@ -36,21 +35,18 @@ class RepeatableValidator(
      * The check runs only when uniqueFields is not empty.
      *
      * @param controlContext control name with the row context (needed to build hierarchical names)
-     * @param state state of the repeatable control, holding the list of rows
+     * @param value the rows of the repeatable control
      */
-    override fun validateSpecific(controlContext: ControlContext, state: ControlState<*>) {
-        @Suppress("UNCHECKED_CAST")
-        val rows = state.value.value as List<RepeatableRow>
-
+    override fun validateSpecific(controlContext: ControlContext, value: List<RepeatableRow>) {
         // 1. Rules of the list itself
         val allErrors = mutableListOf<String>()
 
         validationOptions?.let { options ->
             // min/max
-            allErrors.addAll(validateListRules(rows, options))
+            allErrors.addAll(validateListRules(value, options))
 
             // Uniqueness
-            validateUniqueness(rows, options, controlContext)?.let { uniquenessError ->
+            validateUniqueness(value, options, controlContext)?.let { uniquenessError ->
                 allErrors.add(uniquenessError)
             }
         }

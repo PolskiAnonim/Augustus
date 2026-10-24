@@ -1,7 +1,6 @@
 package io.github.octaviusframework.form.control.validator.datetime
 
 import io.github.octaviusframework.form.control.base.ControlContext
-import io.github.octaviusframework.form.control.base.ControlState
 import io.github.octaviusframework.form.control.base.ControlValidator
 import io.github.octaviusframework.form.control.base.DateTimeValidation
 import io.github.octaviusframework.form.localization.FormTr
@@ -12,9 +11,7 @@ class DateTimeValidator<T: Any>(
     private val adapter: DateTimeAdapter<T>
 ) : ControlValidator<T>() {
 
-    override fun validateSpecific(controlContext: ControlContext, state: ControlState<*>) {
-        @Suppress("UNCHECKED_CAST")
-        val value = state.value.value as? T ?: return
+    override fun validateSpecific(controlContext: ControlContext, value: T) {
         val errors = mutableListOf<String>()
 
         validationOptions?.let { options ->

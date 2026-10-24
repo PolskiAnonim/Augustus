@@ -1,7 +1,6 @@
 package io.github.octaviusframework.form.control.validator
 
 import io.github.octaviusframework.form.control.base.ControlContext
-import io.github.octaviusframework.form.control.base.ControlState
 import io.github.octaviusframework.form.control.base.ControlValidator
 
 /**
@@ -21,9 +20,9 @@ class DefaultValidator<T : Any> : ControlValidator<T>() {
      *
      * All basic validation (required, visibility) is handled by the base class ControlValidator.
      *
-     * @param state control state - unused in this implementation
+     * @param value control value - unused in this implementation
      */
-    override fun validateSpecific(controlContext: ControlContext, state: ControlState<*>) {
+    override fun validateSpecific(controlContext: ControlContext, value: T) {
         // The default implementation does no additional validation
     }
 }

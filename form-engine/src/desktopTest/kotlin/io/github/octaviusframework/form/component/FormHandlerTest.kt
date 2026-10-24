@@ -15,6 +15,7 @@ import io.github.octaviusframework.form.control.base.ControlDependency
 import io.github.octaviusframework.form.control.base.ControlState
 import io.github.octaviusframework.form.control.base.DependencyType
 import io.github.octaviusframework.form.control.base.FormResultData
+import io.github.octaviusframework.form.control.base.IntegerValidation
 import io.github.octaviusframework.form.control.base.RepeatableValidation
 import io.github.octaviusframework.form.control.base.getCurrent
 import io.github.octaviusframework.form.control.base.getCurrentAs
@@ -349,5 +350,18 @@ class FormHandlerTest {
 
         assertThat(loadState).isEqualTo(FormLoadState.Failed)
         assertThat(dialog).isNull()
+    }
+
+    @Test
+    fun `type-specific validator checks the loaded value`() {
+        val handler = handler(
+            controls = mapOf("count" to IntegerControl(null, validationOptions = IntegerValidation(min = 1))),
+            initData = mapOf("count" to 0)
+        ) { true }
+
+        val result = runBlocking { handler.triggerAction("save", validates = true) }
+
+        assertThat(result).isFalse()
+        assertThat(handler.errorManager.getFieldErrors("count")).isNotEmpty()
     }
 }

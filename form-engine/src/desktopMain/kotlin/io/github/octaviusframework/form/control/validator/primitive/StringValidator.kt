@@ -1,7 +1,6 @@
 package io.github.octaviusframework.form.control.validator.primitive
 
 import io.github.octaviusframework.form.control.base.ControlContext
-import io.github.octaviusframework.form.control.base.ControlState
 import io.github.octaviusframework.form.control.base.ControlValidator
 import io.github.octaviusframework.form.control.base.StringValidation
 import io.github.octaviusframework.form.localization.FormTr
@@ -13,8 +12,7 @@ class StringValidator(
     private val validationOptions: StringValidation? = null
 ) : ControlValidator<String>() {
 
-    override fun validateSpecific(controlContext: ControlContext, state: ControlState<*>) {
-        val value = state.value.value as? String ?: return
+    override fun validateSpecific(controlContext: ControlContext, value: String) {
         val errors = mutableListOf<String>()
 
         if (value.isBlank()) {

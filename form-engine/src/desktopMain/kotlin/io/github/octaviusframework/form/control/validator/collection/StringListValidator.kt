@@ -1,7 +1,6 @@
 package io.github.octaviusframework.form.control.validator.collection
 
 import io.github.octaviusframework.form.control.base.ControlContext
-import io.github.octaviusframework.form.control.base.ControlState
 import io.github.octaviusframework.form.control.base.ControlValidator
 import io.github.octaviusframework.form.control.base.StringListValidation
 import io.github.octaviusframework.form.localization.FormTr
@@ -13,9 +12,7 @@ class StringListValidator(
     private val validationOptions: StringListValidation? = null
 ) : ControlValidator<List<String>>() {
 
-    override fun validateSpecific(controlContext: ControlContext, state: ControlState<*>) {
-        @Suppress("UNCHECKED_CAST")
-        val value = state.value.value as? List<String> ?: return
+    override fun validateSpecific(controlContext: ControlContext, value: List<String>) {
         val errors = mutableListOf<String>()
 
         validationOptions?.let { options ->
@@ -37,8 +34,6 @@ class StringListValidator(
             options.itemValidation?.let { itemValidation ->
                 value.forEachIndexed { index, item ->
                     val tempErrors = mutableListOf<String>()
-                    val itemState = ControlState<String>()
-                    itemState.value.value = item
 
                     // Validate the item without the ErrorManager (for now)
                     if (item.isNotBlank()) {

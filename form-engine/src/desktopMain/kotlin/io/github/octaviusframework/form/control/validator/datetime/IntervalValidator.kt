@@ -1,7 +1,6 @@
 package io.github.octaviusframework.form.control.validator.datetime
 
 import io.github.octaviusframework.form.control.base.ControlContext
-import io.github.octaviusframework.form.control.base.ControlState
 import io.github.octaviusframework.form.control.base.ControlValidator
 import io.github.octaviusframework.form.control.base.IntervalValidation
 import io.github.octaviusframework.form.localization.FormTr
@@ -17,8 +16,7 @@ class IntervalValidator(
         }
     }
 
-    override fun validateSpecific(controlContext: ControlContext, state: ControlState<*>) {
-        val value = state.value.value as? Duration ?: return
+    override fun validateSpecific(controlContext: ControlContext, value: Duration) {
         val errors = mutableListOf<String>()
 
         validationOptions?.let { options ->
