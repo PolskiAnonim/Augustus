@@ -26,7 +26,7 @@ class IntegerControl(
 ) {
     override val validator: ControlValidator<Int> = IntegerValidator(validationOptions)
 
-    override fun acceptsInitValue(value: Any) = value is Int
+    override fun acceptsValue(value: Any) = value is Int
 
     override fun parseValue(text: String): Int? {
         return text.toIntOrNull()

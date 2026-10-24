@@ -19,7 +19,7 @@ class IntervalControl(
 ) {
     override val validator: ControlValidator<Duration> = IntervalValidator(validationOptions)
 
-    override fun acceptsInitValue(value: Any) = value is Duration
+    override fun acceptsValue(value: Any) = value is Duration
 
     private fun formatDuration(duration: Duration?): String {
         if (duration == null) return ""

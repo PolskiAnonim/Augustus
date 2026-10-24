@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import io.github.octaviusframework.form.component.InitDataException
 import io.github.octaviusframework.form.control.base.*
 import io.github.octaviusframework.form.control.layout.section.SectionContent
 import io.github.octaviusframework.form.control.layout.section.SectionHeader
@@ -47,11 +48,11 @@ class SectionControl(
         return controls.map { (childName, child) -> controlContext.forSectionChild(childName) to child }
     }
 
-    // A section's value is the map of its fields, which FormState assembled from `section/field` paths.
-    override fun acceptsInitValue(value: Any) = value is Map<*, *>
+    override fun acceptsValue(value: Any) = false
 
+    // A section's initial value is the map of its fields, which FormState assembled from `section/field` paths.
     override fun setInitValue(controlContext: ControlContext, value: Any?): ControlState<Unit> {
-        if (value != null) requireInitValue(controlContext, value)
+        if (value != null && value !is Map<*, *>) throw InitDataException(controlContext.fullControlPath, mismatch(value))
         @Suppress("UNCHECKED_CAST")
         formState.initializeLevel(controlContext.fullControlPath, childContexts(controlContext), (value as Map<String, Any?>?).orEmpty())
         return ControlState()

@@ -33,7 +33,7 @@ class StringListControl(
 ) {
     override val validator: ControlValidator<List<String>> = StringListValidator(validationOptions)
 
-    override fun acceptsInitValue(value: Any) = value is List<*> && value.all { it is String }
+    override fun acceptsValue(value: Any) = value is List<*> && value.all { it is String }
 
     override fun copyInitToValue(value: List<String>): List<String> {
         @Suppress("UNCHECKED_CAST") return value.map { it }.toList()

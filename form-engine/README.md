@@ -227,7 +227,7 @@ override fun initData(payload: Map<String, Any?>): Map<String, Any?>? {
 ### Initial data must fit the schema
 
 Every key returned by `initData` has to name a control, and every non-null value has to be one the control
-accepts (`Control.acceptsInitValue`). Otherwise loading throws `InitDataException` with the schema path of the
+accepts (`Control.acceptsValue`). Otherwise loading throws `InitDataException` with the schema path of the
 value, e.g. `"basic_info/status"`, or `"publications/status"` for a field of repeatable rows.
 
 | Control | Accepts | Typical PostgreSQL column |
@@ -303,11 +303,13 @@ a `RepeatableControl` adds a row). The action lambda runs with `ActionContext<T>
 )
 ```
 
-- `updateControl(path, value)` / `updateControls(path, value)` — write one or many control values by path
+- `updateControl(path, value)` / `updateControls(path, value)` — write one or many control values by path; a value
+  the control does not accept (`Control.acceptsValue`) throws `IllegalArgumentException` naming both paths, and
+  sections, repeatable lists and buttons accept none
 - `updateLabel(path, label)` — override a control's rendered label
 
 Paths are resolved relative to the acting control's container: `./name` addresses a sibling, a leading `/`
-starts from the root (`/basic_info/status`), and a bare `name` is treated as absolute for backward compatibility.
+starts from the root (`/basic_info/status`), and a bare `name` is treated as absolute.
 Both containers nest state paths: a `SectionControl` appends its name (`basic_info/name`), a `RepeatableControl`
 appends its name and the row (`authors[rowId]/name`), and `../name` steps out one container. `updateControls`
 additionally accepts a `*` wildcard segment (e.g. `"rows/*/total"`) and updates every matching control in

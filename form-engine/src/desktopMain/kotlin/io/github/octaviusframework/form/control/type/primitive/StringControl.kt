@@ -31,7 +31,7 @@ class StringControl(
 ) {
     override val validator: ControlValidator<String> = StringValidator(validationOptions)
 
-    override fun acceptsInitValue(value: Any) = value is String
+    override fun acceptsValue(value: Any) = value is String
 
 
     @Composable

@@ -34,7 +34,7 @@ class EnumControl<T>(
     label, required, dependencies, actions
 ) where T : Enum<T>, T : EnumWithFormatter<T> {
 
-    override fun acceptsInitValue(value: Any) = enumClass.isInstance(value)
+    override fun acceptsValue(value: Any) = enumClass.isInstance(value)
 
     // An enum carries its label with it, so "resolving" is immediate - suspend comes from the base
     // contract, where DatabaseControl has to query the database.

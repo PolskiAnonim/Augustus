@@ -62,7 +62,7 @@ class DatabaseControl(
 
     private val db: OctaviusClient by inject()
 
-    override fun acceptsInitValue(value: Any) = value is Int
+    override fun acceptsValue(value: Any) = value is Int
 
     /**
      * Called once per value, outside rendering, and the result is stored in `ControlState.displayText`.

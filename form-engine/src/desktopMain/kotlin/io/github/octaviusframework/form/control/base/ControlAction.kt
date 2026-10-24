@@ -7,6 +7,8 @@ import io.github.octaviusframework.form.component.FormSchema
 import io.github.octaviusframework.form.component.FormState
 import io.github.octaviusframework.form.component.PathResolver
 
+private val ROW_ID = Regex("""\[[^\]]*]""")
+
 /**
  * Defines an action to run after a control's value changes.
  *
@@ -49,16 +51,17 @@ data class ActionContext<T>(
      * Returns `null` when the control has no value. A path without a control throws.
      */
     fun <V : Any> readControl(controlPath: String): V? {
-        // "Unsafe" cast, same as in updateControl - the programmer is responsible for the type.
+        // Unchecked cast - V is erased, the caller is responsible for the type.
         @Suppress("UNCHECKED_CAST")
-        return stateAt(controlPath).value.value as V?
+        return stateAt(resolvedPath(controlPath)).value.value as V?
     }
 
     /**
      * Updates the value of a control at a relative (./, ../) or absolute path.
+     * A value the control does not accept (`Control.acceptsValue`) throws.
      */
     fun <V: Any> updateControl(controlPath: String, newValue: V?) {
-        setValue(stateAt(controlPath), newValue)
+        setValue(controlPath, resolvedPath(controlPath), newValue)
     }
 
     /**
@@ -70,7 +73,7 @@ data class ActionContext<T>(
         if ("*" !in controlPath) return updateControl(controlPath, newValue)
 
         PathResolver.resolvePaths(controlPath, sourceControlContext, formState).forEach { resolvedName ->
-            setValue(formState.getControlState(resolvedName)!!, newValue)
+            setValue(controlPath, resolvedName, newValue)
         }
     }
 
@@ -78,22 +81,38 @@ data class ActionContext<T>(
      * Updates the control's label (overrides the default one).
      */
     fun updateLabel(controlPath: String, newLabel: String?) {
-        stateAt(controlPath).labelOverride.value = newLabel
+        stateAt(resolvedPath(controlPath)).labelOverride.value = newLabel
     }
 
     // A wrong path is a bug in the schema - an action silently skipped would hide it forever.
-    private fun stateAt(controlPath: String): ControlState<*> {
+    private fun resolvedPath(controlPath: String): String {
         val resolvedName = PathResolver.resolvePath(controlPath, sourceControlContext)
-        return formState.getControlState(resolvedName) ?: throw IllegalArgumentException(
+        require(formState.getControlState(resolvedName) != null) {
             "Action of control '${sourceControlContext.fullStatePath}' points at '$controlPath' " +
                 "(resolved to '$resolvedName'), but the form has no such control"
-        )
+        }
+        return resolvedName
     }
 
-    private fun <V : Any> setValue(state: ControlState<*>, newValue: V?) {
-        // "Unsafe" cast, because the programmer is responsible for the correct type
+    private fun stateAt(statePath: String): ControlState<*> = formState.getControlState(statePath)!!
+
+    // State paths of repeatable rows carry `[rowId]`, the schema knows their controls without it.
+    private fun controlAt(statePath: String): Control<*> {
+        val controlPath = statePath.replace(ROW_ID, "")
+        return checkNotNull(formSchema.getControl(controlPath)) { "No control at '$controlPath' for state '$statePath'" }
+    }
+
+    private fun <V : Any> setValue(controlPath: String, statePath: String, newValue: V?) {
+        if (newValue != null) {
+            controlAt(statePath).rejectionOf(newValue)?.let { reason ->
+                throw IllegalArgumentException(
+                    "Action of control '${sourceControlContext.fullStatePath}' sets '$controlPath' " +
+                        "(resolved to '$statePath'): $reason"
+                )
+            }
+        }
         @Suppress("UNCHECKED_CAST")
-        val typedState = state as ControlState<V>
+        val typedState = stateAt(statePath) as ControlState<V>
         typedState.value.value = newValue
         // The text described the old value, so it no longer holds. The control works it out again -
         // a number right away, a dropdown with a query.

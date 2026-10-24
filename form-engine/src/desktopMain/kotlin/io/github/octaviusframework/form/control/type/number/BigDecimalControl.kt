@@ -27,7 +27,7 @@ class BigDecimalControl(
 ) {
     override val validator: ControlValidator<BigDecimal> = BigDecimalValidator(validationOptions)
 
-    override fun acceptsInitValue(value: Any) = value is BigDecimal
+    override fun acceptsValue(value: Any) = value is BigDecimal
 
     override fun parseValue(text: String): BigDecimal? {
         // Both a dot and a comma work as the decimal separator

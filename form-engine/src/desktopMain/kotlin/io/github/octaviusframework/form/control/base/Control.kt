@@ -88,7 +88,7 @@ abstract class Control<T : Any> internal constructor(
             return state
         }
 
-        requireInitValue(controlContext, value)
+        rejectionOf(value)?.let { reason -> throw InitDataException(controlContext.fullControlPath, reason) }
         @Suppress("UNCHECKED_CAST")
         state.initValue.value = value as T
         state.value.value = copyInitToValue(value)
@@ -96,23 +96,24 @@ abstract class Control<T : Any> internal constructor(
     }
 
     /**
-     * Whether [value] can be this control's initial value. For a plain control that is a value of type [T]
-     * (and for a choice from fixed options - one of them). Containers take data in their own shape: a section
-     * a map of fields, a repeatable list a list of rows.
+     * Whether this control can hold [value], i.e. whether it is a value of type [T] (and for a choice from fixed
+     * options - one of them). Checked for initial values and in `updateControl`. Controls without a value of
+     * their own accept nothing: a section, a button, and a repeatable list, which manages its rows itself.
+     * Containers check the shape of their initial data in `setInitValue`.
      */
-    protected abstract fun acceptsInitValue(value: Any): Boolean
+    protected abstract fun acceptsValue(value: Any): Boolean
 
     /**
-     * Throws [InitDataException] when the control does not accept [value] as its initial value.
+     * Why the control does not accept [value], or `null` when it does.
      */
-    protected fun requireInitValue(controlContext: ControlContext, value: Any) {
-        if (!acceptsInitValue(value)) {
-            val shown = value.toString().let { if (it.length > 100) it.take(100) + "…" else it }
-            throw InitDataException(
-                controlContext.fullControlPath,
-                "value '$shown' (${value::class.simpleName}) does not fit ${this::class.simpleName}"
-            )
-        }
+    internal fun rejectionOf(value: Any): String? = if (acceptsValue(value)) null else mismatch(value)
+
+    /**
+     * Describes [value] as not fitting this control, for exception messages.
+     */
+    protected fun mismatch(value: Any): String {
+        val shown = value.toString().let { if (it.length > 100) it.take(100) + "…" else it }
+        return "value '$shown' (${value::class.simpleName}) does not fit ${this::class.simpleName}"
     }
 
     /**

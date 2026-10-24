@@ -36,8 +36,7 @@ class ButtonControl(
     hasStandardLayout = false, // Full control over rendering
     actions = actions
 ) {
-    // A button has no value, so nothing is its initial value.
-    override fun acceptsInitValue(value: Any) = false
+    override fun acceptsValue(value: Any) = false
 
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<Unit>, isRequired: Boolean) {

@@ -34,7 +34,7 @@ class RadioGroupControl<T : Any>(
     actions = actions
 ) {
 
-    override fun acceptsInitValue(value: Any) = options.any { it.value == value }
+    override fun acceptsValue(value: Any) = options.any { it.value == value }
 
     @Composable
     override fun Display(

@@ -12,6 +12,7 @@ import io.github.octaviusframework.form.component.ErrorManager
 import io.github.octaviusframework.form.component.FormActionTrigger
 import io.github.octaviusframework.form.component.FormSchema
 import io.github.octaviusframework.form.component.FormState
+import io.github.octaviusframework.form.component.InitDataException
 import io.github.octaviusframework.form.control.base.*
 import io.github.octaviusframework.form.control.layout.repeatable.RepeatableHeader
 import io.github.octaviusframework.form.control.layout.repeatable.RepeatableRowCard
@@ -76,10 +77,12 @@ class RepeatableControl(
         return value.map { RepeatableRow(id = it.id, index = it.index) }
     }
 
-    override fun acceptsInitValue(value: Any) = value is List<*> && value.all { it is Map<*, *> }
+    override fun acceptsValue(value: Any) = false
 
     override fun setInitValue(controlContext: ControlContext, value: Any?): ControlState<List<RepeatableRow>> {
-        if (value != null) requireInitValue(controlContext, value)
+        if (value != null && !(value is List<*> && value.all { it is Map<*, *> })) {
+            throw InitDataException(controlContext.fullControlPath, mismatch(value))
+        }
         @Suppress("UNCHECKED_CAST")
         val initialDataRows = value as List<Map<String, Any?>>? ?: emptyList()
 
