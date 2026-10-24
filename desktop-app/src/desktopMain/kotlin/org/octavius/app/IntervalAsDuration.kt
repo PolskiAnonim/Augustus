@@ -20,20 +20,17 @@ import kotlin.time.Duration
  * (`IntervalColumn`, `IntervalFilter`) mówi jednak [Duration], więc konwerter spłaszcza go po regule
  * `justify_interval`: miesiąc to 30 dni, dzień to 24 godziny.
  */
-object PgIntervalAsDurationConverter : ResultConverter<Any, Duration> {
-    // Rejestr szuka konwertera po dokładnej klasie wartości, a `PgInterval` jest sealed interface -
-    // przychodzi zawsze jako Finite, Infinity albo MinusInfinity. Wpis pod Any::class to jedyny sposób,
-    // żeby objąć wszystkie trzy naraz; `canConvert` zawęża go z powrotem do tego, o co chodzi.
-    override val supportedSourceClass: KClass<Any> = Any::class
+object PgIntervalAsDurationConverter : ResultConverter<PgInterval, Duration> {
+    // `PgInterval` jest sealed, więc wpis pod nim obejmuje Finite, Infinity i MinusInfinity naraz.
+    override val supportedSourceClass: KClass<PgInterval> = PgInterval::class
 
     override fun canConvert(
         sourceClass: KClass<*>, expectedType: KType, sourceType: PgType, context: DeserializationContext
-    ): Boolean = expectedType.classifier == Duration::class &&
-        PgInterval::class.java.isAssignableFrom(sourceClass.java)
+    ): Boolean = expectedType.classifier == Duration::class
 
     override fun convert(
-        source: Any, expectedType: KType, sourceType: PgType, context: DeserializationContext
-    ): Duration = (source as PgInterval).toDurationApproximate()
+        source: PgInterval, expectedType: KType, sourceType: PgType, context: DeserializationContext
+    ): Duration = source.toDurationApproximate()
 }
 
 /**
