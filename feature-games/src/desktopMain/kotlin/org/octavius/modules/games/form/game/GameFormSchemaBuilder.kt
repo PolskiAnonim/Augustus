@@ -10,7 +10,7 @@ import org.octavius.form.control.base.*
 import org.octavius.form.control.type.button.ButtonControl
 import org.octavius.form.control.type.button.ButtonType
 import org.octavius.form.control.type.container.SectionControl
-import org.octavius.form.control.type.number.DoubleControl
+import org.octavius.form.control.type.number.BigDecimalControl
 import org.octavius.form.control.type.number.IntegerControl
 import org.octavius.form.control.type.primitive.CheckboxControl
 import org.octavius.form.control.type.primitive.StringControl
@@ -20,6 +20,7 @@ import org.octavius.form.control.type.selection.EnumControl
 import org.octavius.localization.Tr
 import org.octavius.modules.games.localization.GamesTr
 import org.octavius.navigation.AppRouter
+import java.math.BigDecimal
 
 class GameFormSchemaBuilder : FormSchemaBuilder() {
 
@@ -58,9 +59,9 @@ class GameFormSchemaBuilder : FormSchemaBuilder() {
         // Sekcja czasu gry
         "play_time_section" to SectionControl(
             controls = mapOf(
-                "play_time_hours" to DoubleControl(
+                "play_time_hours" to BigDecimalControl(
                     GamesTr.Form.playTimeHours(),
-                    validationOptions = DoubleValidation(min = 0.0, decimalPlaces = 2)
+                    validationOptions = BigDecimalValidation(min = BigDecimal.ZERO, decimalPlaces = 2)
                 ),
                 "completion_count" to IntegerControl(
                     GamesTr.Form.playCount(),
