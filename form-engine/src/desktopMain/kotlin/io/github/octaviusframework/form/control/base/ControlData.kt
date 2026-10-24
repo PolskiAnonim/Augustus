@@ -2,7 +2,9 @@ package io.github.octaviusframework.form.control.base
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import io.github.octaviusframework.form.component.FormResultException
 import io.github.octaviusframework.form.component.PathResolver
+import kotlin.reflect.typeOf
 
 /**
  * Result of processing a single form control.
@@ -103,12 +105,14 @@ typealias FormResultData = Map<String, ControlResultData>
 
 /**
  * Returns the current value of a control as type `T`.
- * Casts to T
  *
  * Usage: `formData.getCurrentAs<String>("basic_info/name")`
+ *
+ * @throws FormResultException when the value is not a `T` - also when it is `null` and `T` is not nullable, as
+ *   for a hidden control.
  */
 inline fun <reified T> FormResultData.getCurrentAs(path: String): T {
-    return getCurrent(path) as T
+    return resultAs(path, getCurrent(path))
 }
 
 /**
@@ -122,9 +126,11 @@ fun FormResultData.getCurrent(path: String): Any? {
  * Returns the initial value of a control as type `T`.
  *
  * Usage: `rowData.getInitialAs<Int>("id")`
+ *
+ * @throws FormResultException when the value is not a `T` - also when it is `null` and `T` is not nullable.
  */
 inline fun <reified T> FormResultData.getInitialAs(path: String): T {
-    return getInitial(path) as T
+    return resultAs(path, getInitial(path))
 }
 
 /**
@@ -143,12 +149,33 @@ private fun FormResultData.resultAt(path: String, levelOf: (ControlResultData) -
     val names = path.split(PathResolver.SEPARATOR)
     var level: FormResultData = this
     for (name in names.dropLast(1)) {
+        val children = levelOf(level.resultNamed(name, path)) ?: return null
+        if (children !is Map<*, *>) throw FormResultException(path, "'$name' is not a section")
         @Suppress("UNCHECKED_CAST")
-        level = levelOf(level.resultNamed(name, path)) as FormResultData? ?: return null
+        level = children as FormResultData
     }
     return level.resultNamed(names.last(), path)
 }
 
 private fun FormResultData.resultNamed(name: String, path: String): ControlResultData {
-    return this[name] ?: throw IllegalArgumentException("No control '$name' in the form results (path '$path')")
+    return this[name] ?: throw FormResultException(path, "no control '$name'")
+}
+
+/**
+ * [value] read from [path] as [T], or [FormResultException] when it is not one.
+ */
+@PublishedApi
+internal inline fun <reified T> resultAs(path: String, value: Any?): T {
+    if (value is T) return value
+    throw FormResultException(path, "expected ${typeOf<T>()}, got ${describeValue(value)}")
+}
+
+/**
+ * A value for exception messages: `'text' (Type)`, cut to 100 characters, or `null`.
+ */
+@PublishedApi
+internal fun describeValue(value: Any?): String {
+    if (value == null) return "null"
+    val shown = value.toString().let { if (it.length > 100) it.take(100) + "…" else it }
+    return "'$shown' (${value::class.simpleName})"
 }

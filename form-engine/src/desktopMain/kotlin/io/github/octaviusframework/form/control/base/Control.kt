@@ -112,8 +112,7 @@ abstract class Control<T : Any> internal constructor(
      * Describes [value] as not fitting this control, for exception messages.
      */
     protected fun mismatch(value: Any): String {
-        val shown = value.toString().let { if (it.length > 100) it.take(100) + "…" else it }
-        return "value '$shown' (${value::class.simpleName}) does not fit ${this::class.simpleName}"
+        return "value ${describeValue(value)} does not fit ${this::class.simpleName}"
     }
 
     /**

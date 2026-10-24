@@ -136,7 +136,9 @@ class BookFormDataManager : FormDataManager() {
 ```
 
 `getCurrent` / `getInitial` (and their typed `getCurrentAs<T>` / `getInitialAs<T>` variants) read
-`ControlResultData` out of `FormResultData` without the `!!.currentValue as T` boilerplate.
+`ControlResultData` out of `FormResultData` without the `!!.currentValue as T` boilerplate. A path without a
+control, a path through a control that is not a section, or a value that is not a `T` (including `null` for a
+non-null `T`, as for a hidden control) throws `FormResultException` with the path.
 
 ### 3. Create the Screen
 
@@ -450,6 +452,7 @@ form-engine/
 │   ├── FormState.kt           # Reactive per-control state, keyed by hierarchical path; FormLoadState
 │   ├── FormHandler.kt         # Orchestrates load → validate → action
 │   ├── InitDataException.kt   # initData that does not fit the schema (unknown key, value the control rejects)
+│   ├── FormResultException.kt # reading FormResultData failed (no control at the path, value of another type)
 │   ├── FormActionTrigger.kt   # triggerAction(actionKey, validates): Boolean — the whole outward contract
 │   ├── FormView.kt            # Composable rendering content + action bar
 │   ├── FormDataManager.kt     # initData() / definedFormActions() contract
