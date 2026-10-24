@@ -11,11 +11,11 @@ import org.octavius.localization.Tr
 
 // --- Main DSL classes ---
 
-data class FieldMapping(val controlName: String, val dbColumn: String)
-data class ExistenceFlag(val controlName: String, val checkColumn: String)
+internal data class FieldMapping(val controlName: String, val dbColumn: String)
+internal data class ExistenceFlag(val controlName: String, val checkColumn: String)
 
-interface MappingContainer {
-    val relations: MutableList<RelationMapping>
+abstract class MappingContainer internal constructor() {
+    internal val relations = mutableListOf<RelationMapping>()
 
     /**
      * @param controlName Control name or path to it, e.g. `"basic_info/name"` for a field in a section.
@@ -43,14 +43,12 @@ interface MappingContainer {
     }
 }
 
-abstract class BaseTableMappingBuilder : MappingContainer {
+abstract class BaseTableMappingBuilder internal constructor() : MappingContainer() {
     protected lateinit var tableName: String
     protected lateinit var tableAlias: String
 
-    val fromTable: String
+    internal val fromTable: String
         get() = if (::tableName.isInitialized) "$tableName $tableAlias" else ""
-
-    override val relations = mutableListOf<RelationMapping>()
 
     fun from(tableName: String, alias: String) {
         this.tableName = tableName
@@ -62,9 +60,9 @@ abstract class BaseTableMappingBuilder : MappingContainer {
     }
 }
 
-class OneToOneMappingBuilder : BaseTableMappingBuilder() {
-    lateinit var joinCondition: String
-    var existenceFlag: ExistenceFlag? = null
+class OneToOneMappingBuilder internal constructor() : BaseTableMappingBuilder() {
+    internal lateinit var joinCondition: String
+    internal var existenceFlag: ExistenceFlag? = null
         private set
 
     fun existenceFlag(controlName: String, checkColumn: String) {
@@ -75,16 +73,16 @@ class OneToOneMappingBuilder : BaseTableMappingBuilder() {
         this.joinCondition = condition
     }
 
-    fun validate() {
+    internal fun validate() {
         validateBase()
         check(::joinCondition.isInitialized) { "The `on` clause is required in a one-to-one mapping." }
     }
 }
 
-class RelatedDataMappingBuilder : BaseTableMappingBuilder() {
+class RelatedDataMappingBuilder internal constructor() : BaseTableMappingBuilder() {
     private lateinit var linkColumn: String
     private var parentColumn: String = "@id"
-    var orderBy: String? = null
+    internal var orderBy: String? = null
         private set
 
     fun linkedBy(foreignKeyColumn: String, parentColumn: String = "@id") {
@@ -102,22 +100,22 @@ class RelatedDataMappingBuilder : BaseTableMappingBuilder() {
         this.orderBy = expression
     }
 
-    fun validate() {
+    internal fun validate() {
         validateBase()
         check(::linkColumn.isInitialized) { "The `linkedBy` clause is required in a related-list mapping." }
     }
 
-    fun buildWhereClause(): String {
+    internal fun buildWhereClause(): String {
         return "$linkColumn = $parentColumn"
     }
 }
 
 // --- Internal representations ---
 
-sealed class RelationMapping
-data class SimpleMapping(val mapping: FieldMapping) : RelationMapping()
-data class OneToOneMapping(val existenceFlag: ExistenceFlag?, val table: String, val on: String, val relations: List<RelationMapping>) : RelationMapping()
-data class RelatedDataMapping(val controlName: String, val builder: RelatedDataMappingBuilder) : RelationMapping()
+internal sealed class RelationMapping
+internal data class SimpleMapping(val mapping: FieldMapping) : RelationMapping()
+internal data class OneToOneMapping(val existenceFlag: ExistenceFlag?, val table: String, val on: String, val relations: List<RelationMapping>) : RelationMapping()
+internal data class RelatedDataMapping(val controlName: String, val builder: RelatedDataMappingBuilder) : RelationMapping()
 
 
 // --- SQL building helper ---
@@ -126,7 +124,7 @@ data class RelatedDataMapping(val controlName: String, val builder: RelatedDataM
 // keys over its sections by itself, when it initializes the states.
 private fun alias(controlName: String) = "\"$controlName\""
 
-class QueryScope(
+internal class QueryScope(
     val isTopLevel: Boolean
 ) {
     val fieldExpressions = mutableListOf<String>()
@@ -191,11 +189,10 @@ class QueryScope(
 
 // --- Main builder ---
 
-class DataLoaderBuilder(private val db: OctaviusClient) : MappingContainer {
+class DataLoaderBuilder internal constructor(private val db: OctaviusClient) : MappingContainer() {
     private lateinit var mainTableName: String
     private lateinit var mainTableAlias: String
     private var idColumn: String = "id"
-    override val relations = mutableListOf<RelationMapping>()
 
     private val mainTable: String
     get() = if (::mainTableName.isInitialized) "$mainTableName $mainTableAlias" else ""
@@ -216,7 +213,7 @@ class DataLoaderBuilder(private val db: OctaviusClient) : MappingContainer {
      *   loading failed: the database reported an error or there is no record with that id. A dialog shows
      *   the reason.
      */
-    fun execute(id: Any?): Map<String, Any?>? {
+    internal fun execute(id: Any?): Map<String, Any?>? {
         check(::mainTableName.isInitialized) { "Main table must be defined using from()" }
         if (id == null) return emptyMap()
 
