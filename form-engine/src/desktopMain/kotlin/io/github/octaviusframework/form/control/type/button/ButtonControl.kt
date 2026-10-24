@@ -13,31 +13,30 @@ import io.github.octaviusframework.form.control.base.*
 import org.octavius.theme.FormSpacing
 
 /**
- * Kontrolka renderująca przycisk, którego jedynym celem jest wywołanie zdefiniowanych akcji.
+ * A control rendering a button whose only purpose is to run its actions.
  *
- * Jest to kontrolka "bezstanowa" (używa typu `Unit`), nie przechowuje żadnej wartości
- * i nie jest powiązana z kolumną w bazie danych. Służy jako element interfejsu
- * do wyzwalania logiki biznesowej, takiej jak wywołania API, otwieranie okien dialogowych,
- * czy modyfikowanie innych kontrolek w formularzu.
+ * It is a "stateless" control (it uses the `Unit` type), holds no value and is not bound to a database
+ * column. It is a UI element for triggering business logic, such as API calls, opening dialogs or
+ * modifying other controls of the form.
  *
- * @param text Tekst wyświetlany na przycisku.
- * @param buttonType Styl wizualny przycisku (domyślnie FILLED).
- * @param dependencies Zależności widoczności od innych kontrolek.
- * @param actions Lista akcji do wykonania po kliknięciu. Musi zawierać co najmniej jedną akcję.
+ * @param text Text shown on the button.
+ * @param buttonType Visual style of the button (FILLED by default).
+ * @param dependencies Visibility dependencies on other controls.
+ * @param actions Actions to run on click. Must contain at least one action.
  */
 class ButtonControl(
     val text: String,
     val buttonType: ButtonType = ButtonType.Filled,
     dependencies: Map<String, ControlDependency<*>>? = null,
-    actions: List<ControlAction<Unit>> // Akcje są kluczowe, więc nie są opcjonalne
+    actions: List<ControlAction<Unit>> // Actions are the point, so they are not optional
 ) : Control<Unit>(
-    label = null, // Przyciski nie mają etykiety, tekst jest na nich
-    required = false, // Nie dotyczy
+    label = null, // Buttons have no label, the text is on them
+    required = false, // Not applicable
     dependencies = dependencies,
-    hasStandardLayout = false, // Pełna kontrola nad renderowaniem
+    hasStandardLayout = false, // Full control over rendering
     actions = actions
 ) {
-    // Przycisk nie ma wartości, więc nic nie jest jego wartością początkową.
+    // A button has no value, so nothing is its initial value.
     override fun acceptsInitValue(value: Any) = false
 
     @Composable

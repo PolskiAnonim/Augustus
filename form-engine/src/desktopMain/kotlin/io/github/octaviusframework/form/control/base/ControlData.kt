@@ -5,13 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import io.github.octaviusframework.form.component.PathResolver
 
 /**
- * Wynik przetwarzania pojedynczej kontrolki formularza.
+ * Result of processing a single form control.
  *
- * Zawiera zarówno bieżącą wartość (zmodyfikowaną przez użytkownika)
- * jak i wartość początkową (z bazy lub domyślną) dla porównań.
+ * Holds both the current value (modified by the user) and the initial value (from the database or a
+ * default) for comparisons.
  *
- * @param currentValue Bieżąca wartość kontrolki przetworzona przez getResult.
- * @param initialValue Pierwotna wartość załadowana z bazy lub ustawiona domyślnie.
+ * @param currentValue Current value of the control, processed by getResult.
+ * @param initialValue Original value loaded from the database or set as a default.
  */
 data class ControlResultData(
     val currentValue: Any?,
@@ -19,22 +19,21 @@ data class ControlResultData(
 )
 
 /**
- * Reaktywny stan pojedynczej kontrolki formularza.
+ * Reactive state of a single form control.
  *
- * Przechowuje wszystkie informacje o stanie kontrolki potrzebne
- * do renderowania, walidacji i śledzenia zmian, wykorzystując
- * Compose State API dla automatycznej rekomposycji.
+ * Holds everything about the control's state needed for rendering, validation and change tracking, using
+ * the Compose State API for automatic recomposition.
  *
- * @param T Typ danych przechowywanych przez kontrolkę.
- * @param value Bieżąca wartość kontrolki (edytowana przez użytkownika) - MutableState.
- * @param initValue Pierwotna wartość załadowana z bazy lub ustawiona domyślnie - MutableState.
- * @param displayText Tekst pokazywany użytkownikowi, gdy nie da się go wyprowadzić z [value] przy
- *                    każdym renderowaniu: bufor edycyjny pola liczbowego (`1.` nie jest jeszcze
- *                    liczbą) albo etykieta wybranej pozycji dropdowna (wymaga zapytania).
- *                    `null` znaczy "nieustalony" - kontrolka wypełni go sama, synchronicznie albo
- *                    zapytaniem. Dlatego `updateControl` z zewnątrz zeruje to pole: zapisanie
- *                    wartości unieważnia tekst, a samo zerowanie jest sygnałem do przeliczenia.
- * @param labelOverride Etykieta nadpisana z akcji, zamiast tej ze schematu.
+ * @param T Type of the data held by the control.
+ * @param value Current value of the control (edited by the user) - MutableState.
+ * @param initValue Original value loaded from the database or set as a default - MutableState.
+ * @param displayText Text shown to the user when it cannot be derived from [value] on every render: the
+ *                    edit buffer of a number field (`1.` is not a number yet) or the label of the selected
+ *                    dropdown item (needs a query). `null` means "not determined" - the control fills it
+ *                    in itself, synchronously or with a query. That is why `updateControl` from outside
+ *                    clears this field: writing the value invalidates the text, and the clearing itself is
+ *                    the signal to work it out again.
+ * @param labelOverride Label overridden from an action, in place of the one from the schema.
  */
 data class ControlState<T>(
     val value: MutableState<T?> = mutableStateOf(null),
@@ -44,12 +43,12 @@ data class ControlState<T>(
 )
 
 /**
- * Kontekst renderowania i stanu kontrolki w hierarchii formularza.
+ * Rendering and state context of a control in the form hierarchy.
  *
- * @param localName Nazwa kontrolki w jej bezpośrednim kontekście (np. "firstName", "publications").
- * @param statePath Ścieżka do kontenera nadrzędnego (np. "user", "publications[uuid]") dla stanu.
- * @param controlPath Ścieżka do kontenera nadrzędnego (np. "user", "publications") dla kontrolek
- * @param parent  Kontekst renderowania nadrzędnej kontrolki. Umożliwia nawigację w górę drzewa.
+ * @param localName Name of the control in its immediate context (e.g. "firstName", "publications").
+ * @param statePath Path to the parent container (e.g. "user", "publications[uuid]") for the state.
+ * @param controlPath Path to the parent container (e.g. "user", "publications") for the controls
+ * @param parent  Rendering context of the parent control. Allows navigating up the tree.
  */
 data class ControlContext(
     val localName: String,
@@ -66,8 +65,8 @@ data class ControlContext(
     }
 
     /**
-     * Tworzy kontekst dla kontrolki-dziecka w sekcji. Sekcja to jeden poziom danych - jak wiersz
-     * repeatable, tylko bez `[rowId]` - więc dziecko leży pod `sekcja/nazwa`.
+     * Creates the context of a child control in a section. A section is one data level - like a repeatable
+     * row, only without `[rowId]` - so the child lies under `section/name`.
      */
     fun forSectionChild(childLocalName: String): ControlContext {
         return ControlContext(
@@ -79,7 +78,7 @@ data class ControlContext(
     }
 
     /**
-     * Tworzy kontekst dla kontrolki-dziecka w kontenerze powtarzalnym (Repeatable).
+     * Creates the context of a child control in a repeatable container.
      */
     fun forRepeatableChild(childLocalName: String, rowId: String): ControlContext {
         return ControlContext(
@@ -92,55 +91,54 @@ data class ControlContext(
 }
 
 /**
- * Alias dla mapy zawierającej wyniki wszystkich kontrolek formularza.
+ * Alias for the map holding the results of all form controls.
  *
- * Kluczem jest nazwa kontrolki, wartością ControlResultData z bieżącą
- * i początkową wartością. Używane jako główny typ danych przekazywany
- * do logiki walidacji, zapisu i akcji formularza.
+ * The key is the control name, the value is ControlResultData with the current and initial value. The main
+ * data type passed to validation, save and action logic of the form.
  *
- * Sekcja to osobny poziom: jej wynik niesie mapę wyników dzieci, więc pole w sekcji
- * czyta się ścieżką, np. `getCurrent("basic_info/name")`.
+ * A section is a separate level: its result carries the map of its children's results, so a field in a
+ * section is read by path, e.g. `getCurrent("basic_info/name")`.
  */
 typealias FormResultData = Map<String, ControlResultData>
 
 /**
- * Pobiera bieżącą wartość kontrolki jako określony typ `T`.
- * Obsługuje rzutowanie na typ T
+ * Returns the current value of a control as type `T`.
+ * Casts to T
  *
- * Użycie: `formData.getCurrentAs<String>("basic_info/name")`
+ * Usage: `formData.getCurrentAs<String>("basic_info/name")`
  */
 inline fun <reified T> FormResultData.getCurrentAs(path: String): T {
     return getCurrent(path) as T
 }
 
 /**
- * Pobiera bieżącą wartość kontrolki jako Any?. Pole ukrytej sekcji ma `null`, jak każda ukryta kontrolka.
+ * Returns the current value of a control as Any?. A field of a hidden section has `null`, like every hidden control.
  */
 fun FormResultData.getCurrent(path: String): Any? {
     return resultAt(path) { it.currentValue }?.currentValue
 }
 
 /**
- * Pobiera początkową wartość kontrolki jako określony typ `T`.
+ * Returns the initial value of a control as type `T`.
  *
- * Użycie: `rowData.getInitialAs<Int>("id")`
+ * Usage: `rowData.getInitialAs<Int>("id")`
  */
 inline fun <reified T> FormResultData.getInitialAs(path: String): T {
     return getInitial(path) as T
 }
 
 /**
- * Pobiera początkową wartość kontrolki jako Any?. Ukrycie nie zmienia wartości początkowej,
- * także w ukrytej sekcji.
+ * Returns the initial value of a control as Any?. Hiding does not change the initial value, also in a
+ * hidden section.
  *
- * Użycie: `rowData.getInitial("id")`
+ * Usage: `rowData.getInitial("id")`
  */
 fun FormResultData.getInitial(path: String): Any? {
     return resultAt(path) { it.initialValue }?.initialValue
 }
 
-// Schodzi po ścieżce przez sekcje, w każdej biorąc mapę wyników dzieci z wartości wskazanej przez
-// [levelOf]. `null` znaczy, że po drodze była ukryta sekcja, a jej pola nie mają bieżącej wartości.
+// Walks down the path through sections, in each taking the children's result map from the value picked by
+// [levelOf]. `null` means there was a hidden section on the way, and its fields have no current value.
 private fun FormResultData.resultAt(path: String, levelOf: (ControlResultData) -> Any?): ControlResultData? {
     val names = path.split(PathResolver.SEPARATOR)
     var level: FormResultData = this
@@ -152,5 +150,5 @@ private fun FormResultData.resultAt(path: String, levelOf: (ControlResultData) -
 }
 
 private fun FormResultData.resultNamed(name: String, path: String): ControlResultData {
-    return this[name] ?: throw IllegalArgumentException("Brak kontrolki '$name' w wynikach formularza (ścieżka '$path')")
+    return this[name] ?: throw IllegalArgumentException("No control '$name' in the form results (path '$path')")
 }

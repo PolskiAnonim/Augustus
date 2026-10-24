@@ -19,11 +19,10 @@ import io.github.octaviusframework.form.localization.FormTr
 import kotlin.reflect.KClass
 
 /**
- * Kontrolka do wyboru wartości z enumeracji (enum) z listy rozwijanej.
+ * A control for choosing an enum value from a dropdown list.
  *
- * Automatycznie generuje opcje wyboru na podstawie wartości enumeracji.
- * Wymaga aby enum implementował interfejs EnumWithFormatter dla formatowania
- * tekstu wyświetlanego użytkownikowi. Obsługuje wyszukiwanie w opcjach.
+ * Generates the options from the enum's values. Requires the enum to implement EnumWithFormatter, which
+ * formats the text shown to the user. Supports searching the options.
  */
 class EnumControl<T>(
     label: String?,
@@ -37,8 +36,8 @@ class EnumControl<T>(
 
     override fun acceptsInitValue(value: Any) = enumClass.isInstance(value)
 
-    // Enum nosi swoją etykietę ze sobą, więc "rozwiązanie" jest natychmiastowe - suspend bierze się
-    // z kontraktu bazowego, gdzie DatabaseControl musi odpytać bazę.
+    // An enum carries its label with it, so "resolving" is immediate - suspend comes from the base
+    // contract, where DatabaseControl has to query the database.
     override suspend fun resolveDisplayText(value: T): String = value.toDisplayString()
 
     @Composable
@@ -46,14 +45,14 @@ class EnumControl<T>(
         controlContext: ControlContext,
         scope: CoroutineScope,
         controlState: ControlState<T>,
-        menuScrollState: ScrollState, // nieużywane: enum ma wszystkie opcje od razu, nie ma czego doczytywać
+        menuScrollState: ScrollState, // unused: an enum has all options at once, there is nothing to load
         closeMenu: () -> Unit
     ) {
         val options = enumClass.java.enumConstants.map {
             DropdownOption(it, it.toDisplayString())
         }
 
-        // Opcja "null"
+        // The "null" option
         if (required != true) {
             DropdownMenuItem(
                 text = { Text(FormTr.Form.Dropdown.noSelection()) },
@@ -67,7 +66,7 @@ class EnumControl<T>(
             HorizontalDivider()
         }
 
-        // Lista opcji
+        // The options
         options.forEach { option ->
             DropdownMenuItem(
                 text = { Text(option.displayText) },

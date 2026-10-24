@@ -3,9 +3,8 @@ package io.github.octaviusframework.form.component
 import io.github.octaviusframework.form.control.base.ControlContext
 
 /**
- * Narzędzie do rozwiązywania ścieżek w hierarchii formularza.
- * Obsługuje ścieżki bezwzględne, względne (.) oraz wyjście w górę (..), 
- * wykorzystując strukturę drzewa [ControlContext].
+ * Resolves paths in the form hierarchy.
+ * Handles absolute paths, relative ones (.) and going up (..), using the [ControlContext] tree.
  */
 object PathResolver {
     const val SEPARATOR = "/"
@@ -13,21 +12,21 @@ object PathResolver {
     const val CURRENT = "."
 
     /**
-     * Rozwiązuje ścieżkę [path] względem podanego kontekstu [currentContext].
+     * Resolves [path] relative to the given context [currentContext].
      *
-     * Reguły:
-     * - Ścieżka zaczynająca się od "/" (np. "/name") -> bezwzględna od korzenia.
-     * - Ścieżka bez "/" i bez ".", ".." (np. "name") -> traktowana jako bezwzględna (kompatybilność wsteczna).
-     * - Ścieżka zaczynająca się od "." (np. "./name") -> rodzeństwo w tym samym kontenerze.
-     * - Ścieżka zaczynająca się od ".." (np. "../name") -> wyjście poziom wyżej w hierarchii kontenerów.
+     * Rules:
+     * - A path starting with "/" (e.g. "/name") -> absolute, from the root.
+     * - A path without "/" and without ".", ".." (e.g. "name") -> treated as absolute.
+     * - A path starting with "." (e.g. "./name") -> a sibling in the same container.
+     * - A path starting with ".." (e.g. "../name") -> one level up in the container hierarchy.
      */
     fun resolvePath(path: String, currentContext: ControlContext): String {
-        // Ścieżka bezwzględna (zaczyna się od /)
+        // Absolute path (starts with /)
         if (path.startsWith(SEPARATOR)) {
             return path.substring(1)
         }
 
-        // Kompatybilność wsteczna: prosta nazwa bez separatorów i modyfikatorów to path bezwzględny
+        // A plain name without separators or modifiers is an absolute path
         if (!path.contains(SEPARATOR) &&
             !path.startsWith(CURRENT) &&
             !path.startsWith(PARENT)
@@ -42,18 +41,18 @@ object PathResolver {
         while (i < targetSegments.size) {
             when (targetSegments[i]) {
                 CURRENT -> {
-                    // . oznacza pozostanie w tym samym kontenerze. 
-                    // Ponieważ currentContext.statePath odnosi się już do kontenera,
-                    // nie musimy wchodzić wyżej w drzewo ControlContext.
+                    // . means staying in the same container.
+                    // currentContext.statePath already refers to the container,
+                    // so there is no need to go up the ControlContext tree.
                 }
 
                 PARENT -> {
-                    // .. oznacza wyjście do kontenera nadrzędnego
+                    // .. means going up to the parent container
                     contextNode = contextNode?.parent
                 }
 
                 else -> {
-                    // Dotarliśmy do właściwych nazw ścieżki
+                    // Reached the actual names of the path
                     break
                 }
             }
@@ -62,7 +61,7 @@ object PathResolver {
 
         val remainingPath = targetSegments.drop(i).joinToString(SEPARATOR)
 
-        // Konstruujemy bazową ścieżkę do kontenera, w którym ostatecznie wylądowaliśmy
+        // Base path of the container we ended up in
         val basePath = contextNode?.statePath ?: ""
 
         return if (basePath.isEmpty()) {
@@ -75,17 +74,16 @@ object PathResolver {
     }
 
     /**
-     * Rozwiązuje ścieżkę [path], która może zawierać symbole wieloznaczne (*),
-     * zwracając listę wszystkich pasujących kluczy z [formState].
+     * Resolves [path], which may contain wildcards (*), returning all matching keys from [formState].
      *
-     * Przykład: "publications/[*]/details/status" -> ["publications[uuid1]/details/status", ...]
+     * Example: "publications/[*]/details/status" -> ["publications[uuid1]/details/status", ...]
      */
     fun resolvePaths(path: String, currentContext: ControlContext, formState: FormState): List<String> {
         if (!path.contains("*")) {
             return listOf(resolvePath(path, currentContext))
         }
 
-        // 1. Rozwiąż bazę (do pierwszego *)
+        // 1. Resolve the base (up to the first *)
         val basePathPart = path.substringBefore("*")
 
         val cleanBasePath = if (basePathPart.endsWith(SEPARATOR) && basePathPart.length > 1) {
@@ -100,7 +98,7 @@ object PathResolver {
             resolvePath(cleanBasePath, currentContext)
         }
 
-        // 2. Przygotuj regex dla reszty wzorca
+        // 2. Build a regex for the rest of the pattern
         val pattern = path.substring(basePathPart.length)
 
         val regexPattern = pattern
@@ -113,14 +111,14 @@ object PathResolver {
             "^$regexPattern$"
         } else {
             val escapedBase = Regex.escape(resolvedBase)
-            // Jeśli pattern zaczyna się od separatora, lub baza kończy się na '[' (otwarcie indeksu), nie dodajemy separatora
+            // No separator when the pattern starts with one, or when the base ends with '[' (an opening index)
             val separator = if (pattern.startsWith(SEPARATOR) || basePathPart.endsWith("[")) "" else "\\/"
             "^$escapedBase$separator$regexPattern$"
         }
 
         val regex = regexString.toRegex()
 
-        // 3. Filtrujemy klucze z FormState
+        // 3. Filter the FormState keys
         return formState.getAllStates().keys.filter { it.matches(regex) }
     }
 }

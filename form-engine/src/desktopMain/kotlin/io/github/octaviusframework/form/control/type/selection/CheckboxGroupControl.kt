@@ -16,7 +16,7 @@ import io.github.octaviusframework.form.control.layout.ControlOrientation
 import org.octavius.theme.FormSpacing
 
 /**
- * Kontrolka pozwalająca na wybór wielu opcji z grupy za pomocą pól wyboru (Checkbox).
+ * A control for choosing several options from a group with checkboxes.
  */
 class CheckboxGroupControl<T : Any>(
     label: String?,
@@ -81,7 +81,7 @@ class CheckboxGroupControl<T : Any>(
                 ) {
                     Checkbox(
                         checked = isChecked,
-                        onCheckedChange = null // obsługa kliknięcia jest w Row (toggleable)
+                        onCheckedChange = null // the click is handled by the Row (toggleable)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(

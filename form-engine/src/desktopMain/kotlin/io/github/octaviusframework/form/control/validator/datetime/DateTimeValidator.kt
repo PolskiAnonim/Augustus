@@ -19,7 +19,7 @@ class DateTimeValidator<T: Any>(
 
         validationOptions?.let { options ->
             options.min?.let { min ->
-                // Używamy standardowego porównania, zakładając, że typy T są Comparable
+                // Standard comparison, assuming the T types are Comparable
                 @Suppress("UNCHECKED_CAST")
                 if ((value as Comparable<T>) < min) {
                     errors.add(FormTr.Validation.minValue(adapter.format(min)))

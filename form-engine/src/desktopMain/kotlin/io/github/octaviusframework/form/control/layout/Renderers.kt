@@ -1,6 +1,6 @@
 /**
- * Zestaw funkcji renderujących wspólne elementy kontrolek.
- * Zapewnia spójny wygląd etykiet, błędów i innych elementów UI.
+ * Functions rendering the elements shared by controls.
+ * Keeps labels, errors and other UI elements looking the same.
  */
 package io.github.octaviusframework.form.control.layout
 
@@ -16,7 +16,7 @@ import org.octavius.theme.FormSpacing
 
 
 /**
- * Renderuje etykietę kontrolki z opcjonalną gwiazdką dla pól wymaganych.
+ * Renders a control's label with an asterisk for required fields.
  */
 @Composable
 private fun RenderLabel(label: String, isRequired: Boolean) {
@@ -35,8 +35,8 @@ private fun RenderLabel(label: String, isRequired: Boolean) {
 }
 
 /**
- * Renderuje standardową etykietę kontrolki z paddingiem.
- * Używana przez większość kontrolek formularza.
+ * Renders the standard control label with padding.
+ * Used by most form controls.
  */
 @Composable
 internal fun RenderNormalLabel(label: String?, isRequired: Boolean) {
@@ -54,8 +54,8 @@ internal fun RenderNormalLabel(label: String?, isRequired: Boolean) {
 }
 
 /**
- * Renderuje etykietę dla kontrolki checkbox bez dodatkowego paddingu.
- * Checkboxy mają własne rozmieszczenie elementów.
+ * Renders the label of a checkbox control without extra padding.
+ * Checkboxes lay out their elements themselves.
  */
 @Composable
 internal fun RenderCheckboxLabel(label: String?, isRequired: Boolean) {
@@ -66,9 +66,9 @@ internal fun RenderCheckboxLabel(label: String?, isRequired: Boolean) {
 
 
 /**
- * Renderuje pojedynczy błąd pola z ErrorManagera.
+ * Renders a single field error from the ErrorManager.
  *
- * @param error tekst błędu do wyświetlenia
+ * @param error error text to show
  */
 @Composable
 internal fun RenderFieldError(error: String) {

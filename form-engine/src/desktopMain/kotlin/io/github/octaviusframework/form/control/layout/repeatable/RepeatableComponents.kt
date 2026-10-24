@@ -40,7 +40,7 @@ internal fun RepeatableHeader(
             )
         }
 
-        // Zawsze zajmuj miejsce na przycisk, ale pokaż tylko gdy można dodać
+        // Always take up the button's space, but show it only when a row can be added
         Box(
             modifier = Modifier.width(150.dp),
             contentAlignment = Alignment.CenterEnd
@@ -126,7 +126,7 @@ private fun RepeatableRowHeader(
             Row(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.width(96.dp) // Stała szerokość na ikonę + przycisk
+                modifier = Modifier.width(96.dp) // Fixed width for the icon + button
             ) {
                 Icon(
                     imageVector = if (isExpanded)

@@ -17,11 +17,10 @@ import io.github.octaviusframework.form.control.layout.RenderCheckboxLabel
 import org.octavius.theme.FormSpacing
 
 /**
- * Kontrolka do wprowadzania wartości logicznych (prawda/fałsz).
+ * A control for entering boolean values (true/false).
  *
- * Renderuje checkbox z etykietą. Dla pól wymaganych używa standardowego
- * checkboxa (true/false), dla opcjonalnych używa checkboxa z trzema stanami
- * (true/false/null). Obsługuje automatyczne przełączanie między stanami.
+ * Renders a checkbox with a label. Required fields use a standard checkbox (true/false), optional ones a
+ * three-state checkbox (true/false/null). Cycles through the states on click.
  */
 class CheckboxControl(
     label: String?,

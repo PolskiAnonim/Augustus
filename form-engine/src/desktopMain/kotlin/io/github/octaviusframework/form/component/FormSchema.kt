@@ -4,20 +4,20 @@ import io.github.octaviusframework.form.control.base.Control
 import io.github.octaviusframework.form.control.base.ControlContext
 
 /**
- * Schemat formularza - definicja struktury i układu kontrolek.
+ * Form schema - the structure and layout of the controls.
  *
- * FormSchema przechowuje kompletna definicję formularza włączając:
- * - Wszystkie kontrolki z ich konfiguracją
- * - Kolejność wyświetlania w głównym obszarze
- * - Kolejność wyświetlania w pasku akcji
+ * FormSchema holds the complete form definition, including:
+ * - All controls with their configuration
+ * - The display order in the main area
+ * - The display order in the action bar
  *
- * Schemat jest tworzona przez FormSchemaBuilder i jest niezmienny po utworzeniu.
+ * The schema is created by FormSchemaBuilder and does not change afterwards.
  *
- * @param controls Mapa wszystkich kontrolek formularza (klucz = unikalna nazwa).
- * @param contentOrder Lista nazw kontrolek do wyświetlenia w głównym obszarze formularza.
- * @param actionBarOrder Lista nazw kontrolek do wyświetlenia w dolnym pasku akcji.
+ * @param controls Map of all form controls (key = unique name).
+ * @param contentOrder Names of the controls shown in the main area of the form.
+ * @param actionBarOrder Names of the controls shown in the bottom action bar.
  *
- * @throws IllegalArgumentException jeśli nazwy w listach porządkujących nie istnieją w mapie controls.
+ * @throws IllegalArgumentException if names in the order lists do not exist in the controls map.
  */
 class FormSchema(
     private val definedControls: Map<String, Control<*>>,
@@ -36,18 +36,18 @@ class FormSchema(
     }
 
     /**
-     * Zwraca kontrolkę o danej nazwie
+     * Returns the control with the given name
      */
     fun getControl(name: String): Control<*>? = controls[name]
 
     /**
-     * Zwraca wszystkie kontrolki zdefiniowane w tej klasie
+     * Returns all controls defined in this schema
      */
     fun getAllControls(): Map<String, Control<*>> = controls
 
     /**
-     * Kontrolki z górnego poziomu definicji, z kontekstem bez rodzica. Od nich silnik schodzi
-     * w dół drzewa przez [Control.childContexts].
+     * Top-level controls of the definition, with a context without a parent. The engine walks down the tree
+     * from them through [Control.childContexts].
      */
     internal fun rootContexts(): List<Pair<ControlContext, Control<*>>> {
         return definedControls.map { (name, control) -> ControlContext(name) to control }
@@ -55,19 +55,18 @@ class FormSchema(
 }
 
 /**
- * Abstrakcyjna fabryka do tworzenia schematów formularzy.
+ * Abstract factory for form schemas.
  *
- * Każdy formularz powinien mieć własną implementację buildera,
- * która definiuje specyficzną strukturę kontrolek, ich kolejność
- * i konfiguracje dla danej domeny biznesowej.
+ * Every form has its own builder implementation, which defines the structure of its controls, their order
+ * and their configuration for the given business domain.
  *
- * Przykładowa implementacja:
+ * Example implementation:
  * ```kotlin
  * class UserFormSchemaBuilder : FormSchemaBuilder() {
  *     override fun build(): FormSchema {
  *         return FormSchema(
  *             controls = mapOf(
- *                 "name" to StringControl(label = "Imię", required = true),
+ *                 "name" to StringControl(label = "Name", required = true),
  *                 "email" to StringControl(label = "Email")
  *             ),
  *             contentOrder = listOf("name", "email"),

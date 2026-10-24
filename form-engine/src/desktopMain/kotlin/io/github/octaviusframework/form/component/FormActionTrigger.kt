@@ -1,21 +1,21 @@
 package io.github.octaviusframework.form.component
 
 /**
- * Kontrakt, przez który kontrolki uruchamiają akcje formularza.
+ * The contract through which controls run form actions.
  *
- * `triggerAction` zwraca wyłącznie informację, czy akcja się powiodła - i to jest cała informacja,
- * jaką silnik oddaje na zewnątrz. Co ma się stać dalej (zamknięcie ekranu, przejście gdzie indziej)
- * decyduje lambda przycisku w schema builderze, czyli kod feature'a, który i tak zna nawigację.
+ * `triggerAction` returns only whether the action succeeded - and that is all the information the engine
+ * hands out. What happens next (closing the screen, going somewhere else) is decided by the button's lambda
+ * in the schema builder, i.e. feature code, which knows the navigation anyway.
  *
  */
 interface FormActionTrigger {
     /**
-     * Uruchamia pełen przebieg akcji: walidacja, zebranie danych formularza, wykonanie akcji.
+     * Runs the whole action: validation, collecting the form data, executing the action.
      *
-     * @param actionKey Klucz z `FormDataManager.definedFormActions()`.
-     * @param validates Czy przed akcją uruchomić walidację pól i reguł biznesowych.
-     * @return `true` gdy akcja wykonała się i zgłosiła powodzenie; `false` gdy walidacja nie
-     *   przeszła, akcji o takim kluczu nie ma, albo sama akcja zgłosiła niepowodzenie.
+     * @param actionKey Key from `FormDataManager.definedFormActions()`.
+     * @param validates Whether to run field and business-rule validation before the action.
+     * @return `true` when the action ran and reported success; `false` when validation failed, there is no
+     *   action with that key, or the action itself reported failure.
      */
     suspend fun triggerAction(actionKey: String, validates: Boolean): Boolean
 }

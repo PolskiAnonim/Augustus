@@ -8,8 +8,8 @@ import io.github.octaviusframework.form.control.type.number.primitive.PrimitiveN
 import io.github.octaviusframework.form.control.validator.number.IntegerValidator
 
 /**
- * Kontrolka do wprowadzania liczb całkowitych.
- * Rozszerza PrimitiveNumberControl, dostarczając logikę parsowania dla Int.
+ * A control for entering integers.
+ * Extends PrimitiveNumberControl with parsing for Int.
  */
 class IntegerControl(
     label: String?,

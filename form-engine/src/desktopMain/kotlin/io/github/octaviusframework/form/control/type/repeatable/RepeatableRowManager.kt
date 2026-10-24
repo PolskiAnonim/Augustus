@@ -35,19 +35,19 @@ class RepeatableRowManager(
         if (index < 0) return
         val rowToRemove = currentRows[index]
         
-        // Sprawdź czy wiersz był w oryginalnych danych
+        // Was the row in the original data
         val wasOriginal = controlState.initValue.value!!.any { it.id == rowToRemove.id }
         
-        // Stany wiersza z bazy zostają do końca życia formularza: jego wartości początkowe trafiają
-        // do deletedRows przy każdym zbieraniu danych. Nowy wiersz nie ma czego zgłaszać.
+        // The states of a database row stay for the lifetime of the form: its initial values go to
+        // deletedRows on every data collection. A new row has nothing to report.
         if (!wasOriginal) {
             formState.removeControlStatesWithPrefix("${controlContext.fullStatePath}[${rowToRemove.id}]")
         }
         
-        // Usuń wiersz z listy
+        // Remove the row from the list
         currentRows.removeAt(index)
         
-        // Zaktualizuj indeksy
+        // Update the indexes
         currentRows.forEachIndexed { newIndex, row ->
             currentRows[newIndex] = row.copy(index = newIndex)
         }

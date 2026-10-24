@@ -21,10 +21,10 @@ import org.octavius.theme.FormSpacing
 import java.awt.Cursor
 
 /**
- * Kontrolka do wprowadzania długiego tekstu (wieloliniowego).
- * 
- * Zawiera wbudowany uchwyt (prawy dolny róg) pozwalający na zmianę
- * wysokości pola przez użytkownika (podobnie jak textarea w HTML).
+ * A control for entering long (multiline) text.
+ *
+ * Has a built-in handle (bottom right corner) that lets the user change the field's height (like a textarea
+ * in HTML).
  */
 class MultilineStringControl(
     label: String?,
@@ -70,11 +70,11 @@ class MultilineStringControl(
                 singleLine = false
             )
 
-            // Uchwyt do zmiany rozmiaru (resize handle)
+            // Resize handle
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    // Niewielkie przesunięcie, aby nie nakładać się bezpośrednio na obramowanie
+                    // Small offset so it does not sit right on the border
                     .padding(bottom = 6.dp, end = 6.dp)
                     .size(16.dp)
                     .pointerHoverIcon(PointerIcon(Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR)))
@@ -93,7 +93,7 @@ class MultilineStringControl(
                     val w = size.width
                     val h = size.height
                     
-                    // Rysujemy paski uchwytu w prawym dolnym rogu
+                    // Draw the handle's stripes in the bottom right corner
                     drawLine(color, Offset(w, h * 0.4f), Offset(w * 0.4f, h), strokeWidth = 2f)
                     drawLine(color, Offset(w, h * 0.7f), Offset(w * 0.7f, h), strokeWidth = 2f)
                     drawLine(color, Offset(w, h * 1.0f), Offset(w * 1.0f, h), strokeWidth = 2f)

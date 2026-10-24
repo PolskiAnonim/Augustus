@@ -5,28 +5,25 @@ import io.github.octaviusframework.form.control.base.ControlState
 import io.github.octaviusframework.form.control.base.ControlValidator
 
 /**
- * Domyślna implementacja walidatora kontrolek formularza.
+ * Default implementation of a form control validator.
  *
- * Używana dla kontrolek, które nie wymagają specjalnej walidacji
- * poza standardową walidacją wymagalności i widoczności
- * zaimplementowaną w klasie bazowej ControlValidator.
+ * Used for controls that need no validation beyond the standard required/visibility checks implemented in
+ * the base class ControlValidator.
  *
- * Jest to implementacja "null object pattern" - zapewnia,
- * że każda kontrolka ma przypisany walidator, nawet jeśli
- * nie wykonuje on żadnej specyficznej walidacji.
+ * A "null object pattern" implementation - every control has a validator, even if it does no specific
+ * validation.
  *
- * @param T typ danych przechowywanych przez kontrolkę
+ * @param T type of the data held by the control
  */
 class DefaultValidator<T : Any> : ControlValidator<T>() {
     /**
-     * Nie wykonuje żadnej dodatkowej walidacji.
+     * Does no additional validation.
      *
-     * Wszystkie podstawowe operacje walidacji (wymagalność, widoczność)
-     * są obsługiwane przez klasę bazową ControlValidator.
+     * All basic validation (required, visibility) is handled by the base class ControlValidator.
      *
-     * @param state stan kontrolki - nieużywany w tej implementacji
+     * @param state control state - unused in this implementation
      */
     override fun validateSpecific(controlContext: ControlContext, state: ControlState<*>) {
-        // Domyślna implementacja nie wykonuje dodatkowej walidacji
+        // The default implementation does no additional validation
     }
 }

@@ -15,15 +15,15 @@ import io.github.octaviusframework.form.control.layout.section.SectionHeader
 import org.octavius.theme.FormSpacing
 
 /**
- * Kontrolka do grupowania i organizacji innych kontrolek w sekcje.
+ * A control grouping other controls into sections.
  *
- * Renderuje grupę kontrolek w karcie z nagłówkiem. Obsługuje składanie/rozwijanie sekcji
- * i układanie kontrolek w kolumnach. Umożliwia logiczne organizowanie formularza w tematyczne sekcje.
+ * Renders a group of controls in a card with a header. Supports collapsing/expanding the section and laying
+ * out the controls in columns. Organizes the form into thematic sections.
  *
- * Sekcja to jeden poziom danych, jak wiersz repeatable: jej dzieci leżą pod `sekcja/nazwa`,
- * a wynik sekcji niesie mapę ich wyników. Widoczność dzieci zależy od widoczności sekcji.
+ * A section is one data level, like a repeatable row: its children lie under `section/name`, and the
+ * section's result carries the map of their results. The children's visibility depends on the section's.
  *
- * @param controls Kontrolki sekcji, w kolejności wyświetlania.
+ * @param controls The section's controls, in display order.
  */
 class SectionControl(
     val controls: Map<String, Control<*>>,
@@ -47,7 +47,7 @@ class SectionControl(
         return controls.map { (childName, child) -> controlContext.forSectionChild(childName) to child }
     }
 
-    // Wartość sekcji to mapa jej pól, którą FormState złożył ze ścieżek `sekcja/pole`.
+    // A section's value is the map of its fields, which FormState assembled from `section/field` paths.
     override fun acceptsInitValue(value: Any) = value is Map<*, *>
 
     override fun setInitValue(controlContext: ControlContext, value: Any?): ControlState<Unit> {
@@ -57,8 +57,9 @@ class SectionControl(
         return ControlState()
     }
 
-    // Sekcja nie ma własnej wartości - niesie wyniki dzieci, w obu polach, bo każde dziecko ma
-    // i bieżącą, i początkową. Ukryta sekcja traci bieżącą mapę, ale jej dzieci i tak oddają `null`.
+    // A section has no value of its own - it carries its children's results, in both fields, because every
+    // child has both a current and an initial value. A hidden section loses its current map, but its children
+    // return `null` anyway.
     override fun convertToResult(controlContext: ControlContext, state: ControlState<*>): ControlResultData {
         val children = formState.collectLevel(childContexts(controlContext))
         return ControlResultData(currentValue = children, initialValue = children)

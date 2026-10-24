@@ -16,12 +16,12 @@ import io.github.octaviusframework.form.control.layout.RenderNormalLabel
 import io.github.octaviusframework.form.control.validator.DefaultValidator
 
 /**
- * Abstrakcyjna klasa bazowa dla wszystkich kontrolek formularza.
+ * Abstract base class of all form controls.
  *
- * @param T typ danych przechowywanych przez kontrolkę
+ * @param T type of the data held by the control
  */
 abstract class Control<T : Any> internal constructor(
-    // --- 1. Konfiguracja i Właściwości ---
+    // --- 1. Configuration and properties ---
     internal val label: String?,
     internal val required: Boolean?,
     internal val dependencies: Map<String, ControlDependency<*>>?,
@@ -30,37 +30,37 @@ abstract class Control<T : Any> internal constructor(
     protected val hasStandardLayout: Boolean = true
 ) {
 
-    // --- 2. Zarządzanie Hierarchią ---
+    // --- 2. Hierarchy ---
 
     /**
-     * Funkcja do rejestracji dzieci na globalnej mapie
-     * Zawiera referencje do kontrolek zdefiniowanych w kontrolce posiadającej własne
+     * Registers the children in the global map
+     * Holds references to the controls defined inside a control that has its own
      */
     internal open fun registerChildrenInGlobalMap(controlContext: ControlContext): Map<String, Control<*>> {
         return emptyMap()
     }
 
     /**
-     * Dzieci tej kontrolki w bieżącym stanie formularza, każde z kontekstem, w którym ta kontrolka
-     * jest rodzicem: sekcja ma jeden zestaw, repeatable - po jednym na wiersz. Po nich silnik schodzi
-     * w dół drzewa przy inicjalizacji, walidacji i zbieraniu danych.
+     * Children of this control in the current form state, each with a context in which this control is the
+     * parent: a section has one set, a repeatable - one per row. The engine walks down the tree through them
+     * when initializing, validating and collecting data.
      */
     internal open fun childContexts(controlContext: ControlContext): List<Pair<ControlContext, Control<*>>> {
         return emptyList()
     }
 
 
-    // --- 3. Cykl Życia i Kontekst Formularza ---
-    // Referencje wstrzykiwane przez FormHandler przy inicjalizacji.
+    // --- 3. Lifecycle and form context ---
+    // References injected by FormHandler at initialization.
     protected lateinit var formState: FormState
     protected lateinit var formSchema: FormSchema
     protected lateinit var errorManager: ErrorManager
     protected lateinit var formActionTrigger: FormActionTrigger
 
     /**
-     * Ustawia referencje do komponentów formularza. Jest to drugi etap inicjalizacji kontrolki,
-     * wywoływany przez FormHandler. Daje dostęp do globalnego stanu, schemy i managera błędów.
-     * Dodatkowo umożliwia wykonanie dodatkowych kroków inicjalizacyjnych wymaganych przez określone kontrolki
+     * Sets the references to the form components. This is the second stage of a control's initialization,
+     * called by FormHandler. Gives access to the global state, the schema and the error manager.
+     * Also lets particular controls run additional initialization steps they need
      */
     internal open fun initializeControlLifecycle(
         formState: FormState,
@@ -75,12 +75,12 @@ abstract class Control<T : Any> internal constructor(
         validator.setupFormReferences(formState, formSchema, errorManager)
     }
 
-    // --- 4. Zarządzanie Stanem i Danymi ---
+    // --- 4. State and data ---
     /**
-     * Ustawia początkową wartość kontrolki i tworzy jej stan (`ControlState`).
-     * @param value Wartość z bazy danych lub wartość domyślna.
-     * @return Utworzony stan kontrolki.
-     * @throws InitDataException gdy kontrolka nie przyjmuje [value].
+     * Sets the control's initial value and creates its state (`ControlState`).
+     * @param value Value from the database or a default value.
+     * @return The created control state.
+     * @throws InitDataException when the control does not accept [value].
      */
     internal open fun setInitValue(controlContext: ControlContext, value: Any?): ControlState<T> {
         val state = ControlState<T>()
@@ -96,40 +96,40 @@ abstract class Control<T : Any> internal constructor(
     }
 
     /**
-     * Czy [value] może być wartością początkową tej kontrolki. Dla zwykłej kontrolki to wartość typu [T]
-     * (a dla wyboru z ustalonych opcji - jedna z nich). Kontenery przyjmują dane w swoim kształcie:
-     * sekcja mapę pól, lista powtarzalna listę wierszy.
+     * Whether [value] can be this control's initial value. For a plain control that is a value of type [T]
+     * (and for a choice from fixed options - one of them). Containers take data in their own shape: a section
+     * a map of fields, a repeatable list a list of rows.
      */
     protected abstract fun acceptsInitValue(value: Any): Boolean
 
     /**
-     * Rzuca [InitDataException], gdy kontrolka nie przyjmuje [value] jako wartości początkowej.
+     * Throws [InitDataException] when the control does not accept [value] as its initial value.
      */
     protected fun requireInitValue(controlContext: ControlContext, value: Any) {
         if (!acceptsInitValue(value)) {
             val shown = value.toString().let { if (it.length > 100) it.take(100) + "…" else it }
             throw InitDataException(
                 controlContext.fullControlPath,
-                "wartość '$shown' (${value::class.simpleName}) nie pasuje do ${this::class.simpleName}"
+                "value '$shown' (${value::class.simpleName}) does not fit ${this::class.simpleName}"
             )
         }
     }
 
     /**
-     * Tworzy głęboką kopię wartości początkowej dla bieżącej wartości.
-     * Kluczowe dla typów mutowalnych (np. List), aby zmiany w `value` nie wpływały na `initValue`.
+     * Makes a deep copy of the initial value for the current value.
+     * Matters for mutable types (e.g. List), so that changes to `value` do not affect `initValue`.
      */
     internal open fun copyInitToValue(value: T): T {
-        return value // Domyślna implementacja dla typów niemutowalnych.
+        return value // Default implementation for immutable types.
     }
 
     /**
-     * Pobiera wynik kontrolki (wartość bieżącą i początkową) do dalszego przetwarzania.
-     * Jeśli kontrolka jest niewidoczna, jej `currentValue` jest ustawiane na null.
+     * Returns the control's result (current and initial value) for further processing.
+     * If the control is invisible, its `currentValue` is set to null.
      */
     internal fun getResult(controlContext: ControlContext, state: ControlState<*>): ControlResultData {
         val result = convertToResult(controlContext, state)
-        // Niewidoczne kontrolki nie powinny przekazywać swojej wartości do zapisu.
+        // Invisible controls do not pass their value to save.
         return if (!validator.isControlVisible(this, controlContext)) {
             result.copy(currentValue = null)
         } else {
@@ -138,31 +138,31 @@ abstract class Control<T : Any> internal constructor(
     }
 
     /**
-     * Konwertuje wewnętrzny stan kontrolki (`ControlState`) na wynik do zapisu (`ControlResultData`).
-     * Może być przesłonięta dla niestandardowych konwersji (np. w `RepeatableControl`).
+     * Converts the control's internal state (`ControlState`) into a result to save (`ControlResultData`).
+     * Can be overridden for custom conversions (e.g. in `RepeatableControl`).
      */
     protected open fun convertToResult(controlContext: ControlContext, state: ControlState<*>): ControlResultData {
         return ControlResultData(currentValue = state.value.value, initialValue = state.initValue.value)
     }
 
-    // --- 5. Logika Walidacji ---
+    // --- 5. Validation ---
     /**
-     * Validator odpowiedzialny za walidację tej kontrolki.
-     * Każdy typ kontrolki dostarcza własną implementację (np. `StringValidator`).
-     * Domyślnie pusta implementacja
+     * Validator responsible for validating this control.
+     * Every control type provides its own implementation (e.g. `StringValidator`).
+     * Empty implementation by default
      */
     protected open val validator: ControlValidator<T> = DefaultValidator()
 
     /**
-     * Uruchamia proces walidacji dla tej kontrolki przy użyciu przypisanego walidatora.
+     * Runs this control's validation with its validator.
      */
     internal fun validateControl(controlContext: ControlContext, state: ControlState<*>) {
         validator.validate(controlContext, state, this)
     }
 
-    // --- 6. Obsługa Akcji ---
+    // --- 6. Actions ---
     /**
-     * Wykonuje zdefiniowane akcje dla tej kontrolki, zazwyczaj po zmianie wartości.
+     * Runs the actions defined for this control, usually after a value change.
      */
     protected fun executeActions(
         controlContext: ControlContext,
@@ -208,10 +208,10 @@ abstract class Control<T : Any> internal constructor(
         }
     }
 
-    // --- 7. Renderowanie UI ---
+    // --- 7. UI rendering ---
     /**
-     * Renderuje kontrolkę w interfejsie użytkownika.
-     * Ta metoda jest publicznym API dla `FormScreen`. Obsługuje logikę widoczności.
+     * Renders the control in the user interface.
+     * This is the entry point for `FormView`. Handles visibility.
      */
     @Composable
     internal fun Render(controlContext: ControlContext, controlState: ControlState<*>) {
@@ -228,22 +228,22 @@ abstract class Control<T : Any> internal constructor(
 
         AnimatedVisibility(visible = isVisible) {
             if (hasStandardLayout) {
-                // Standardowy układ: Etykieta nad kontrolką, błędy pod.
+                // Standard layout: label above the control, errors below.
                 Column {
                     RenderNormalLabel(controlState.labelOverride.value ?: label, isRequired)
                     Display(controlContext, typedState, isRequired)
                     DisplayFieldErrors(controlContext)
                 }
             } else {
-                // Układ niestandardowy: Kontrolka sama zarządza swoim layoutem.
+                // Custom layout: the control manages its own layout.
                 Display(controlContext, typedState, isRequired)
             }
         }
     }
 
     /**
-     * Abstrakcyjna metoda renderowania specyficznego interfejsu kontrolki.
-     * Każdy konkretny typ kontrolki (np. `StringControl`) musi ją zaimplementować.
+     * Renders the control's own UI.
+     * Every concrete control type (e.g. `StringControl`) implements it.
      */
     @Composable
     protected abstract fun Display(
@@ -253,7 +253,7 @@ abstract class Control<T : Any> internal constructor(
     )
 
     /**
-     * Pomocnicza funkcja renderująca błędy walidacji dla tej kontrolki.
+     * Renders this control's validation errors.
      */
     @Composable
     protected fun DisplayFieldErrors(controlContext: ControlContext) {

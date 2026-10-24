@@ -1,17 +1,17 @@
 package io.github.octaviusframework.form.control.type.selection.dropdown
 
 /**
- * Reprezentuje pojedynczą opcję w liście rozwijanej (dropdown).
+ * A single option of a dropdown list.
  *
- * Enkapsuluje wartość rzeczywistą wraz z tekstem wyświetlanym użytkownikowi.
- * Pozwala na oddzielenie logiki biznesowej (wartość) od prezentacji (tekst).
+ * Holds the actual value together with the text shown to the user, keeping business logic (the value)
+ * apart from presentation (the text).
  *
- * @param T typ wartości przechowywanych w opcji
- * @property value rzeczywista wartość opcji używana w logice aplikacji
- * @property displayText tekst wyświetlany użytkownikowi w interfejsie
- * @property payload Dodatkowe dane, które przyszły razem z opcją (np. cały wiersz z bazy). Przy
- *   wyborze trafiają do `ActionContext.payload`, więc akcja może z nich wypełnić inne kontrolki.
- *   Przy wczytywaniu formularza ich nie ma - wartość przychodzi wtedy z zapisu, nie z menu.
+ * @param T type of the value held by the option
+ * @property value the option's actual value, used in application logic
+ * @property displayText text shown to the user in the interface
+ * @property payload Additional data that came with the option (e.g. the whole database row). On selection
+ *   it goes to `ActionContext.payload`, so an action can fill other controls from it. It is absent when the
+ *   form loads - the value then comes from the saved record, not from the menu.
  */
 data class DropdownOption<T>(
     val value: T,

@@ -1,10 +1,10 @@
 package io.github.octaviusframework.form.component
 
 /**
- * Dane z `initData` nie pasują do schematu formularza: wartość leży pod ścieżką, której nie wskazuje
- * żadna kontrolka, albo kontrolka jej nie przyjmuje (zły typ, wartość spoza opcji).
+ * Data from `initData` does not fit the form schema: a value lies under a path that points at no control, or
+ * the control does not accept it (wrong type, value outside the options).
  *
- * @param path Ścieżka wartości w schemacie formularza, np. `"basic_info/status"`, a dla pola wierszy
- *   listy `"publications/status"`.
+ * @param path Path of the value in the form schema, e.g. `"basic_info/status"`, and for a field of list rows
+ *   `"publications/status"`.
  */
-class InitDataException(val path: String, reason: String) : RuntimeException("Dane początkowe pod '$path': $reason")
+class InitDataException(val path: String, reason: String) : RuntimeException("Initial data at '$path': $reason")

@@ -9,7 +9,7 @@ import org.octavius.dialog.GlobalDialogManager
 import io.github.octaviusframework.form.localization.FormTr
 import org.octavius.localization.Tr
 
-// --- Główne klasy DSL ---
+// --- Main DSL classes ---
 
 data class FieldMapping(val controlName: String, val dbColumn: String)
 data class ExistenceFlag(val controlName: String, val checkColumn: String)
@@ -18,8 +18,8 @@ interface MappingContainer {
     val relations: MutableList<RelationMapping>
 
     /**
-     * @param controlName Nazwa kontrolki albo ścieżka do niej, np. `"basic_info/name"` dla pola w sekcji.
-     * @param dbColumn Kolumna; domyślnie ostatni segment ścieżki w snake_case.
+     * @param controlName Control name or path to it, e.g. `"basic_info/name"` for a field in a section.
+     * @param dbColumn Column; defaults to the last path segment in snake_case.
      */
     fun map(controlName: String, dbColumn: String? = null) {
         val finalDbColumn = dbColumn ?: CaseConverter.convert(
@@ -58,7 +58,7 @@ abstract class BaseTableMappingBuilder : MappingContainer {
     }
 
     protected fun validateBase() {
-        check(::tableName.isInitialized) { "Klauzula `from` jest wymagana w mapowaniu." }
+        check(::tableName.isInitialized) { "The `from` clause is required in a mapping." }
     }
 }
 
@@ -77,7 +77,7 @@ class OneToOneMappingBuilder : BaseTableMappingBuilder() {
 
     fun validate() {
         validateBase()
-        check(::joinCondition.isInitialized) { "Klauzula `on` jest wymagana w mapowaniu jeden-do-jednego." }
+        check(::joinCondition.isInitialized) { "The `on` clause is required in a one-to-one mapping." }
     }
 }
 
@@ -93,10 +93,10 @@ class RelatedDataMappingBuilder : BaseTableMappingBuilder() {
     }
 
     /**
-     * Kolejność wierszy listy. Bez niej PostgreSQL oddaje je w dowolnej kolejności, a ta potrafi się
-     * zmienić po każdym UPDATE.
+     * Order of the list's rows. Without it PostgreSQL returns them in any order, and that order can change
+     * after every UPDATE.
      *
-     * @param expression Treść `ORDER BY`, np. `"p.publication_type, p.id DESC"`.
+     * @param expression Body of the `ORDER BY`, e.g. `"p.publication_type, p.id DESC"`.
      */
     fun orderBy(expression: String) {
         this.orderBy = expression
@@ -104,7 +104,7 @@ class RelatedDataMappingBuilder : BaseTableMappingBuilder() {
 
     fun validate() {
         validateBase()
-        check(::linkColumn.isInitialized) { "Klauzula `linkedBy` jest wymagana w mapowaniu listy powiązanych danych." }
+        check(::linkColumn.isInitialized) { "The `linkedBy` clause is required in a related-list mapping." }
     }
 
     fun buildWhereClause(): String {
@@ -112,7 +112,7 @@ class RelatedDataMappingBuilder : BaseTableMappingBuilder() {
     }
 }
 
-// --- Reprezentacje wewnętrzne ---
+// --- Internal representations ---
 
 sealed class RelationMapping
 data class SimpleMapping(val mapping: FieldMapping) : RelationMapping()
@@ -120,10 +120,10 @@ data class OneToOneMapping(val existenceFlag: ExistenceFlag?, val table: String,
 data class RelatedDataMapping(val controlName: String, val builder: RelatedDataMappingBuilder) : RelationMapping()
 
 
-// --- Helper do budowy SQL ---
+// --- SQL building helper ---
 
-// Nazwa kontrolki bywa ścieżką ("basic_info/name"), więc alias musi być w cudzysłowie. Formularz
-// rozłoży takie klucze po sekcjach sam, przy inicjalizacji stanów.
+// A control name can be a path ("basic_info/name"), so the alias has to be quoted. The form spreads such
+// keys over its sections by itself, when it initializes the states.
 private fun alias(controlName: String) = "\"$controlName\""
 
 class QueryScope(
@@ -163,10 +163,9 @@ class QueryScope(
                     val subJoins = subScope.joins.joinToString(" ")
                     val orderBy = builder.orderBy?.let { "ORDER BY $it" } ?: ""
 
-                    // ROW(klucz, wartość, ...) czyta się jako Map<String, Any?>, a tablica takich
-                    // rekordów jako List<Map<String, Any?>> - i wartości idą przez pełny łańcuch
-                    // konwerterów, więc enum wraca enumem, a nie tekstem. ARRAY(podzapytanie)
-                    // zachowuje kolejność z ORDER BY.
+                    // ROW(key, value, ...) reads as Map<String, Any?>, and an array of such records as
+                    // List<Map<String, Any?>> - and the values go through the full converter chain, so an
+                    // enum comes back as an enum, not as text. ARRAY(subquery) keeps the ORDER BY order.
                     val subquery = """
                         ARRAY(
                             SELECT ROW(
@@ -190,7 +189,7 @@ class QueryScope(
 }
 
 
-// --- Główny Builder ---
+// --- Main builder ---
 
 class DataLoaderBuilder(private val db: OctaviusClient) : MappingContainer {
     private lateinit var mainTableName: String
@@ -211,11 +210,11 @@ class DataLoaderBuilder(private val db: OctaviusClient) : MappingContainer {
     }
 
     /**
-     * Wczytuje rekord o [id] jednym zapytaniem.
+     * Loads the record with [id] in a single query.
      *
-     * @return Wartości pod nazwami kontrolek albo pusta mapa, gdy [id] to `null` (nowy rekord).
-     *   `null`, gdy wczytanie się nie udało: baza zgłosiła błąd albo rekordu o tym id nie ma. Powód
-     *   pokazuje dialog.
+     * @return Values under control names, or an empty map when [id] is `null` (new record). `null` when
+     *   loading failed: the database reported an error or there is no record with that id. A dialog shows
+     *   the reason.
      */
     fun execute(id: Any?): Map<String, Any?>? {
         check(::mainTableName.isInitialized) { "Main table must be defined using from()" }
@@ -228,7 +227,7 @@ class DataLoaderBuilder(private val db: OctaviusClient) : MappingContainer {
 
         val joinsStr = topScope.joins.joinToString(" ")
 
-        // SKŁADAMY OSTATECZNE, JEDNO ZAPYTANIE
+        // Assemble the final, single query
         val query = db.select(*topScope.fieldExpressions.toTypedArray())
             .from("$mainTable $joinsStr".trim())
             .where("$mainTableAlias.$idColumn = @id")

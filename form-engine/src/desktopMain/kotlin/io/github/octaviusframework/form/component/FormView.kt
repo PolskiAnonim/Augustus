@@ -15,10 +15,10 @@ import io.github.octaviusframework.form.control.base.ControlContext
 import io.github.octaviusframework.form.localization.FormTr
 
 /**
- * UI formularza - renderuje kontrolki dostarczone przez [FormHandler].
+ * Form UI - renders the controls provided by [FormHandler].
  *
- * Tytuł ekranu i miejsce na stosie nawigacji to sprawa nawigacji, a nie silnika formularzy. Moduł,
- * który zna nawigację, opakowuje to wywołaniem `ComponentScreen(title) { FormView(formHandler) }`.
+ * The screen title and the place on the navigation stack belong to navigation, not to the form engine. A
+ * module that knows the navigation wraps this in `ComponentScreen(title) { FormView(formHandler) }`.
  */
 @Composable
 fun FormView(formHandler: FormHandler) {
@@ -27,7 +27,7 @@ fun FormView(formHandler: FormHandler) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (loadState != FormLoadState.Loaded) {
-            // Przed wczytaniem i po nieudanym wczytaniu kontrolki nie mają stanów, więc ich nie renderujemy.
+            // Before loading and after a failed load the controls have no states, so they are not rendered.
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -43,9 +43,9 @@ fun FormView(formHandler: FormHandler) {
                 }
             }
         } else {
-            // Formularz załadowany - renderuj kontrolki
+            // Form loaded - render the controls
             Column(modifier = Modifier.fillMaxSize()) {
-                // Główna zawartość
+                // Main content
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -53,7 +53,7 @@ fun FormView(formHandler: FormHandler) {
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
-                    // Wyświetlanie błędów globalnych
+                    // Global errors
                     val globalErrors by formHandler.errorManager.globalErrors
                     if (globalErrors.isNotEmpty()) {
                         GlobalErrorsCard(errors = globalErrors)
@@ -65,9 +65,9 @@ fun FormView(formHandler: FormHandler) {
                         val state = formHandler.getControlState(controlName)!!
                         control.Render(controlContext = ControlContext(controlName), controlState = state)
                     }
-                } // Koniec strefy scrollowanej
+                } // End of the scrolled area
 
-                // Pasek akcji
+                // Action bar
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shadowElevation = 8.dp
@@ -87,16 +87,16 @@ fun FormView(formHandler: FormHandler) {
                             }
                         }
                     }
-                } // Koniec paska akcji
+                } // End of the action bar
             }
 
-            // Overlay blokujący interakcje podczas wykonywania akcji
+            // Overlay blocking interaction while an action is running
             if (actionTriggered) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f))
-                        .pointerInput(Unit) { /* zjada wszystkie eventy */ },
+                        .pointerInput(Unit) { /* swallows all events */ },
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -107,7 +107,7 @@ fun FormView(formHandler: FormHandler) {
 }
 
 /**
- * Komponent wyświetlający błędy globalne
+ * Shows the global errors
  */
 @Composable
 private fun GlobalErrorsCard(errors: List<String>) {

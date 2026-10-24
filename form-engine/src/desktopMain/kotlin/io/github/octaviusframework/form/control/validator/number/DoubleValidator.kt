@@ -10,7 +10,7 @@ import kotlin.math.pow
 import kotlin.math.round
 
 /**
- * Walidator dla kontrolek liczb zmiennoprzecinkowych z obsługą opcji walidacji.
+ * Validator of floating-point number controls, with validation options.
  */
 class DoubleValidator(
     private val validationOptions: DoubleValidation? = null
@@ -21,21 +21,21 @@ class DoubleValidator(
         val errors = mutableListOf<String>()
 
         validationOptions?.let { options ->
-            // Sprawdź wartość minimalną
+            // Minimum value
             options.min?.let { min ->
                 if (value < min) {
                     errors.add(FormTr.Validation.minValue(min))
                 }
             }
 
-            // Sprawdź wartość maksymalną
+            // Maximum value
             options.max?.let { max ->
                 if (value > max) {
                     errors.add(FormTr.Validation.maxValue(max))
                 }
             }
 
-            // Sprawdź miejsca dziesiętne
+            // Decimal places
             options.decimalPlaces?.let { decimalPlaces ->
                 val multiplier = 10.0.pow(decimalPlaces)
                 val rounded = round(value * multiplier) / multiplier
@@ -44,7 +44,7 @@ class DoubleValidator(
                 }
             }
 
-            // Sprawdź krok
+            // Step
             options.step?.let { step ->
                 val remainder = value % step
                 if (remainder != 0.0 && (remainder - step).let { abs(it) } > 1e-10) {

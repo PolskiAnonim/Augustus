@@ -1,12 +1,12 @@
 package io.github.octaviusframework.form.control.base
 
 /**
- * Definuje zależność między kontrolkami.
+ * Defines a dependency between controls.
  *
- * @param controlPath ścieżka do kontrolki (względna lub bezwzględna)
- * @param value wartość kontrolki która powoduje aktywację zależności
- * @param dependencyType typ zależności (widoczność lub wymagalność)
- * @param comparisonType sposób porównania wartości
+ * @param controlPath path to the control (relative or absolute)
+ * @param value value of the control that activates the dependency
+ * @param dependencyType type of the dependency (visibility or being required)
+ * @param comparisonType how values are compared
  */
 data class ControlDependency<T>(
     val controlPath: String,
@@ -16,26 +16,26 @@ data class ControlDependency<T>(
 )
 
 /**
- * Typ zależności między kontrolkami.
+ * Type of a dependency between controls.
  */
 enum class DependencyType {
-    /** Kontrolka jest widoczna/niewidoczna w zależności od wartości innej kontrolki */
+    /** The control is visible/invisible depending on another control's value */
     Visible,
 
-    /** Kontrolka jest wymagana/niewymagana w zależności od wartości innej kontrolki */
+    /** The control is required/not required depending on another control's value */
     Required,
 }
 
 /**
- * Sposób porównania wartości w zależnościach.
+ * How values are compared in dependencies.
  */
 enum class ComparisonType {
-    /** Wartość musi być jedną z podanych wartości */
+    /** The value must be one of the given values */
     OneOf,
 
-    /** Wartość musi być równa podanej wartości */
+    /** The value must equal the given value */
     Equals,
 
-    /** Wartość musi być różna od podanej wartości */
+    /** The value must differ from the given value */
     NotEquals
 }

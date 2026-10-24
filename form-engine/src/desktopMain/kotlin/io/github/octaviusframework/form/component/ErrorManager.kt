@@ -4,9 +4,9 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 
 /**
- * @param isKnownField Czy pod daną ścieżką jest kontrolka. Błąd pola to string-klucz, więc literówka
- *   (`"titlePl"` zamiast `"title_pl"`) nie trafiłaby nigdzie: formularz pokazałby tylko "zawiera
- *   błędy", bez wskazania pola. Dlatego zapis błędu pod nieznaną ścieżkę rzuca.
+ * @param isKnownField Whether there is a control at the given path. A field error is keyed by a string, so a
+ *   typo (`"titlePl"` instead of `"title_pl"`) would land nowhere: the form would only say it "contains
+ *   errors", without pointing at the field. That is why setting an error under an unknown path throws.
  */
 class ErrorManager(private val isKnownField: (String) -> Boolean) {
     private val _globalErrors = mutableStateOf<List<String>>(emptyList())
@@ -97,6 +97,6 @@ class ErrorManager(private val isKnownField: (String) -> Boolean) {
     }
 
     private fun requireKnownField(fieldName: String) {
-        require(isKnownField(fieldName)) { "Błąd pola '$fieldName', ale w formularzu nie ma takiej kontrolki" }
+        require(isKnownField(fieldName)) { "Field error for '$fieldName', but the form has no such control" }
     }
 }

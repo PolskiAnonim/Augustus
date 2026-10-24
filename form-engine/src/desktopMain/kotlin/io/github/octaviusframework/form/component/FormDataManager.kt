@@ -6,16 +6,15 @@ import io.github.octaviusframework.client.OctaviusClient
 import io.github.octaviusframework.form.control.base.FormResultData
 
 /**
- * Abstrakcyjna klasa zarządzająca przepływem danych w formularzach.
+ * Abstract class managing the data flow of a form.
  *
- * FormDataManager odpowiada za:
- * - Ładowanie danych z bazy danych dla edytowanych encji
- * - Dostarczanie wartości domyślnych dla nowych rekordów
- * - Definiowanie relacji między tabelami
- * - Przetwarzanie danych formularza do operacji bazodanowych
+ * FormDataManager is responsible for:
+ * - Loading data from the database for edited entities
+ * - Providing default values for new records
+ * - Defining relations between tables
+ * - Turning form data into database operations
  *
- * Każdy formularz musi implementować własny DataManager dostosowany
- * do specyfiki domeny i struktury bazy danych.
+ * Every form implements its own DataManager, fitted to its domain and database structure.
  */
 abstract class FormDataManager: KoinComponent {
 
@@ -27,11 +26,11 @@ abstract class FormDataManager: KoinComponent {
     protected val db: OctaviusClient by inject()
 
     /**
-     * Wczytuje rekord o [id] według mapowania z [block] (DSL z `FormLoader.kt`).
+     * Loads the record with [id] according to the mapping in [block] (the DSL from `FormLoader.kt`).
      *
-     * @return Wartości pod ścieżkami kontrolek albo pusta mapa, gdy [id] to `null` (nowy rekord).
-     *   `null`, gdy wczytanie się nie udało (błąd bazy, brak rekordu) - dialog z powodem już się pokazał,
-     *   a `initData` powinno oddać `null` dalej.
+     * @return Values under control paths, or an empty map when [id] is `null` (new record). `null` when
+     *   loading failed (database error, missing record) - a dialog with the reason has already been shown,
+     *   and `initData` should pass the `null` on.
      */
     fun loadData(id: Any?, block: DataLoaderBuilder.() -> Unit): Map<String, Any?>? {
         val builder = DataLoaderBuilder(db).apply(block)
@@ -39,31 +38,31 @@ abstract class FormDataManager: KoinComponent {
     }
 
     /**
-     * Dostarcza wartości początkowe dla kontrolek formularza.
+     * Provides the initial values for the form's controls.
      *
-     * Każdy klucz musi wskazywać kontrolkę, a wartość musi pasować do jej typu - inaczej silnik rzuci
-     * `InitDataException` z tą ścieżką, zanim formularz się narysuje.
+     * Every key must point at a control, and every value must fit that control's type - otherwise the
+     * engine throws `InitDataException` with that path before the form is drawn.
      *
-     * @param payload dodatkowe dane dla formularza (pusta mapa dla braku dodatkowych danych)
-     * @return mapa kontrolka->wartość z wartościami domyślnymi lub obliczonymi. `null` znaczy, że
-     *   wczytanie się nie udało, a metoda pokazała już powód (zwykle przez `loadData`) - formularz zostaje
-     *   wtedy bez kontrolek. Tak jak `false` z akcji, `null` niesie sam fakt porażki, nie jej treść.
+     * @param payload additional data for the form (an empty map when there is none)
+     * @return map control -> value with default or computed values. `null` means loading failed and the
+     *   method has already shown why (usually through `loadData`) - the form is then left without controls.
+     *   Like `false` from an action, `null` carries the fact of failure, not its content.
      */
     abstract fun initData(payload: Map<String, Any?>): Map<String, Any?>?
 
     /**
-    * Definiuje logikę dla akcji formularza operujących na danych (Zapisz, Usuń, etc.).
-    * Klucz mapy odpowiada `actionKey` w `FormActionTrigger.triggerAction`.
-    * Wartość to lambda, która otrzymuje aktualne dane z formularza i zwraca `true`, jeśli
-    * operacja się powiodła.
+    * Defines the logic of form actions that operate on data (Save, Delete, etc.).
+    * The map key matches `actionKey` in `FormActionTrigger.triggerAction`.
+    * The value is a lambda that receives the current form data and returns `true` if the operation
+    * succeeded.
     *
-    * Lambda odpowiada za pokazanie błędu (dialog, `errorManager`) przy niepowodzeniu - `false`
-    * niesie sam fakt niepowodzenia, nie jego treść.
+    * The lambda is responsible for showing the error (dialog, `errorManager`) on failure - `false`
+    * carries the fact of failure, not its content.
     *
-    * Nie ma tu miejsca na akcje, które nie dotykają danych. Zamknięcie ekranu jest sprawą przycisku
-    * w schema builderze, nie warstwy danych.
+    * Actions that do not touch data do not belong here. Closing the screen is the business of the button in
+    * the schema builder, not of the data layer.
     *
-    * @return Mapa akcji formularza.
+    * @return Map of form actions.
     */
     open fun definedFormActions(): Map<String, (formResultData: FormResultData) -> Boolean> {
         return emptyMap()

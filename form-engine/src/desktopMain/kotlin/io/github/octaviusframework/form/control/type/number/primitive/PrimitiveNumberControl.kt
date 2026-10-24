@@ -11,9 +11,8 @@ import io.github.octaviusframework.form.localization.FormTr
 import org.octavius.theme.FormSpacing
 
 /**
- * Abstrakcyjna klasa bazowa dla kontrolek numerycznych (Integer, Double, etc.).
- * Hermetyzuje wspólną logikę renderowania pola tekstowego, parsowania
- * i obsługi błędów nieprawidłowego formatu.
+ * Abstract base class of number controls (Integer, Double, etc.).
+ * Encapsulates the shared logic of rendering the text field, parsing and handling format errors.
  */
 abstract class PrimitiveNumberControl<T : Number>(
     label: String?,
@@ -29,10 +28,9 @@ abstract class PrimitiveNumberControl<T : Number>(
     actions = actions
 ) {
     /**
-     * Abstrakcyjna metoda, którą konkretne implementacje muszą dostarczyć,
-     * aby sparsować tekst na docelowy typ numeryczny.
-     * @param text Wartość z pola tekstowego.
-     * @return Sparsowana wartość lub null w przypadku błędu formatu.
+     * Parses the text into the target number type. Every concrete implementation provides it.
+     * @param text Value of the text field.
+     * @return The parsed value, or null on a format error.
      */
     protected abstract fun parseValue(text: String): T?
 
@@ -40,13 +38,13 @@ abstract class PrimitiveNumberControl<T : Number>(
     override fun Display(controlContext: ControlContext, controlState: ControlState<T>, isRequired: Boolean) {
         val scope = rememberSupervisedCoroutineScope()
 
-        // Bufor tekstowy musi być osobny od wartości, bo "1." ani "007" nie wracają z toString()
-        // sparsowanej liczby. Żyje w ControlState, a nie w remember, żeby updateControl z zewnątrz
-        // mógł go unieważnić - null znaczy "nieaktualny", więc wyprowadzamy tekst z wartości.
+        // The text buffer has to be separate from the value, because neither "1." nor "007" comes back from
+        // toString() of the parsed number. It lives in ControlState, not in remember, so that updateControl
+        // from outside can invalidate it - null means "stale", so the text is derived from the value.
         val textValue = controlState.displayText.value ?: (controlState.value.value?.toString() ?: "")
 
-        // Unieważnienie tekstu z zewnątrz kasuje też błąd formatu - inaczej użytkownik zostaje
-        // z komunikatem o wpisie, którego już nie widzi.
+        // Invalidating the text from outside also clears the format error - otherwise the user is left with a
+        // message about input they no longer see.
         LaunchedEffect(controlState.displayText.value) {
             if (controlState.displayText.value == null) {
                 errorManager.setFormatError(controlContext.fullStatePath, null)

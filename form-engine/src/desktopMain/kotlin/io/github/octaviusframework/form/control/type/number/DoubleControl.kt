@@ -8,8 +8,8 @@ import io.github.octaviusframework.form.control.type.number.primitive.PrimitiveN
 import io.github.octaviusframework.form.control.validator.number.DoubleValidator
 
 /**
- * Kontrolka do wprowadzania liczb rzeczywistych (zmiennoprzecinkowych).
- * Rozszerza PrimitiveNumberControl, dostarczając logikę parsowania dla Double.
+ * A control for entering real (floating-point) numbers.
+ * Extends PrimitiveNumberControl with parsing for Double.
  */
 class DoubleControl(
     label: String?,

@@ -4,13 +4,13 @@ import java.math.BigDecimal
 import kotlin.time.Duration
 
 /**
- * Opcje walidacji dla kontrolek formularza.
- * Definiuje reguły walidacji które można zastosować do różnych typów kontrolek.
+ * Validation options of form controls.
+ * Defines validation rules that apply to the various control types.
  */
 sealed class ValidationOptions
 
 /**
- * Opcje walidacji dla pól tekstowych.
+ * Validation options of text fields.
  */
 data class StringValidation(
     val minLength: Int? = null,
@@ -20,7 +20,7 @@ data class StringValidation(
 ) : ValidationOptions()
 
 /**
- * Opcje walidacji dla liczb całkowitych.
+ * Validation options of integers.
  */
 data class IntegerValidation(
     val min: Int? = null,
@@ -29,7 +29,7 @@ data class IntegerValidation(
 ) : ValidationOptions()
 
 /**
- * Opcje walidacji dla liczb zmiennoprzecinkowych.
+ * Validation options of floating-point numbers.
  */
 data class DoubleValidation(
     val min: Double? = null,
@@ -39,7 +39,7 @@ data class DoubleValidation(
 ) : ValidationOptions()
 
 /**
- * Opcje walidacji dla liczb o wysokiej precyzji (BigDecimal).
+ * Validation options of high-precision numbers (BigDecimal).
  */
 data class BigDecimalValidation(
     val min: BigDecimal? = null,
@@ -49,7 +49,7 @@ data class BigDecimalValidation(
 ) : ValidationOptions()
 
 /**
- * Opcje walidacji dla list tekstowych.
+ * Validation options of text lists.
  */
 data class StringListValidation(
     val minItems: Int? = null,
@@ -58,7 +58,7 @@ data class StringListValidation(
 ) : ValidationOptions()
 
 /**
- * Opcje walidacji dla kontrolek powtarzalnych.
+ * Validation options of repeatable controls.
  */
 data class RepeatableValidation(
     val minItems: Int? = null,
@@ -67,7 +67,7 @@ data class RepeatableValidation(
 ) : ValidationOptions()
 
 /**
- * Generyczne opcje walidacji dla wszystkich kontrolek daty i czasu.
+ * Generic validation options of all date and time controls.
  */
 data class DateTimeValidation<T>(
     val min: T? = null,
@@ -76,7 +76,7 @@ data class DateTimeValidation<T>(
 
 
 /**
- * Opcje walidacji dla interwałów czasowych.
+ * Validation options of time intervals.
  */
 data class IntervalValidation(
     val min: Duration? = null,

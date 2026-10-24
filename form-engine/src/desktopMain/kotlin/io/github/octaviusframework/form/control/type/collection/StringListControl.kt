@@ -18,11 +18,10 @@ import org.octavius.localization.Tr
 import org.octavius.theme.FormSpacing
 
 /**
- * Kontrolka do wprowadzania i zarządzania listą tekstów.
+ * A control for entering and managing a list of texts.
  *
- * Umożliwia dodawanie, edytowanie i usuwanie elementów tekstowych z listy.
- * Każdy element może być indywidualnie edytowany. Obsługuje dodawanie nowych
- * elementów poprzez dedykowane pole oraz usuwanie istniejących elementów.
+ * Lets the user add, edit and delete text items. Every item can be edited on its own. New items are added
+ * through a dedicated field, existing ones can be deleted.
  */
 class StringListControl(
     label: String?,
@@ -42,8 +41,8 @@ class StringListControl(
 
     @Composable
     override fun Display(controlContext: ControlContext, controlState: ControlState<List<String>>, isRequired: Boolean) {
-        // Czytamy prosto z modelu, bez lokalnej kopii w remember. Kopia sprawiała, że zapis przez
-        // `updateControl` z akcji trafiał do stanu, a UI dalej pokazywało poprzednią listę.
+        // Read straight from the model, without a local copy in remember, so that a write through
+        // `updateControl` from an action shows up in the UI.
         val currentList = controlState.value.value ?: listOf()
         var newItemText by remember { mutableStateOf("") }
 

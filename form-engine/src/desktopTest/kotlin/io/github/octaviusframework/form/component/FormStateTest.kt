@@ -8,18 +8,18 @@ import io.github.octaviusframework.form.control.type.primitive.StringControl
 class FormStateTest {
 
     private val schema = FormSchema(
-        mapOf("section" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "sekcja")),
+        mapOf("section" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "section")),
         contentOrder = listOf("section"),
         actionBarOrder = emptyList()
     )
 
     @Test
     fun `section given as a nested map fails loudly`() {
-        // `defaults + loaded` z mapami sekcji podmieniłby całą sekcję, więc pola idą tylko ścieżkami.
+        // `defaults + loaded` with section maps would replace the whole section, so fields go as paths only.
         assertThatThrownBy { FormState().initializeStates(schema, mapOf("section" to mapOf("name" to "x"))) }
             .isInstanceOf(InitDataException::class.java)
             .hasFieldOrPropertyWithValue("path", "section")
-            .hasMessageContaining("'section/pole'")
+            .hasMessageContaining("'section/field'")
     }
 
     @Test

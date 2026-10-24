@@ -8,54 +8,54 @@ import io.github.octaviusframework.form.control.type.repeatable.RepeatableRow
 import io.github.octaviusframework.form.localization.FormTr
 
 /**
- * Walidator dla kontrolek typu RepeatableControl.
+ * Validator of RepeatableControl.
  *
- * Odpowiada za walidację kontrolek umożliwiających dodawanie
- * wielu wierszy danych (np. lista autorów, tagów, kategorii).
+ * Validates controls that let the user add many rows of data (e.g. a list of authors, tags, categories).
  *
- * Funkcjonalności:
- * - Sprawdzanie unikalności wartości w określonych polach
- * - Walidacja minimalnej i maksymalnej liczby elementów
+ * Features:
+ * - Checking that values in given fields are unique
+ * - Validating the minimum and maximum number of items
  *
- * Pól wierszy nie waliduje - silnik schodzi do nich sam przez `childContexts`, jak do dzieci sekcji.
+ * It does not validate the rows' fields - the engine walks down to them itself through `childContexts`, as
+ * to the children of a section.
  */
 class RepeatableValidator(
     private val validationOptions: RepeatableValidation? = null
 ) : ControlValidator<List<RepeatableRow>>() {
 
     /**
-     * Waliduje unikalność wartości w wierszach kontrolki powtarzalnej.
-     * Używa globalnego stanu zamiast lokalnych stanów wierszy.
+     * Validates that values are unique across the rows of a repeatable control.
+     * Works on the global form state.
      *
-     * Algorytm walidacji:
-     * 1. Pobiera wszystkie wiersze z kontrolki
-     * 2. Dla każdego wiersza tworzy klucz unikalności z wartości określonych pól
-     * 3. Sprawdza czy klucz nie został już wcześniej napotkany
-     * 4. Jeśli znajdzie duplikat, ustawia błąd z numerem wiersza
+     * Algorithm:
+     * 1. Takes all rows of the control
+     * 2. Builds a uniqueness key for every row from the values of the given fields
+     * 3. Checks whether the key has already been seen
+     * 4. On a duplicate, sets an error with the row number
      *
-     * Sprawdzanie odbywa się tylko gdy lista uniqueFields nie jest pusta.
+     * The check runs only when uniqueFields is not empty.
      *
-     * @param controlContext nazwa kontrolki z kontekstem wiersza (potrzebna do budowania hierarchicznych nazw)
-     * @param state stan kontrolki powtarzalnej zawierający listę wierszy
+     * @param controlContext control name with the row context (needed to build hierarchical names)
+     * @param state state of the repeatable control, holding the list of rows
      */
     override fun validateSpecific(controlContext: ControlContext, state: ControlState<*>) {
         @Suppress("UNCHECKED_CAST")
         val rows = state.value.value as List<RepeatableRow>
 
-        // 1. Walidacja reguł samej listy
+        // 1. Rules of the list itself
         val allErrors = mutableListOf<String>()
 
         validationOptions?.let { options ->
-            // Sprawdź min/max
+            // min/max
             allErrors.addAll(validateListRules(rows, options))
 
-            // Sprawdź unikalność
+            // Uniqueness
             validateUniqueness(rows, options, controlContext)?.let { uniquenessError ->
                 allErrors.add(uniquenessError)
             }
         }
 
-        // 2. Ustaw błędy dla GŁÓWNEJ kontrolki
+        // 2. Set the errors on the MAIN control
         errorManager.setFieldErrors(controlContext.fullStatePath, allErrors)
     }
 
@@ -63,7 +63,7 @@ class RepeatableValidator(
         rows: List<RepeatableRow>,
         options: RepeatableValidation,
         controlContext: ControlContext
-    ): String? { // Zwraca string błędu lub null
+    ): String? { // Returns the error string or null
         if (options.uniqueFields.isEmpty()) {
             return null
         }
@@ -72,24 +72,24 @@ class RepeatableValidator(
         val seenValues = mutableSetOf<List<Any?>>()
 
         for ((index, row) in rows.withIndex()) {
-            // Bierzemy pod uwagę tylko wiersze, które nie mają błędów w polach unikalności
+            // Only rows without errors in the unique fields count
             val uniqueKey = options.uniqueFields.map { field ->
                 val hierarchicalContext = controlContext.forRepeatableChild(field, row.id)
                 allStates[hierarchicalContext.fullStatePath]?.value?.value
             }
 
-            // Ignoruj klucze z pustymi polami
+            // Ignore keys with empty fields
             if (uniqueKey.any { it == null || (it is String && it.isBlank()) }) {
                 continue
             }
 
             if (!seenValues.add(uniqueKey)) {
-                // Znaleziono duplikat, zwróć błąd i zakończ
+                // Duplicate found, return the error and stop
                 return FormTr.Validation.duplicateInRow(index + 1)
             }
         }
 
-        return null // Brak duplikatów
+        return null // No duplicates
     }
 
     private fun validateListRules(
@@ -98,14 +98,14 @@ class RepeatableValidator(
     ): List<String> {
         val errors = mutableListOf<String>()
 
-        // Sprawdź minimalną liczbę elementów
+        // Minimum number of items
         options.minItems?.let { minItems ->
             if (rows.size < minItems) {
                 errors.add(FormTr.Validation.minItems(minItems))
             }
         }
 
-        // Sprawdź maksymalną liczbę elementów
+        // Maximum number of items
         options.maxItems?.let { maxItems ->
             if (rows.size > maxItems) {
                 errors.add(FormTr.Validation.maxItems(maxItems))

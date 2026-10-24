@@ -47,7 +47,7 @@ class FormHandlerTest {
             override fun definedFormActions() = mapOf("save" to save)
         },
         formValidator = validator,
-        // Unconfined: ładowanie danych kończy się w konstruktorze, bez czekania.
+        // Unconfined: loading the data finishes inside the constructor, without waiting.
         handlerScope = CoroutineScope(Dispatchers.Unconfined)
     )
 
@@ -58,10 +58,10 @@ class FormHandlerTest {
             controls = mapOf(
                 "items" to RepeatableControl(mapOf("name" to StringControl(null)), listOf("name"), null)
             ),
-            initData = mapOf("items" to listOf(mapOf("name" to "z bazy")))
+            initData = mapOf("items" to listOf(mapOf("name" to "from db")))
         ) { formData ->
             deletedRowsSeen += formData.getCurrentAs<RepeatableResultValue>("items").deletedRows.size
-            false // zapis się nie udał, użytkownik spróbuje jeszcze raz
+            false // the save failed, the user will try again
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -78,10 +78,10 @@ class FormHandlerTest {
 
     @Test
     fun `exception in action releases the overlay`() {
-        val handler = handler(controls = mapOf("name" to StringControl(null))) { error("akcja padła") }
+        val handler = handler(controls = mapOf("name" to StringControl(null))) { error("action failed") }
 
         assertThatThrownBy { runBlocking { handler.triggerAction("save", validates = false) } }
-            .hasMessage("akcja padła")
+            .hasMessage("action failed")
         assertThat(handler.actionTriggered.value).isFalse()
     }
 
@@ -94,7 +94,7 @@ class FormHandlerTest {
             label = null,
             validationOptions = RepeatableValidation(minItems = 1)
         )
-        // Oba poziomy dostają przy wczytaniu po jednym pustym wierszu z minItems.
+        // Both levels get one empty row each from minItems when loading.
         val handler = handler(
             controls = mapOf(
                 "outer" to RepeatableControl(
@@ -114,14 +114,14 @@ class FormHandlerTest {
             .satisfies({ assertThat(it).matches("outer\\[.+]/inner\\[.+]/text") })
     }
 
-    // Sekcja widoczna tylko, gdy kontrolka "show" ma wartość "tak".
+    // Section visible only when the "show" control has the value "yes".
     private fun sectionShownBy(vararg controls: Pair<String, Control<*>>) = SectionControl(
         controls = mapOf(*controls),
-        label = "sekcja",
+        label = "section",
         dependencies = mapOf(
             "visible" to ControlDependency(
                 controlPath = "show",
-                value = "tak",
+                value = "yes",
                 dependencyType = DependencyType.Visible,
                 comparisonType = ComparisonType.Equals
             )
@@ -130,14 +130,14 @@ class FormHandlerTest {
 
     @Test
     fun `child of hidden section does not pass its value to save`() {
-        var savedName: Any? = "nie zapisano"
+        var savedName: Any? = "not saved"
         var initialName: Any? = null
         val handler = handler(
             controls = mapOf(
                 "show" to StringControl(null),
                 "section" to sectionShownBy("name" to StringControl(null))
             ),
-            initData = mapOf("show" to "nie", "section/name" to "z bazy")
+            initData = mapOf("show" to "no", "section/name" to "from db")
         ) { formData ->
             savedName = formData.getCurrent("section/name")
             initialName = formData.getInitial("section/name")
@@ -147,14 +147,14 @@ class FormHandlerTest {
         runBlocking { handler.triggerAction("save", validates = false) }
 
         assertThat(savedName).isNull()
-        assertThat(initialName).isEqualTo("z bazy")
+        assertThat(initialName).isEqualTo("from db")
     }
 
     @Test
     fun `required child of section is validated`() {
         val handler = handler(
             controls = mapOf(
-                "section" to SectionControl(controls = mapOf("name" to StringControl(null, required = true)), label = "sekcja")
+                "section" to SectionControl(controls = mapOf("name" to StringControl(null, required = true)), label = "section")
             )
         ) { true }
 
@@ -169,15 +169,15 @@ class FormHandlerTest {
         var saved: List<Any?> = emptyList()
         val handler = handler(
             controls = mapOf(
-                "first" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "pierwsza"),
-                "second" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "druga")
+                "first" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "one"),
+                "second" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "two")
             ),
-            initData = mapOf("first/name" to "pierwsza", "second/name" to "druga")
+            initData = mapOf("first/name" to "one", "second/name" to "two")
         ) { formData -> saved = listOf(formData.getCurrent("first/name"), formData.getCurrent("second/name")); true }
 
         runBlocking { handler.triggerAction("save", validates = false) }
 
-        assertThat(saved).containsExactly("pierwsza", "druga")
+        assertThat(saved).containsExactly("one", "two")
     }
 
     @Test
@@ -210,10 +210,10 @@ class FormHandlerTest {
             controls = mapOf(
                 "show" to StringControl(null),
                 "outer" to sectionShownBy(
-                    "inner" to SectionControl(controls = mapOf("name" to StringControl(null, required = true)), label = "wewnętrzna")
+                    "inner" to SectionControl(controls = mapOf("name" to StringControl(null, required = true)), label = "inner")
                 )
             ),
-            initData = mapOf("show" to "nie")
+            initData = mapOf("show" to "no")
         ) { saved = true; true }
 
         val result = runBlocking { handler.triggerAction("save", validates = true) }
@@ -229,33 +229,33 @@ class FormHandlerTest {
             controls = mapOf(
                 "items" to RepeatableControl(
                     rowControls = mapOf(
-                        "details" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "szczegóły")
+                        "details" to SectionControl(controls = mapOf("name" to StringControl(null)), label = "details")
                     ),
                     rowOrder = listOf("details"),
                     label = null
                 )
             ),
-            initData = mapOf("items" to listOf(mapOf("details/name" to "z bazy")))
+            initData = mapOf("items" to listOf(mapOf("details/name" to "from db")))
         ) { formData -> modifiedRows = formData.getCurrentAs<RepeatableResultValue>("items").modifiedRows; true }
 
         @Suppress("UNCHECKED_CAST")
         val rowId = (handler.getControlState("items") as ControlState<List<RepeatableRow>>).value.value!!.single().id
         @Suppress("UNCHECKED_CAST")
         val name = handler.getControlState("items[$rowId]/details/name") as ControlState<String>
-        assertThat(name.value.value).isEqualTo("z bazy")
-        name.value.value = "zmienione"
+        assertThat(name.value.value).isEqualTo("from db")
+        name.value.value = "changed"
 
         runBlocking { handler.triggerAction("save", validates = false) }
 
         assertThat(modifiedRows).singleElement()
-            .satisfies({ assertThat(it.getCurrent("details/name")).isEqualTo("zmienione") })
+            .satisfies({ assertThat(it.getCurrent("details/name")).isEqualTo("changed") })
     }
 
     @Test
     fun `field error under a name without a control fails loudly`() {
         val validator = object : FormValidator() {
             override fun validateBusinessRules(formResultData: FormResultData): Boolean {
-                errorManager.setFieldErrors("titlePl", listOf("tytuł istnieje"))
+                errorManager.setFieldErrors("titlePl", listOf("title exists"))
                 return false
             }
         }
@@ -266,7 +266,7 @@ class FormHandlerTest {
             .hasMessageContaining("titlePl")
     }
 
-    // Wczytuje formularz i oddaje etap wczytywania razem z treścią dialogu, który przy tym wyskoczył (null - żaden).
+    // Loads the form and returns the load stage together with the text of the dialog that popped up meanwhile (null - none).
     private fun loadWithDialog(handler: () -> FormHandler): Pair<FormLoadState, String?> {
         GlobalDialogManager.dismiss()
         val loadState = handler().loadState.value
@@ -277,8 +277,8 @@ class FormHandlerTest {
     fun `value of wrong type fails the load with the control path`() {
         val (loadState, dialog) = loadWithDialog {
             handler(
-                controls = mapOf("play" to SectionControl(controls = mapOf("hours" to DoubleControl(null)), label = "czas")),
-                // numeric z bazy przychodzi jako BigDecimal, nie Double
+                controls = mapOf("play" to SectionControl(controls = mapOf("hours" to DoubleControl(null)), label = "time")),
+                // numeric comes from the database as BigDecimal, not Double
                 initData = mapOf("play/hours" to BigDecimal("12.50"))
             ) { true }
         }
@@ -305,7 +305,7 @@ class FormHandlerTest {
         val (loadState, dialog) = loadWithDialog {
             handler(
                 controls = mapOf("items" to RepeatableControl(mapOf("name" to StringControl(null)), listOf("name"), null)),
-                initData = mapOf("items" to "nie wiersze")
+                initData = mapOf("items" to "not rows")
             ) { true }
         }
 
@@ -318,7 +318,7 @@ class FormHandlerTest {
         val (loadState, dialog) = loadWithDialog {
             handler(
                 controls = mapOf("items" to RepeatableControl(mapOf("name" to StringControl(null)), listOf("name"), null)),
-                initData = mapOf("items" to listOf(mapOf("nmae" to "literówka")))
+                initData = mapOf("items" to listOf(mapOf("nmae" to "typo")))
             ) { true }
         }
 
@@ -342,7 +342,7 @@ class FormHandlerTest {
 
     @Test
     fun `null from initData fails the load without a second dialog`() {
-        // null to porażka, którą data manager już pokazał - silnik nie dokłada dialogu nieobsłużonego wyjątku.
+        // null is a failure the data manager has already shown - the engine adds no unhandled-error dialog.
         val (loadState, dialog) = loadWithDialog {
             handler(controls = mapOf("name" to StringControl(null)), initData = null) { true }
         }

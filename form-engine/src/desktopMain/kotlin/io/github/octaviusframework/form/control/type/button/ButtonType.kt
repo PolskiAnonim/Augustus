@@ -1,7 +1,7 @@
 package io.github.octaviusframework.form.control.type.button
 
 /**
- * Typy wizualne przycisku, odpowiadające standardowym komponentom Material Design.
+ * Visual button types, matching the standard Material Design components.
  */
 enum class ButtonType {
     Filled,

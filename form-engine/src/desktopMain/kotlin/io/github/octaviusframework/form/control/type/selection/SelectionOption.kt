@@ -1,11 +1,11 @@
 package io.github.octaviusframework.form.control.type.selection
 
 /**
- * Reprezentuje pojedynczą opcję wyboru dla kontrolek grupujących.
+ * A single option of a grouping control.
  *
- * @param T typ wartości przechowywanych w opcji
- * @property value rzeczywista wartość opcji używana w logice aplikacji
- * @property displayText tekst wyświetlany użytkownikowi w interfejsie
+ * @param T type of the value held by the option
+ * @property value the option's actual value, used in application logic
+ * @property displayText text shown to the user in the interface
  */
 data class SelectionOption<T>(
     val value: T,

@@ -9,8 +9,8 @@ import io.github.octaviusframework.form.control.validator.number.BigDecimalValid
 import java.math.BigDecimal
 
 /**
- * Kontrolka do wprowadzania liczb o wysokiej precyzji (BigDecimal).
- * Rozszerza PrimitiveNumberControl, dostarczając logikę parsowania dla BigDecimal.
+ * A control for entering high-precision numbers (BigDecimal).
+ * Extends PrimitiveNumberControl with parsing for BigDecimal.
  */
 class BigDecimalControl(
     label: String?,
@@ -30,7 +30,7 @@ class BigDecimalControl(
     override fun acceptsInitValue(value: Any) = value is BigDecimal
 
     override fun parseValue(text: String): BigDecimal? {
-        // Zapewniamy obsługę zarówno kropki jak i przecinka jako separatora dziesiętnego
+        // Both a dot and a comma work as the decimal separator
         val cleanText = text.replace(",", ".")
         return cleanText.toBigDecimalOrNull()
     }

@@ -26,10 +26,10 @@ class ControlActionTest {
         
         val sourceContext = ControlContext(localName = "triggerSource", statePath = "triggerSource")
         
-        // displayText zasiane celowo: zapis wartości ma je unieważnić, bo opisuje starą wartość.
+        // displayText seeded on purpose: writing the value has to invalidate it, since it describes the old value.
         val state1 = ControlState(value = mutableStateOf("old1"), displayText = mutableStateOf("tekst 1"))
         val state2 = ControlState(value = mutableStateOf("old2"), displayText = mutableStateOf("tekst 2"))
-        val stateOther = ControlState(value = mutableStateOf("other"), displayText = mutableStateOf("tekst obcy"))
+        val stateOther = ControlState(value = mutableStateOf("other"), displayText = mutableStateOf("other text"))
 
         val allStates = mapOf(
             "items[1]/value" to state1,
@@ -61,7 +61,7 @@ class ControlActionTest {
         
         assertThat(state1.displayText.value).isNull()
         assertThat(state2.displayText.value).isNull()
-        assertThat(stateOther.displayText.value).isEqualTo("tekst obcy")
+        assertThat(stateOther.displayText.value).isEqualTo("other text")
     }
 
     @Test
@@ -80,14 +80,14 @@ class ControlActionTest {
 
         every { formState.getControlState("titles") } returns
                 ControlState(value = mutableStateOf(listOf("Solo Leveling", "Na Honjaman Level Up")))
-        every { formState.getControlState("nie_ma") } returns null
+        every { formState.getControlState("no_such") } returns null
 
         // Act & Assert
         assertThat(context.readControl<List<String>>("titles"))
             .containsExactly("Solo Leveling", "Na Honjaman Level Up")
-        assertThatThrownBy { context.readControl<String>("nie_ma") }
+        assertThatThrownBy { context.readControl<String>("no_such") }
             .isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("'nie_ma'")
+            .hasMessageContaining("'no_such'")
     }
 
     @Test
@@ -102,10 +102,10 @@ class ControlActionTest {
             trigger = mockk<FormActionTrigger>(),
             coroutineScope = CoroutineScope(Dispatchers.Unconfined)
         )
-        every { formState.getControlState("nie_ma") } returns null
+        every { formState.getControlState("no_such") } returns null
 
-        assertThatThrownBy { context.updateControl("nie_ma", "x") }.isInstanceOf(IllegalArgumentException::class.java)
-        assertThatThrownBy { context.updateControls("nie_ma", "x") }.isInstanceOf(IllegalArgumentException::class.java)
-        assertThatThrownBy { context.updateLabel("nie_ma", "x") }.isInstanceOf(IllegalArgumentException::class.java)
+        assertThatThrownBy { context.updateControl("no_such", "x") }.isInstanceOf(IllegalArgumentException::class.java)
+        assertThatThrownBy { context.updateControls("no_such", "x") }.isInstanceOf(IllegalArgumentException::class.java)
+        assertThatThrownBy { context.updateLabel("no_such", "x") }.isInstanceOf(IllegalArgumentException::class.java)
     }
 }

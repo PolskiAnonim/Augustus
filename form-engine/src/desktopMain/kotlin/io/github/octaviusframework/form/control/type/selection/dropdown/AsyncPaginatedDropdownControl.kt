@@ -22,21 +22,21 @@ import org.octavius.localization.Tr
 import org.octavius.theme.FormSpacing
 
 /**
- * O ile pikseli przed końcem menu zaczynamy doczytywać następną stronę.
- * Mniej więcej dwie pozycje, żeby lista dojechała zanim użytkownik zobaczy koniec.
+ * How many pixels before the end of the menu loading of the next page starts.
+ * Roughly two items, so the list catches up before the user sees the end.
  */
 private const val LoadMoreThresholdPx = 100
 
 /**
- * Pozycja w stronicowaniu dla jednego wyszukiwania, wymieniana w całości.
+ * Paging position for one search, replaced as a whole.
  *
- * Trzymanie tego jako jednego obiektu, a nie czterech osobnych zmiennych stanu, jest tu celowe:
- * ładowanie pierwszej strony i doczytywanie kolejnych to dwa niezależne efekty, a przy osobnych
- * zmiennych ten drugi mógłby wystartować z numerem strony należącym jeszcze do poprzedniego
- * wyszukiwania. [query] rozstrzyga, do czego ta pozycja należy - dopóki nie zgadza się z tekstem
- * w polu wyszukiwania, doczytywanie jest wyłączone i nie zależy to od kolejności startu efektów.
+ * Keeping this as one object rather than four separate state variables is deliberate: loading the first
+ * page and loading further ones are two independent effects, and with separate variables the second could
+ * start with a page number still belonging to the previous search. [query] decides what this position
+ * belongs to - as long as it does not match the text in the search field, loading more is off, regardless
+ * of the order in which the effects start.
  *
- * `null` w [query] to stan początkowy, który nie pasuje do żadnego wyszukiwania - łącznie z pustym.
+ * `null` in [query] is the initial state, which matches no search - including the empty one.
  */
 private data class Paging<T>(
     val query: String? = null,
@@ -46,8 +46,8 @@ private data class Paging<T>(
 )
 
 /**
- * Abstrakcyjna baza dla kontrolek dropdown, które ładują dane asynchronicznie,
- * wspierają wyszukiwanie i doczytywanie kolejnych stron przy przewijaniu.
+ * Abstract base of dropdown controls that load data asynchronously, support searching and load further
+ * pages while scrolling.
  */
 abstract class AsyncPaginatedDropdownControl<T : Any>(
     label: String?,
@@ -57,17 +57,17 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
 ) : DropdownControlBase<T>(label, required, dependencies, actions) {
 
     /**
-     * Podklasy implementują tę metodę, aby dostarczyć dane dla konkretnej strony.
-     * Użycie `suspend` jest kluczowe dla operacji asynchronicznych.
+     * Subclasses implement this to provide the data of a given page.
+     * It is `suspend` because the loading is asynchronous.
      */
     protected abstract suspend fun loadPage(searchQuery: String, page: Long): DropdownPage<T>
 
     /**
-     * Ile odczekać po ostatnim wpisanym znaku, zanim poleci zapytanie.
+     * How long to wait after the last typed character before the query goes out.
      *
-     * Domyślnie zero, bo lokalna baza odpowiada szybciej, niż trwałoby czekanie - debounce tylko
-     * opóźniałby wynik, który i tak zdąży. Nadpisuje go źródło, gdzie każde zapytanie kosztuje:
-     * API po sieci liczy się w sekundach i potrafi odpowiedzieć 429.
+     * Zero by default, because a local database answers faster than the wait would take - debounce would only
+     * delay a result that arrives in time anyway. A source where every query costs overrides it: an API over
+     * the network takes seconds and can answer 429.
      */
     protected open val debounceMs: Long = 0
 
@@ -84,14 +84,14 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
         var isLoadingMore by remember { mutableStateOf(false) }
         var loadError by remember { mutableStateOf<String?>(null) }
 
-        // Czy pozycja w stronicowaniu opisuje to, co jest teraz wpisane w wyszukiwarce.
-        // Dopóki nie opisuje, pokazujemy ładowanie i nie doczytujemy kolejnych stron.
+        // Whether the paging position describes what is currently typed in the search field.
+        // Until it does, loading is shown and no further pages are loaded.
         val isCurrent = paging.query == searchQuery
 
-        // Pierwsza strona, i przeładowanie od zera przy każdej zmianie wyszukiwania.
-        // Efekt anuluje się przy kolejnym znaku, więc wyniki nie wracają w złej kolejności.
-        // To samo anulowanie robi z opóźnienia debounce: kolejny znak w trakcie `delay` zabija
-        // czekający efekt, zanim zapytanie w ogóle wyjdzie. Puste pole ładuje od razu.
+        // The first page, and reloading from scratch on every change of the search.
+        // The effect is cancelled by the next character, so results do not come back in the wrong order.
+        // The same cancellation turns the delay into a debounce: another character during `delay` kills the
+        // waiting effect before the query even goes out. An empty field loads right away.
         LaunchedEffect(searchQuery) {
             if (searchQuery.isNotEmpty() && debounceMs > 0) delay(debounceMs)
             loadError = null
@@ -102,16 +102,16 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                // Komunikat w menu, a nie dialog: przy źródle po sieci nieudane zapytanie zdarza
-                // się w trakcie pisania, a modal zamykałby wtedy formularz pod użytkownikiem.
+                // A message in the menu, not a dialog: with a network source a failed query happens while
+                // typing, and a modal would then close the form under the user.
                 loadError = e.message ?: e.toString()
             }
         }
 
-        // Doczytywanie kolejnych stron z pozycji przewijania menu.
+        // Loading further pages from the menu's scroll position.
         //
-        // `maxValue == 0` znaczy, że zawartość nie wypełniła jeszcze menu - wtedy też dobieramy,
-        // bo inaczej krótka pierwsza strona nie daje czym przewinąć i lista utyka na starcie.
+        // `maxValue == 0` means the content does not fill the menu yet - then more is loaded too, because
+        // otherwise a short first page gives nothing to scroll and the list gets stuck at the start.
         LaunchedEffect(menuScrollState, searchQuery) {
             snapshotFlow { Triple(menuScrollState.value, menuScrollState.maxValue, paging) }
                 .collect { (position, maxPosition, current) ->
@@ -129,9 +129,9 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
                             throw e
                         } catch (e: Exception) {
                             loadError = e.message ?: e.toString()
-                            // Gasimy doczytywanie. Pozycja przewijania się nie zmieniła, więc ten sam
-                            // warunek spełniłby się natychmiast i lecielibyśmy w kółko tym samym
-                            // zapytaniem. Wznowi je dopiero zmiana wyszukiwania.
+                            // Turn loading off. The scroll position has not changed, so the same condition
+                            // would be met immediately and the same query would go out in a loop. Only a
+                            // change of the search turns it back on.
                             paging = current.copy(hasMore = false)
                         } finally {
                             isLoadingMore = false
@@ -140,17 +140,17 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
                 }
         }
 
-        // 1. Pole wyszukiwania
+        // 1. Search field
         SearchField(
             searchQuery = searchQuery,
             onQueryChange = { searchQuery = it }
         )
 
-        // 2. Właściwa zawartość menu
-        // Póki nowe wyniki nie przyszły, zostają widoczne poprzednie ze wskaźnikiem pod spodem.
-        // Przy lokalnej bazie różnicy nie widać, ale przy zapytaniu po sieci lista znikałaby na
-        // kilka sekund przy każdym znaku. Duży wskaźnik zamiast listy tylko wtedy, gdy nie ma
-        // czego pokazać. Doczytywanie z nieaktualnej pozycji i tak jest wyłączone (patrz wyżej).
+        // 2. The actual menu content
+        // Until the new results arrive, the previous ones stay visible with an indicator below them.
+        // With a local database there is no visible difference, but with a network query the list would
+        // disappear for a few seconds on every character. A big indicator instead of the list only when
+        // there is nothing to show. Loading more from a stale position is off anyway (see above).
         MenuContent(
             options = paging.options,
             isRequired = required ?: false,
@@ -159,12 +159,12 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
             errorMessage = loadError,
             onOptionSelected = { selectedOption ->
                 controlState.value.value = selectedOption?.value
-                // Menu zna etykietę wybranej pozycji, więc zapisujemy ją od razu - nie ma powodu
-                // pytać bazy o tekst, który właśnie trzymamy w ręku.
+                // The menu knows the label of the selected item, so it is stored right away - no reason to
+                // ask the database for a text already at hand.
                 controlState.displayText.value = selectedOption?.displayText
-                // Payload jest tylko tutaj, przy wyborze z menu. Akcja typu "wypełnij resztę
-                // z wybranego wiersza" nie może dostać go przy wczytaniu formularza - nadpisałaby
-                // wtedy zapisane dane tym, co akurat jest w słowniku.
+                // The payload exists only here, on selection from the menu. An action like "fill the rest
+                // from the selected row" must not get it when the form loads - it would then overwrite the
+                // saved data with whatever is currently in the dictionary.
                 executeActions(controlContext, selectedOption?.value, scope, payload = selectedOption?.payload)
                 closeMenu()
             }
@@ -172,7 +172,7 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
     }
 
     /**
-     * Komponent renderujący pole wyszukiwania wewnątrz menu.
+     * Renders the search field inside the menu.
      */
     @Composable
     private fun SearchField(
@@ -210,10 +210,10 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
     }
 
     /**
-     * Komponent renderujący główną zawartość menu.
+     * Renders the main content of the menu.
      *
-     * Ładowanie pierwszej strony zastępuje listę, doczytywanie kolejnej dokłada wskaźnik pod nią -
-     * inaczej lista znikałaby przy każdym dobraniu porcji.
+     * Loading the first page replaces the list, loading another one adds an indicator below it - otherwise
+     * the list would disappear every time a batch is added.
      */
     @Composable
     private fun MenuContent(
@@ -250,7 +250,7 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
     }
 
     /**
-     * Komponent renderujący listę opcji do wyboru.
+     * Renders the list of options to choose from.
      */
     @Composable
     private fun OptionsList(
@@ -258,7 +258,7 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
         isRequired: Boolean,
         onOptionSelected: (DropdownOption<T>?) -> Unit
     ) {
-        // Opcja "null" (brak wyboru), tylko jeśli kontrolka nie jest wymagana
+        // The "null" option (no selection), only if the control is not required
         if (!isRequired) {
             DropdownMenuItem(
                 text = { Text(FormTr.Form.Dropdown.noSelection()) },
@@ -289,7 +289,7 @@ abstract class AsyncPaginatedDropdownControl<T : Any>(
     }
 
     /**
-     * Komponent renderujący wskaźnik ładowania.
+     * Renders the loading indicator.
      */
     @Composable
     private fun LoadingIndicator() {

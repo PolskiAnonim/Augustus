@@ -57,10 +57,10 @@ class DateTimeControl<T : Any>(
     }
 }
 
-// --- Funkcje fabryczne dla konkretnych typów daty/czasu ---
+// --- Factory functions for the concrete date/time types ---
 
 /**
- * Funkcja fabryczna tworząca kontrolkę do wyboru dat (LocalDate).
+ * Factory function creating a control for picking dates (LocalDate).
  */
 @Suppress("FunctionName")
 fun DateControl(
@@ -79,7 +79,7 @@ fun DateControl(
 )
 
 /**
- * Funkcja fabryczna tworząca kontrolkę do wyboru daty i czasu (LocalDateTime).
+ * Factory function creating a control for picking a date and time (LocalDateTime).
  */
 @Suppress("FunctionName")
 fun LocalDateTimeControl(
@@ -98,7 +98,7 @@ fun LocalDateTimeControl(
 )
 
 /**
- * Funkcja fabryczna tworząca kontrolkę do wyboru chwil czasowych (Instant).
+ * Factory function creating a control for picking instants (Instant).
  */
 @OptIn(ExperimentalTime::class)
 @Suppress("FunctionName")
@@ -119,7 +119,7 @@ fun InstantControl(
 )
 
 /**
- * Funkcja fabryczna tworząca kontrolkę do wyboru czasu (LocalTime).
+ * Factory function creating a control for picking a time (LocalTime).
  */
 @Suppress("FunctionName")
 fun LocalTimeControl(

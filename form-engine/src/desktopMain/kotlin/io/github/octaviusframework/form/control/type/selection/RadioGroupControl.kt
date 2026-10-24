@@ -17,7 +17,7 @@ import io.github.octaviusframework.form.control.layout.ControlOrientation
 import org.octavius.theme.FormSpacing
 
 /**
- * Kontrolka pozwalająca na wybór jednej opcji z grupy za pomocą przycisków Radio.
+ * A control for choosing one option from a group with radio buttons.
  */
 class RadioGroupControl<T : Any>(
     label: String?,
@@ -72,7 +72,7 @@ class RadioGroupControl<T : Any>(
                 ) {
                     RadioButton(
                         selected = isSelected,
-                        onClick = null // obsługa kliknięcia jest w Row (selectable)
+                        onClick = null // the click is handled by the Row (selectable)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(

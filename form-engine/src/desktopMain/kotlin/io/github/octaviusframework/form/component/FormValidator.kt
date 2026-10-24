@@ -8,13 +8,13 @@ import io.github.octaviusframework.form.control.base.ControlContext
 import io.github.octaviusframework.form.control.base.FormResultData
 
 /**
- * Klasa odpowiedzialna za walidację formularza na dwóch poziomach:
- * 1. Walidacja pól - sprawdza wymagalność, format, zależności między kontrolkami
- * 2. Walidacja reguł biznesowych - sprawdza niestandardowe reguły specyficzne dla domeny
- * 3. Walidacja specyficzna dla akcji - pozwala na dodatkowe reguły dla konkretnych przycisków
- * Operuje na stanie formularza
+ * Validates the form on three levels:
+ * 1. Field validation - checks required fields, format, dependencies between controls
+ * 2. Business-rule validation - checks custom, domain-specific rules
+ * 3. Action-specific validation - additional rules for particular buttons
+ * Operates on the form state
  *
- * Klasa może być rozszerzona dla implementacji niestandardowych reguł walidacji.
+ * Extend the class to implement custom validation rules.
  */
 open class FormValidator : KoinComponent {
 
@@ -31,40 +31,38 @@ open class FormValidator : KoinComponent {
     }
 
     /**
-     * Waliduje wszystkie pola formularza.
+     * Validates all form fields.
      *
-     * Proces walidacji:
-     * 1. Czyści poprzednie błędy
-     * 2. Uruchamia walidację każdej kontrolki przez jej validator
-     * 3. Sprawdza wymagalność, format, zależności
+     * Validation:
+     * 1. Clears previous errors
+     * 2. Runs each control's validation through its validator
+     * 3. Checks required fields, format, dependencies
      *
-     * @return true jeśli wszystkie pola są poprawne
+     * @return true if all fields are valid
      */
     internal fun validateFields(): Boolean {
 
         formSchema.rootContexts().forEach { (controlContext, control) -> validateTree(controlContext, control) }
 
-        // Sprawdź czy są jakieś błędy pól
+        // Check whether there are any field errors
         return !errorManager.hasFieldErrors() && !errorManager.hasFormatErrors()
     }
 
-    // Każda kontrolka waliduje się sama, w kontekście znającym rodzica, więc dziecko ukrytej sekcji
-    // albo ukrytego repeatable pominie walidację samo - widoczność sprawdza w górę drzewa.
+    // Every control validates itself, in a context that knows its parent, so a child of a hidden section or
+    // of a hidden repeatable skips validation by itself - it checks visibility up the tree.
     private fun validateTree(controlContext: ControlContext, control: Control<*>) {
         control.validateControl(controlContext, formState.getControlState(controlContext.fullStatePath)!!)
         control.childContexts(controlContext).forEach { (childContext, child) -> validateTree(childContext, child) }
     }
 
     /**
-     * Waliduje reguły biznesowe specyficzne dla domeny.
+     * Validates domain-specific business rules.
      *
-     * Domyślna implementacja zawsze zwraca true.
-     * Klasy pochodne powinny przesłonić tę metodę dla implementacji
-     * niestandardowych reguł walidacji (np. sprawdzanie duplikatów,
-     * weryfikacja relacji między polami, itp.)
+     * The default implementation always returns true. Subclasses override it to implement custom rules
+     * (e.g. checking for duplicates, verifying relations between fields, etc.)
      *
-     * @param formResultData zebrane dane z formularza
-     * @return true jeśli reguły biznesowe są spełnione
+     * @param formResultData data collected from the form
+     * @return true if the business rules are satisfied
      */
     open fun validateBusinessRules(formResultData: FormResultData): Boolean {
         return true
@@ -72,15 +70,15 @@ open class FormValidator : KoinComponent {
 
 
     /**
-     * Definiuje logikę walidacji specyficzną dla poszczególnych akcji formularza.
-     * Ta walidacja jest uruchamiana ZAWSZE dla danej akcji, niezależnie od flagi `validates` na przycisku.
-     * Uruchamia się po walidacji pól i reguł biznesowych.
+     * Defines validation logic specific to individual form actions.
+     * This validation ALWAYS runs for the given action, regardless of the `validates` flag on the button.
+     * It runs after field and business-rule validation.
      *
-     * Klucz mapy odpowiada `actionKey` w `triggerAction`.
-     * Wartość to lambda, która otrzymuje `formData` i powinna zwrócić `true` jeśli walidacja się powiodła.
-     * W przypadku niepowodzenia, lambda jest odpowiedzialna за ustawienie błędów w `errorManager`.
+     * The map key matches `actionKey` in `triggerAction`.
+     * The value is a lambda that receives `formData` and should return `true` if validation passed.
+     * On failure, the lambda is responsible for setting the errors in `errorManager`.
      *
-     * @return Mapa walidacji specyficznych dla akcji.
+     * @return Map of action-specific validations.
      */
     open fun defineActionValidations(): Map<String, (formResultData: FormResultData) -> Boolean> {
         return emptyMap()

@@ -7,7 +7,7 @@ import io.github.octaviusframework.form.control.base.IntegerValidation
 import io.github.octaviusframework.form.localization.FormTr
 
 /**
- * Walidator dla kontrolek liczb całkowitych z obsługą opcji walidacji.
+ * Validator of integer controls, with validation options.
  */
 class IntegerValidator(
     private val validationOptions: IntegerValidation? = null
@@ -18,21 +18,21 @@ class IntegerValidator(
         val errors = mutableListOf<String>()
 
         validationOptions?.let { options ->
-            // Sprawdź wartość minimalną
+            // Minimum value
             options.min?.let { min ->
                 if (value < min) {
                     errors.add(FormTr.Validation.minValue(min))
                 }
             }
 
-            // Sprawdź wartość maksymalną
+            // Maximum value
             options.max?.let { max ->
                 if (value > max) {
                     errors.add(FormTr.Validation.maxValue(max))
                 }
             }
 
-            // Sprawdź krok
+            // Step
             options.step?.let { step ->
                 if (value % step != 0) {
                     errors.add(FormTr.Validation.multipleOf(step))

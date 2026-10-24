@@ -7,18 +7,18 @@ import io.github.octaviusframework.form.component.PathResolver
 import io.github.octaviusframework.form.localization.FormTr
 
 /**
- * Abstrakcyjna klasa bazowa dla wszystkich walidatorów kontrolek formularza.
+ * Abstract base class of all form control validators.
  *
- * Walidator odpowiada za:
- * - Sprawdzanie widoczności kontrolek na podstawie zależności
- * - Określanie wymagalności pól w zależności od warunków
- * - Walidację podstawową (wymagalność, pusty stan)
- * - Walidację specyficzną dla typu kontrolki
+ * A validator is responsible for:
+ * - Checking control visibility based on dependencies
+ * - Determining whether fields are required, depending on conditions
+ * - Basic validation (required, empty state)
+ * - Validation specific to the control type
  *
- * Każdy typ kontrolki powinien mieć własny walidator dziedziczący z tej klasy
- * i implementujący metodę validateSpecific() dla specyficznych reguł walidacji.
+ * Every control type has its own validator extending this class and implementing validateSpecific() for
+ * its specific rules.
  *
- * @param T typ danych przechowywanych przez kontrolkę
+ * @param T type of the data held by the control
  */
 abstract class ControlValidator<T : Any> {
     protected lateinit var formState: FormState
@@ -26,7 +26,7 @@ abstract class ControlValidator<T : Any> {
     protected lateinit var errorManager: ErrorManager
 
     /**
-     * Ustawia referencje do komponentów formularza dla walidatora.
+     * Sets the form component references for the validator.
      */
     internal open fun setupFormReferences(
         formState: FormState,
@@ -42,14 +42,14 @@ abstract class ControlValidator<T : Any> {
         dependency: ControlDependency<*>,
         controlContext: ControlContext
     ): Boolean {
-        // Pobieramy stan z nadrzędnej klasy.
+        // State from the parent class.
         val states = formState.getAllStates()
 
         val resolvedControlName = PathResolver.resolvePath(dependency.controlPath, controlContext)
-        // Zła ścieżka to błąd w schemacie - po cichu spełniona zależność ukryłaby go na zawsze.
+        // A wrong path is a bug in the schema - a dependency silently met would hide it forever.
         val dependentState = states[resolvedControlName] ?: throw IllegalArgumentException(
-            "Zależność kontrolki '${controlContext.fullStatePath}' wskazuje '${dependency.controlPath}' " +
-                "(rozwiązane do '$resolvedControlName'), ale w formularzu nie ma takiej kontrolki"
+            "Dependency of control '${controlContext.fullStatePath}' points at '${dependency.controlPath}' " +
+                "(resolved to '$resolvedControlName'), but the form has no such control"
         )
 
         val dependentValue = dependentState.value.value
@@ -69,7 +69,7 @@ abstract class ControlValidator<T : Any> {
         control: Control<*>,
         controlContext: ControlContext
     ): Boolean {
-        // Krok 1: Sprawdź widoczność rodzica (rekurencja)
+        // Step 1: check the parent's visibility (recursively)
         controlContext.parent?.let { parentContext ->
             val parentControl = formSchema.getControl(parentContext.fullControlPath)!!
             if (!isControlVisible(parentControl, parentContext)) {
@@ -77,47 +77,47 @@ abstract class ControlValidator<T : Any> {
             }
         }
 
-        // Krok 2: Sprawdź, czy WSZYSTKIE zależności typu Visible są spełnione.
+        // Step 2: check that ALL Visible dependencies are met.
         return control.dependencies
             ?.filter { it.value.dependencyType == DependencyType.Visible }
             ?.all { (_, dependency) -> isDependencyMet(dependency, controlContext) }
-            ?: true // Jeśli nie ma zależności, jest widoczna.
+            ?: true // No dependencies means visible.
     }
 
     /**
-     * Sprawdza czy kontrolka jest wymagana na podstawie jej konfiguracji i zależności.
+     * Checks whether the control is required, based on its configuration and dependencies.
      *
-     * Kontrolka jest wymagana gdy:
-     * - Ma ustawioną flagę required = true, lub
-     * - Spełnione są zależności typu Required
+     * The control is required when:
+     * - It has required = true, or
+     * - A Required dependency is met
      *
-     * @param control kontrolka do sprawdzenia
-     * @return true jeśli kontrolka jest wymagana
+     * @param control the control to check
+     * @return true if the control is required
      */
     internal fun isControlRequired(
         control: Control<*>,
         controlContext: ControlContext
     ): Boolean {
-        // Podstawowy warunek: jest wymagana, jeśli tak ustawiono w definicji.
+        // Basic condition: required if the definition says so.
         if (control.required == true) return true
 
-        // Dodatkowy warunek: jest wymagana, jeśli JAKAKOLWIEK zależność typu Required jest spełniona.
+        // Additional condition: required if ANY Required dependency is met.
         return control.dependencies
             ?.filter { it.value.dependencyType == DependencyType.Required }
             ?.any { (_, dependency) -> isDependencyMet(dependency, controlContext) }
-            ?: false // Jeśli nie ma zależności, nie jest wymagana (chyba że `required == true`).
+            ?: false // No dependencies means not required (unless `required == true`).
     }
 
     /**
-     * Sprawdza czy wartość jest pusta lub nie została wypełniona.
+     * Checks whether the value is empty or not filled in.
      *
-     * Wartość jest uważana za pustą gdy:
-     * - Jest null
-     * - Jest pustym ciągiem znaków lub zawiera tylko białe znaki
-     * - Jest pustą listą
+     * A value counts as empty when it:
+     * - Is null
+     * - Is an empty string or only whitespace
+     * - Is an empty list
      *
-     * @param value wartość do sprawdzenia
-     * @return true jeśli wartość jest pusta
+     * @param value the value to check
+     * @return true if the value is empty
      */
     internal fun isValueEmpty(value: Any?): Boolean {
         return when (value) {
@@ -129,51 +129,50 @@ abstract class ControlValidator<T : Any> {
     }
 
     /**
-     * Główna metoda walidacji kontrolki.
+     * Main validation method of a control.
      *
-     * Proces walidacji:
-     * 1. Sprawdza czy kontrolka jest widoczna (jeśli nie, pomija walidację)
-     * 2. Określa czy kontrolka jest wymagana
-     * 3. Sprawdza czy wymagane pole nie jest puste
-     * 4. Uruchamia walidację specyficzną dla typu kontrolki
+     * Validation:
+     * 1. Checks whether the control is visible (if not, skips validation)
+     * 2. Determines whether the control is required
+     * 3. Checks that a required field is not empty
+     * 4. Runs the validation specific to the control type
      *
-     * @param state stan kontrolki
-     * @param control definicja kontrolki
+     * @param state control state
+     * @param control control definition
      */
     open fun validate(
         controlContext: ControlContext,
         state: ControlState<*>,
         control: Control<*>
     ) {
-        // Jeśli kontrolka nie jest widoczna, pomijamy walidację
+        // An invisible control skips validation
         if (!isControlVisible(control, controlContext)) {
             return
         }
 
-        // Sprawdzamy, czy pole jest wymagane
+        // Is the field required
         val isRequired = isControlRequired(control, controlContext)
 
-        // Jeśli pole jest wymagane i wartość jest pusta, ustawiamy błąd
+        // A required field with an empty value gets an error
         if (isRequired && isValueEmpty(state.value.value)) {
             errorManager.setFieldErrors(controlContext.fullStatePath, listOf(FormTr.Validation.fieldRequired()))
             return
         }
 
-        // Wywołujemy dodatkową walidację specyficzną dla kontrolki
+        // Additional, control-specific validation
         validateSpecific(controlContext, state)
     }
 
     /**
-     * Metoda walidacji specyficznej dla typu kontrolki.
+     * Validation specific to the control type.
      *
-     * Powinna być przesłonięta przez klasy pochodne dla implementacji
-     * walidacji specyficznej dla danego typu kontrolki (np. sprawdzanie
-     * formatu email, zakresu liczb, unikalności wartości, itp.).
+     * Subclasses implement it for the validation of their control type (e.g. checking an email format,
+     * a number range, uniqueness of values, etc.).
      *
-     * Domyślna implementacja nie wykonuje żadnej dodatkowej walidacji.
+     * The default implementation does no additional validation.
      *
-     * @param controlContext kontekst kontrolki
-     * @param state stan kontrolki do walidacji
+     * @param controlContext control context
+     * @param state control state to validate
      */
     abstract fun validateSpecific(controlContext: ControlContext, state: ControlState<*>)
 }

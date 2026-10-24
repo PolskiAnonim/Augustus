@@ -15,11 +15,10 @@ import io.github.octaviusframework.form.control.layout.RenderCheckboxLabel
 import org.octavius.theme.FormSpacing
 
 /**
- * Kontrolka do wprowadzania wartości logicznych (prawda/fałsz).
+ * A control for entering boolean values (true/false).
  *
- * Renderuje standardowy przełącznik (Switch) z etykietą.
- * Używana zamiast Checkboxa w przypadkach, gdy zmiana stanu
- * przypomina włączanie/wyłączanie danej funkcji.
+ * Renders a standard Switch with a label. Used instead of a checkbox where changing the state is like
+ * turning a feature on or off.
  */
 class SwitchControl(
     label: String?,
@@ -53,7 +52,7 @@ class SwitchControl(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     val currentValue = controlState.value.value ?: false
-                    // Wymuszamy stan non-null, jako że Switch nie posiada stanu nieokreślonego
+                    // Force a non-null state, since a Switch has no indeterminate state
                     if (controlState.value.value == null) {
                         controlState.value.value = false
                     }

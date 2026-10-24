@@ -7,11 +7,10 @@ import io.github.octaviusframework.form.control.base.ControlState
 import io.github.octaviusframework.form.control.base.FormResultData
 
 /**
- * Reprezentuje jeden wiersz w kontrolce powtarzalnej.
- * Uproszczona wersja - stan jest teraz zarządzany globalnie.
+ * One row of a repeatable control. Its state lives in the global FormState.
  *
- * @param id unikalny identyfikator wiersza (generowany automatycznie)
- * @param index pozycja wiersza w liście (używana do budowania hierarchicznych nazw)
+ * @param id unique row identifier (generated automatically)
+ * @param index position of the row in the list (used to build hierarchical names)
  */
 data class RepeatableRow(
     val id: String = java.util.UUID.randomUUID().toString(),
@@ -19,11 +18,11 @@ data class RepeatableRow(
 )
 
 /**
- * Reprezentuje wynik kontrolki powtarzalnej z podziałem na typy operacji.
+ * Result of a repeatable control, split by operation type.
  *
- * @param deletedRows wiersze do usunięcia z bazy danych
- * @param addedRows nowe wiersze do dodania
- * @param modifiedRows wiersze do zaktualizowania
+ * @param deletedRows rows to delete from the database
+ * @param addedRows new rows to add
+ * @param modifiedRows rows to update
  */
 data class RepeatableResultValue(
     val deletedRows: List<FormResultData>,
@@ -33,8 +32,8 @@ data class RepeatableResultValue(
 )
 
 /**
- * Kontrolki wiersza, każda z kontekstem, w którym rodzicem jest kontrolka powtarzalna.
- * Wiersz to osobny poziom danych: stany jego kontrolek leżą pod `nazwa[rowId]/...`.
+ * The row's controls, each with a context in which the repeatable control is the parent.
+ * A row is a separate data level: the states of its controls lie under `name[rowId]/...`.
  */
 internal fun rowContexts(
     parentContext: ControlContext,
@@ -45,18 +44,18 @@ internal fun rowContexts(
 }
 
 /**
- * Tworzy nowy wiersz i dodaje stany jego kontrolek do globalnego FormState.
+ * Creates a new row and adds the states of its controls to the global FormState.
  *
- * @param index pozycja wiersza w liście
- * @param parentContext kontekst kontrolki powtarzalnej
- * @param rowControls mapa kontrolek które mają być w wierszu
- * @param formState globalny stan formularza
- * @param values wartości początkowe pól wiersza (klucz = nazwa kontrolki), dla nowego wiersza puste
- * @return nowy wiersz z ustawionym indeksem
+ * @param index position of the row in the list
+ * @param parentContext context of the repeatable control
+ * @param rowControls map of the controls that make up the row
+ * @param formState global form state
+ * @param values initial values of the row's fields (key = control name), empty for a new row
+ * @return the new row with its index set
  */
 internal fun createRow(
     index: Int,
-    parentContext: ControlContext, // Np. "publications" lub "projects[uuid].tasks"
+    parentContext: ControlContext, // E.g. "publications" or "projects[uuid].tasks"
     rowControls: Map<String, Control<*>>,
     formState: FormState,
     values: Map<String, Any?> = emptyMap()
@@ -67,14 +66,14 @@ internal fun createRow(
 }
 
 /**
- * Analizuje stan kontrolki powtarzalnej i klasyfikuje wiersze według typu operacji.
- * Używa globalnego stanu zamiast lokalnych stanów wierszy.
+ * Analyzes the state of a repeatable control and classifies the rows by operation type.
+ * Works on the global form state.
  *
- * @param controlState stan kontrolki powtarzalnej
- * @param controlContext kontekst kontrolki powtarzalnej (do budowania hierarchicznych nazw)
- * @param rowControls mapa kontrolek w wierszu
- * @param formState globalny stan formularza
- * @return Triple(nowe wiersze, usunięte wiersze, zmienione wiersze)
+ * @param controlState state of the repeatable control
+ * @param controlContext context of the repeatable control (for building hierarchical names)
+ * @param rowControls map of the controls in a row
+ * @param formState global form state
+ * @return Triple(new rows, deleted rows, changed rows)
  */
 internal fun getRowTypes(
     controlState: ControlState<List<RepeatableRow>>,
@@ -85,13 +84,13 @@ internal fun getRowTypes(
     val currentRowIds = controlState.value.value!!.map { it.id }.toSet()
     val initialRowIds = controlState.initValue.value!!.map { it.id }.toSet()
 
-    // Nowe wiersze: te w current, których ID nie ma w initial
+    // New rows: those in current whose ID is not in initial
     val newRows = controlState.value.value!!.filter { it.id !in initialRowIds }
 
-    // Usunięte wiersze: te w initial, których ID nie ma w current
+    // Deleted rows: those in initial whose ID is not in current
     val deletedRows = controlState.initValue.value!!.filter { it.id !in currentRowIds }
 
-    // Zmienione wiersze: te, które są w obu listach (wg ID) I mają przynajmniej jedno pole "dirty"
+    // Changed rows: those in both lists (by ID) AND with at least one "dirty" field
     val changedRows = controlState.value.value!!.filter { currentRow ->
         if (currentRow.id !in initialRowIds) return@filter false
 
@@ -102,8 +101,8 @@ internal fun getRowTypes(
     return Triple(newRows, deletedRows, changedRows)
 }
 
-// Kontrolka jest zmieniona, gdy zmieniła się jej wartość albo cokolwiek pod nią - pole sekcji
-// w wierszu czy wiersz zagnieżdżonego repeatable.
+// A control is changed when its value changed or anything below it did - a section field in the row or
+// a row of a nested repeatable.
 private fun isChanged(controlContext: ControlContext, control: Control<*>, formState: FormState): Boolean {
     val state = formState.getControlState(controlContext.fullStatePath)!!
     return state.initValue.value != state.value.value ||

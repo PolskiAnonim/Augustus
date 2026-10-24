@@ -5,99 +5,99 @@ import androidx.compose.runtime.mutableStateOf
 import io.github.octaviusframework.form.control.base.*
 
 /**
- * Reaktywne zarządzanie stanem wszystkich kontrolek formularza.
+ * Reactive state of all form controls.
  *
- * FormState przechowuje i zarządza stanami wszystkich kontrolek w formularzu,
- * wykorzystując Compose State API dla automatycznej rekomposycji UI przy zmianach.
+ * FormState holds and manages the states of all controls in the form, using the Compose State API so the UI
+ * recomposes automatically on changes.
  *
- * Główne funkcje:
- * - Przechowywanie reaktywnych stanów kontrolek (MutableState)
- * - Automatyczne wyzwalanie rekomposycji przy zmianach
- * - Zarządzanie hierarchicznymi nazwami kontrolek (np. dla RepeatableControl)
- * - Zbieranie danych z wszystkich kontrolek do przetworzenia
+ * Main functions:
+ * - Holding reactive control states (MutableState)
+ * - Triggering recomposition on changes
+ * - Managing hierarchical control names (e.g. for RepeatableControl)
+ * - Collecting data from all controls for processing
  *
- * Stany kontrolek są indeksowane pełną ścieżką (np. "publications[uuid].title"),
- * co umożliwia obsługę złożonych, zagnieżdżonych struktur.
+ * Control states are keyed by full path (e.g. "publications[uuid].title"), which is what supports complex,
+ * nested structures.
  */
 class FormState {
 
     /**
-     * Etap wczytywania danych początkowych (initData). Dopóki nie jest [FormLoadState.Loaded],
-     * kontrolki nie mają stanów, więc nie ma czego rysować.
+     * Stage of loading the initial data (initData). Until it is [FormLoadState.Loaded] the controls have no
+     * states, so there is nothing to draw.
      */
     val loadState = mutableStateOf(FormLoadState.Loading)
 
     /**
-     * Flaga wysyłania formularza (triggerAction).
-     * True podczas wykonywania akcji (np. zapis, usunięcie).
+     * Form submission flag (triggerAction).
+     * True while an action (e.g. save, delete) is running.
      */
     val actionTriggered = mutableStateOf(false)
 
     /**
-     * Stan kontrolek formularza - reactive map która automatycznie triggeruje recomposition
+     * Control states - a reactive map that triggers recomposition automatically
      */
     private val _controlStates = mutableStateMapOf<String, ControlState<*>>()
 
     /**
-     * Funkcja zwraca stan kontrolki o danej nazwie
+     * Returns the state of the control with the given name
      */
     fun getControlState(name: String): ControlState<*>? = _controlStates[name]
 
     /**
-     * Funkcja zwraca stany wszystkich kontrolek formularza
+     * Returns the states of all form controls
      */
     fun getAllStates(): Map<String, ControlState<*>> = _controlStates
 
     /**
-     * Inicjalizuje stany wszystkich kontrolek na podstawie wartości początkowych.
+     * Initializes the states of all controls from the initial values.
      *
-     * @param schema Schemat formularza z definicjami kontrolek.
-     * @param initValues Mapa wartości początkowych (klucz = nazwa kontrolki).
-     * @throws InitDataException gdy wartości nie pasują do schematu.
+     * @param schema Form schema with the control definitions.
+     * @param initValues Map of initial values (key = control name).
+     * @throws InitDataException when the values do not fit the schema.
      */
     internal fun initializeStates(schema: FormSchema, initValues: Map<String, Any?>) {
         initializeLevel("", schema.rootContexts(), initValues)
     }
 
     /**
-     * Tworzy stany kontrolek jednego poziomu danych - formularza, sekcji albo wiersza repeatable -
-     * z wartości pod ich nazwami. Kontenery zakładają w `setInitValue` swoje poziomy same, tą samą funkcją.
+     * Creates the control states of one data level - the form, a section or a repeatable row - from the
+     * values under their names. Containers set up their own levels in `setInitValue`, with this same function.
      *
-     * Pola sekcji przychodzą pod ścieżkami (`"basic_info/name"`), bo tak oddaje je `loadData` i tylko
-     * wtedy łączenie wartości domyślnych, z bazy i z payloadu zwykłym `+` nie gubi pól.
+     * Section fields come under paths (`"basic_info/name"`), because that is how `loadData` returns them,
+     * and only then does merging defaults, database values and the payload with a plain `+` keep all fields.
      *
-     * Każda wartość musi trafić w kontrolkę tego poziomu.
+     * Every value has to hit a control of this level.
      *
-     * @param levelPath Ścieżka poziomu w schemacie (`""` dla korzenia, `"basic_info"`, `"publications"`),
-     *   do komunikatów o błędach.
-     * @throws InitDataException gdy wartość nie trafia w żadną kontrolkę albo kontrolka jej nie przyjmuje.
+     * @param levelPath Path of the level in the schema (`""` for the root, `"basic_info"`, `"publications"`),
+     *   for error messages.
+     * @throws InitDataException when a value hits no control or the control does not accept it.
      */
     internal fun initializeLevel(levelPath: String, controls: List<Pair<ControlContext, Control<*>>>, values: Map<String, Any?>) {
         val valuesByName = valuesByName(levelPath, values)
         val controlNames = controls.map { (controlContext, _) -> controlContext.localName }.toSet()
         valuesByName.keys.firstOrNull { it !in controlNames }?.let { name ->
-            throw InitDataException(pathIn(levelPath, name), "w formularzu nie ma takiej kontrolki")
+            throw InitDataException(pathIn(levelPath, name), "no such control in the form")
         }
         controls.forEach { (controlContext, control) ->
             _controlStates[controlContext.fullStatePath] = control.setInitValue(controlContext, valuesByName[controlContext.localName])
         }
     }
 
-    // Grupuje ścieżki po pierwszym segmencie: "basic_info/name" trafia do mapy "basic_info" jako "name".
-    // Głębsze segmenty rozłoży kolejny poziom, gdy sekcja przekaże mu swoją mapę.
+    // Groups paths by their first segment: "basic_info/name" goes into the "basic_info" map as "name".
+    // Deeper segments are split by the next level, when the section hands it its map.
     private fun valuesByName(levelPath: String, values: Map<String, Any?>): Map<String, Any?> {
         return values.entries.groupBy { it.key.substringBefore(PathResolver.SEPARATOR) }.mapValues { (name, entries) ->
             val path = pathIn(levelPath, name)
             val ownValue = entries.singleOrNull { it.key == name }
-            // Żadna kontrolka nie trzyma mapy, więc mapa pod gołą nazwą to sekcja podana w całości.
-            // `+` na takich mapach podmienia całą sekcję, czyli po cichu gubi pola - stąd tylko ścieżki.
+            // No control holds a map, so a map under a bare name is a section given as a whole.
+            // `+` on such maps replaces the whole section, i.e. silently drops fields - hence paths only.
             if (ownValue?.value is Map<*, *>) {
-                throw InitDataException(path, "wartość jest mapą - pola sekcji podaje się ścieżkami, np. '$path/pole'")
+                throw InitDataException(path, "value is a map - section fields are given as paths, e.g. '$path/field'")
             }
             when {
                 ownValue == null -> entries.associate { it.key.substringAfter(PathResolver.SEPARATOR) to it.value }
                 entries.size == 1 -> ownValue.value
-                else -> throw InitDataException(path, "wartość jest i pod '$path', i pod ścieżkami w '$path/...'")
+                else -> throw InitDataException(path, "value given both at '$path' and at paths under '$path/...'")
             }
         }
     }
@@ -107,24 +107,24 @@ class FormState {
     }
 
     /**
-     * Funkcja ustawia stan kontrolki o danej nazwie (może być hierarchiczna)
-     * Automatycznie triggeruje recomposition dzięki mutableStateMapOf
+     * Sets the state of the control with the given name (may be hierarchical)
+     * Triggers recomposition automatically thanks to mutableStateMapOf
      */
     internal fun setControlState(name: String, state: ControlState<*>) {
         _controlStates[name] = state
     }
 
     /**
-     * Funkcja usuwa stan kontrolki o danej nazwie
-     * Automatycznie triggeruje recomposition dzięki mutableStateMapOf
+     * Removes the state of the control with the given name
+     * Triggers recomposition automatically thanks to mutableStateMapOf
      */
     internal fun removeControlState(name: String) {
         _controlStates.remove(name)
     }
 
     /**
-     * Funkcja usuwa wszystkie stany kontrolek zaczynające się od danego prefiksu
-     * Automatycznie triggeruje recomposition dzięki mutableStateMapOf
+     * Removes all control states starting with the given prefix
+     * Triggers recomposition automatically thanks to mutableStateMapOf
      */
     internal fun removeControlStatesWithPrefix(prefix: String) {
         val keysToRemove = _controlStates.keys.filter { it.startsWith(prefix) }
@@ -132,19 +132,19 @@ class FormState {
     }
 
     /**
-     * Zbiera i przetwarza dane ze wszystkich kontrolek formularza.
+     * Collects and processes the data of all form controls.
      *
-     * @param schema Schemat formularza z definicjami kontrolek.
-     * @return FormResultData - mapa wyników (klucz = nazwa kontrolki, wartość = ControlResultData).
+     * @param schema Form schema with the control definitions.
+     * @return FormResultData - map of results (key = control name, value = ControlResultData).
      */
     internal fun collectFormData(schema: FormSchema): FormResultData {
         return collectLevel(schema.rootContexts())
     }
 
     /**
-     * Zbiera wyniki kontrolek jednego poziomu danych pod ich nazwami. Kontenery zbierają swoje poziomy
-     * same, tą samą funkcją: sekcja raz, repeatable per wiersz. Każda kontrolka dostaje kontekst
-     * z rodzicem, bo dopiero on mówi, czy jest widoczna - a niewidoczna nie przekazuje wartości do zapisu.
+     * Collects the results of the controls of one data level under their names. Containers collect their own
+     * levels, with this same function: a section once, a repeatable per row. Every control gets a context with
+     * its parent, because only that tells whether it is visible - and an invisible one passes no value to save.
      */
     internal fun collectLevel(controls: List<Pair<ControlContext, Control<*>>>): FormResultData {
         return controls.associate { (controlContext, control) ->
@@ -154,18 +154,18 @@ class FormState {
 }
 
 /**
- * Etap wczytywania danych początkowych formularza.
+ * Stage of loading the form's initial data.
  */
 enum class FormLoadState {
-    /** `initData` jeszcze trwa. */
+    /** `initData` is still running. */
     Loading,
 
-    /** Stany kontrolek są gotowe, formularz można rysować. */
+    /** Control states are ready, the form can be drawn. */
     Loaded,
 
     /**
-     * Wczytanie się nie udało, a powód pokazał już dialog. Stanów kontrolek nie ma albo są niepełne,
-     * więc formularza nie da się narysować ani zapisać.
+     * Loading failed and a dialog has already shown why. Control states are missing or incomplete, so the
+     * form can be neither drawn nor saved.
      */
     Failed
 }

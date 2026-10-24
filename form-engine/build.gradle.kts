@@ -6,7 +6,7 @@ plugins {
 }
 
 kotlin {
-    // Definiujemy, że ten moduł jest tylko dla desktopa
+    // This module targets desktop only
     jvm("desktop")
 
     sourceSets {

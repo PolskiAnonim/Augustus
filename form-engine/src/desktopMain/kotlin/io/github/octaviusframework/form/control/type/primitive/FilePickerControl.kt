@@ -26,27 +26,26 @@ import java.io.File
 import java.net.URI
 
 /**
- * Tryb zwracania danych z kontrolki FilePickerControl.
+ * What FilePickerControl returns.
  */
 enum class FilePickerMode {
     /**
-     * Zwraca ścieżkę do wybranego pliku jako String.
+     * Returns the path of the selected file as a String.
      */
     PATH_STRING,
 
     /**
-     * Zwraca całą zawartość wybranego pliku jako ByteArray.
+     * Returns the whole content of the selected file as a ByteArray.
      */
     CONTENT_BYTES
 }
 
 /**
- * Kontrolka umożliwiająca wybór pliku za pomocą systemowego okna dialogowego 
- * lub mechanizmu przeciągnij i upuść (Drag & Drop).
+ * A control for picking a file through the system dialog or drag and drop.
  *
- * Parametr generyczny T zależy od wybranego FilePickerMode:
- * - String dla PATH_STRING
- * - ByteArray dla CONTENT_BYTES
+ * The generic parameter T depends on the chosen FilePickerMode:
+ * - String for PATH_STRING
+ * - ByteArray for CONTENT_BYTES
  */
 class FilePickerControl<T : Any>(
     label: String?,

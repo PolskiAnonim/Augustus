@@ -11,11 +11,10 @@ import io.github.octaviusframework.form.control.validator.primitive.StringValida
 import org.octavius.theme.FormSpacing
 
 /**
- * Kontrolka do wprowadzania tekstu jednoliniowego.
+ * A control for entering single-line text.
  *
- * Renderuje standardowe pole tekstowe z etykietą i walidacją.
- * Wspiera wszystkie standardowe funkcje kontrolek jak zależności,
- * wymagalność i komunikaty błędów.
+ * Renders a standard text field with a label and validation. Supports all standard control features such
+ * as dependencies, being required and error messages.
  */
 class StringControl(
     label: String?,

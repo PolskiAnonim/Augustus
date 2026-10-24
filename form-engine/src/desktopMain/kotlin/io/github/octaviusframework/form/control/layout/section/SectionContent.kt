@@ -26,10 +26,10 @@ internal fun SectionContent(
                 .padding(FormSpacing.sectionPadding)
         ) {
             if (columns > 1) {
-                // Logika dla wielu kolumn
+                // Several columns
                 RenderMultiColumnContent(children, columns, formState)
             } else {
-                // Logika dla jednej kolumny
+                // A single column
                 RenderSingleColumnContent(children, formState)
             }
         }
@@ -42,7 +42,7 @@ private fun RenderMultiColumnContent(
     columns: Int,
     formState: FormState
 ) {
-    // Dzielimy listę kontrolek na grupy dla każdej kolumny
+    // Split the controls into a group per column
     val childGroups = children.chunked(
         (children.size + columns - 1) / columns
     )
@@ -76,7 +76,7 @@ private fun RenderSingleColumnContent(
     }
 }
 
-// Wyodrębniamy powtarzającą się logikę renderowania pojedynczej kontrolki
+// Rendering of a single control, shared by both layouts
 @Composable
 private fun RenderChild(
     childContext: ControlContext,

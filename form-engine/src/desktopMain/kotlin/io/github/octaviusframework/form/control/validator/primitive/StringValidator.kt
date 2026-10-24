@@ -7,7 +7,7 @@ import io.github.octaviusframework.form.control.base.StringValidation
 import io.github.octaviusframework.form.localization.FormTr
 
 /**
- * Walidator dla kontrolek tekstowych z obsługą opcji walidacji.
+ * Validator of text controls, with validation options.
  */
 class StringValidator(
     private val validationOptions: StringValidation? = null
@@ -23,21 +23,21 @@ class StringValidator(
         }
 
         validationOptions?.let { options ->
-            // Sprawdź minimalną długość
+            // Minimum length
             options.minLength?.let { minLength ->
                 if (value.length < minLength) {
                     errors.add(FormTr.Validation.minLength(minLength))
                 }
             }
 
-            // Sprawdź maksymalną długość
+            // Maximum length
             options.maxLength?.let { maxLength ->
                 if (value.length > maxLength) {
                     errors.add(FormTr.Validation.maxLength(maxLength))
                 }
             }
 
-            // Sprawdź wzorzec
+            // Pattern
             options.pattern?.let { pattern ->
                 if (!pattern.matches(value)) {
                     errors.add(options.patternErrorMessage ?: FormTr.Validation.invalidFormat())

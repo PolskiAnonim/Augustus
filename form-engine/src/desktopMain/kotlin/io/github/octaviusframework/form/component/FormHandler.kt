@@ -12,27 +12,28 @@ import io.github.octaviusframework.form.localization.FormTr
 import org.octavius.ui.snackbar.SnackbarManager
 
 /**
- * Klasa obsługująca cykl życia formularza - główny koordynator systemu formularzy.
+ * Handles the form's lifecycle - the main coordinator of the form system.
  *
- * FormHandler koordynuje pracę wszystkich komponentów formularza:
- * - **FormSchema** - definicja struktury i kontrolek formularza
- * - **FormState** - reaktywne zarządzanie stanem wszystkich kontrolek
- * - **FormDataManager** - ładowanie danych z bazy i przetwarzanie wyników
- * - **FormValidator** - walidacja pól i reguł biznesowych
+ * FormHandler coordinates all form components:
+ * - **FormSchema** - the structure and controls of the form
+ * - **FormState** - reactive state of all controls
+ * - **FormDataManager** - loading data from the database and processing results
+ * - **FormValidator** - field and business-rule validation
  *
- * Cykl życia:
- * 1. Inicjalizacja komponentów i ustawienie referencji między nimi
- * 2. Ładowanie danych (dla edycji) lub ustawienie wartości domyślnych (nowy rekord)
- * 3. Obsługa akcji użytkownika (walidacja + wykonanie akcji)
+ * Lifecycle:
+ * 1. Initialize the components and wire references between them
+ * 2. Load data (editing) or set default values (new record)
+ * 3. Handle user actions (validation + running the action)
  *
- * Handler nie wie nic o nawigacji ani o tym, co dzieje się po akcji - oddaje tylko `true`/`false`
- * z [triggerAction]. Decyzję "zapis zamyka ekran" podejmuje lambda przycisku w schema builderze.
+ * The handler knows nothing about navigation or about what happens after an action - it only returns
+ * `true`/`false` from [triggerAction]. The decision "saving closes the screen" is made by the button's lambda
+ * in the schema builder.
  *
- * @param formSchemaBuilder Builder dostarczający definicję struktury formularza.
- * @param formDataManager Manager odpowiedzialny za operacje na danych.
- * @param formValidator Validator do sprawdzania poprawności danych.
- * @param payload Dodatkowe dane przekazane do formularza (np. ID rodzica).
- * @param handlerScope CoroutineScope do operacji asynchronicznych.
+ * @param formSchemaBuilder Builder providing the form's structure.
+ * @param formDataManager Manager responsible for data operations.
+ * @param formValidator Validator checking the data.
+ * @param payload Additional data passed to the form (e.g. a parent ID).
+ * @param handlerScope CoroutineScope for asynchronous operations.
  */
 class FormHandler(
     formSchemaBuilder: FormSchemaBuilder,
@@ -42,7 +43,7 @@ class FormHandler(
     private val handlerScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 ) : FormActionTrigger {
     private val formState: FormState = FormState()
-    // Błędy pól są kluczowane tą samą pełną ścieżką co stany kontrolek, łącznie z wierszami repeatable.
+    // Field errors are keyed by the same full path as control states, including repeatable rows.
     internal val errorManager: ErrorManager = ErrorManager { path -> formState.getControlState(path) != null }
     private val formSchema: FormSchema = formSchemaBuilder.build()
 
@@ -55,10 +56,9 @@ class FormHandler(
     }
 
     /**
-     * Ustawia referencje do komponentów formularza dla wszystkich kontrolek.
+     * Sets the form component references on all controls.
      *
-     * Ta metoda jest kluczowa dla działania systemu - umożliwia kontrolkom
-     * dostęp do globalnego stanu, schemy i menedżera błędów.
+     * This is what gives controls access to the global state, the schema and the error manager.
      */
     private fun initializeControlsLifecycle() {
         formSchema.getAllControls().values.forEach { control ->
@@ -70,7 +70,7 @@ class FormHandler(
 
 
     /**
-     * Publiczne API dla FormView - metody dostępu do komponentów formularza
+     * API for FormView - access to the form components
      */
     internal fun getContentControlsInOrder(): List<String> = formSchema.contentOrder
     internal fun getActionBarControlsInOrder(): List<String> = formSchema.actionBarOrder
@@ -78,13 +78,13 @@ class FormHandler(
     internal fun getControlState(name: String): ControlState<*>? = formState.getControlState(name)
 
     /**
-     * Asynchronicznie pobiera wartości początkowe z [FormDataManager.initData] (w `handlerScope`)
-     * i zakłada z nich stany kontrolek.
+     * Asynchronously fetches the initial values from [FormDataManager.initData] (in `handlerScope`) and
+     * creates the control states from them.
      *
-     * Każda porażka kończy się [FormLoadState.Failed]:
-     * - `null` z `initData` to porażka oczekiwana (baza), którą data manager już pokazał;
-     * - wyjątek to błąd w kodzie formularza, np. [InitDataException] przy danych niepasujących do
-     *   schematu, więc idzie do dialogu nieobsłużonego wyjątku i do logu.
+     * Every failure ends in [FormLoadState.Failed]:
+     * - `null` from `initData` is an expected failure (database) that the data manager has already shown;
+     * - an exception is a bug in the form's code, e.g. [InitDataException] for data that does not fit the
+     *   schema, so it goes to the unhandled-error dialog and to the log.
      */
     private fun loadData() {
         handlerScope.launch {
@@ -104,9 +104,9 @@ class FormHandler(
     }
 
     override suspend fun triggerAction(actionKey: String, validates: Boolean): Boolean {
-        // Celowo pod jobem handlerScope, nie wołającego: przycisk odpala akcję w scope ekranu, który
-        // ginie razem z ekranem, a zapis złożony z kilku kroków ma dojść do końca, nawet gdy
-        // użytkownik zdąży ekran zamknąć. Stąd też brak anulowania handlerScope przy wyjściu.
+        // Deliberately under handlerScope's job, not the caller's: the button launches the action in the
+        // screen's scope, which dies with the screen, and a save made of several steps has to finish even
+        // if the user closes the screen in the meantime. Hence also no cancelling of handlerScope on exit.
         return withContext(handlerScope.coroutineContext) {
             val formActions = formDataManager.definedFormActions()
             val action = formActions[actionKey] ?: run {
@@ -125,26 +125,26 @@ class FormHandler(
 
                 action.invoke(formData)
             } finally {
-                // Nakładka blokuje cały formularz, więc musi zejść na każdej drodze wyjścia -
-                // także gdy walidator albo akcja rzucą wyjątkiem.
+                // The overlay blocks the whole form, so it has to come off on every way out -
+                // also when a validator or the action throws.
                 formState.actionTriggered.value = false
             }
         }
     }
 
     /**
-     * Zbiera dane formularza, jeśli przejdą walidację, albo zwraca `null`, gdy któryś etap ją oblał.
-     * Błędy do pokazania zapisuje sam etap, w `errorManager`.
+     * Collects the form data if it passes validation, or returns `null` when one of the stages failed it.
+     * The stage itself records the errors to show, in `errorManager`.
      */
     private fun validatedFormData(actionKey: String, validates: Boolean): FormResultData? {
         if (validates && !formValidator.validateFields()) return null
 
         val formData = formState.collectFormData(formSchema)
 
-        // Walidacja reguł biznesowych (może odpytywać bazę)
+        // Business-rule validation (may query the database)
         if (validates && !formValidator.validateBusinessRules(formData)) return null
 
-        // Walidacja specyficzna dla akcji (zawsze uruchamiana, niezależnie od flagi 'validates')
+        // Action-specific validation (always runs, regardless of the 'validates' flag)
         val actionValidator = formValidator.defineActionValidations()[actionKey]
         if (actionValidator != null && !actionValidator.invoke(formData)) return null
 

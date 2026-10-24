@@ -16,9 +16,8 @@ import io.github.octaviusframework.form.control.layout.RenderNormalLabel
 import io.github.octaviusframework.form.localization.FormTr
 
 /**
- * Super-bazowa klasa dla kontrolek dropdown.
- * Odpowiada wyłącznie za renderowanie ramki UI (ExposedDropdownMenuBox)
- * i deleguje renderowanie zawartości menu do podklas.
+ * Base class of all dropdown controls.
+ * Only renders the UI frame (ExposedDropdownMenuBox) and leaves the menu content to subclasses.
  */
 abstract class DropdownControlBase<T : Any>(
     label: String?,
@@ -34,24 +33,23 @@ abstract class DropdownControlBase<T : Any>(
 ) {
 
     /**
-     * Wyznacza tekst dla wybranej wartości. Wołane **raz na wartość**, poza ścieżką renderowania,
-     * a wynik ląduje w `ControlState.displayText` - dlatego wolno tu odpytać bazę albo API.
+     * Works out the text of the selected value. Called **once per value**, outside the rendering path, and the
+     * result lands in `ControlState.displayText` - which is why querying the database or an API is fine here.
      *
-     * Zwrócenie `null` znaczy "nie ma czego pokazać" (np. wiersz zniknął spod zapisanego id);
-     * kontrolka pokaże wtedy tekst zastępczy.
+     * Returning `null` means "nothing to show" (e.g. the row disappeared from under the saved id); the control
+     * then shows a placeholder text.
      */
     protected abstract suspend fun resolveDisplayText(value: T): String?
 
     /**
-     * Podklasy muszą zaimplementować tę metodę, aby wyrenderować
-     * zawartość menu rozwijanego.
+     * Subclasses implement this to render the content of the dropdown menu.
      *
-     * Dostają cały [ControlState], nie samą wartość, bo wybór pozycji ustawia wartość **i** tekst -
-     * menu zna już etykietę, więc nie ma powodu wyznaczać jej drugi raz.
+     * They get the whole [ControlState], not just the value, because selecting an item sets the value **and**
+     * the text - the menu already knows the label, so there is no reason to work it out a second time.
      *
-     * [menuScrollState] jest stanem przewijania samego menu. Tworzy go ta klasa, bo to ona wywołuje
-     * `ExposedDropdownMenu`, ale czyta go podklasa doładowująca kolejne strony - stąd w parametrze.
-     * Podklasa z pełną listą opcji po prostu go ignoruje.
+     * [menuScrollState] is the scroll state of the menu itself. This class creates it, because it calls
+     * `ExposedDropdownMenu`, but the subclass loading further pages reads it - hence the parameter. A subclass
+     * with the full list of options simply ignores it.
      */
     @Composable
     protected abstract fun ColumnScope.RenderMenuItems(
@@ -68,24 +66,23 @@ abstract class DropdownControlBase<T : Any>(
         var expanded by remember { mutableStateOf(false) }
         val scope = rememberSupervisedCoroutineScope()
 
-        // Wartość mamy z bazy, tekstu do niej nie - i jego wyznaczenie potrafi kosztować zapytanie
-        // albo round-trip po sieci, więc nie może się dziać przy każdej rekompozycji. Rozwiązujemy
-        // go raz, tutaj, a wynik siedzi w stanie kluczowanym ścieżką, czyli osobno dla każdego
-        // wiersza repeatable.
+        // The value comes from the database, its text does not - and working it out can cost a query or a
+        // network round-trip, so it cannot happen on every recomposition. It is resolved once, here, and the
+        // result sits in the state keyed by path, i.e. separately for every repeatable row.
         //
-        // Trzy stany tekstu: `null` - jeszcze nierozwiązany, `""` - rozwiązany i nie ma czego
-        // pokazać (wiersz zniknął spod zapisanego id), reszta - etykieta. Bez tego rozróżnienia
-        // nieudane rozwiązanie zostawiałoby pole na "ładowanie" na zawsze.
+        // Three states of the text: `null` - not resolved yet, `""` - resolved and nothing to show (the row
+        // disappeared from under the saved id), anything else - the label. Without this distinction a failed
+        // resolution would leave the field on "loading" forever.
         val resolvedText = controlState.displayText.value
         val unresolved = controlState.value.value != null && resolvedText == null
 
         LaunchedEffect(controlState.value.value, resolvedText) {
             val value = controlState.value.value
             if (value != null && controlState.displayText.value == null) {
-                // Rozwiązanie etykiety dzieje się bez udziału użytkownika, przy samym otwarciu
-                // formularza, i nie ma gdzie pokazać błędu - menu jest zamknięte. Zamiast wysypać
-                // aplikację albo zasypać ją dialogami przy kilku wierszach naraz, zostawiamy tekst
-                // zastępczy; komunikat zobaczy dopiero po otwarciu listy.
+                // Resolving the label happens without the user, right when the form opens, and there is
+                // nowhere to show an error - the menu is closed. Instead of crashing the application or
+                // flooding it with dialogs for several rows at once, a placeholder text stays; the message
+                // shows up only once the list is opened.
                 controlState.displayText.value = try {
                     resolveDisplayText(value) ?: ""
                 } catch (e: CancellationException) {
@@ -118,9 +115,9 @@ abstract class DropdownControlBase<T : Any>(
                         .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                 )
 
-                // Menu z opcjami. Stan przewijania trzymamy sami, bo doładowywanie kolejnych stron
-                // jedzie z pozycji przewijania menu - samo menu już się przewija, więc nie ma po co
-                // wkładać w nie drugiej listy przewijalnej.
+                // Menu with the options. The scroll state is kept here, because loading further pages runs
+                // off the menu's scroll position - the menu already scrolls, so there is no point in putting
+                // a second scrollable list inside it.
                 val menuScrollState = rememberScrollState()
 
                 ExposedDropdownMenu(

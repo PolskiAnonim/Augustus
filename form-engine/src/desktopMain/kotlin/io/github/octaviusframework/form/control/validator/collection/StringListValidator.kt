@@ -7,7 +7,7 @@ import io.github.octaviusframework.form.control.base.StringListValidation
 import io.github.octaviusframework.form.localization.FormTr
 
 /**
- * Walidator dla kontrolek list tekstowych z obsługą opcji walidacji.
+ * Validator of text list controls, with validation options.
  */
 class StringListValidator(
     private val validationOptions: StringListValidation? = null
@@ -19,28 +19,28 @@ class StringListValidator(
         val errors = mutableListOf<String>()
 
         validationOptions?.let { options ->
-            // Sprawdź minimalną liczbę elementów
+            // Minimum number of items
             options.minItems?.let { minItems ->
                 if (value.size < minItems) {
                     errors.add(FormTr.Validation.minimumItems(minItems))
                 }
             }
 
-            // Sprawdź maksymalną liczbę elementów
+            // Maximum number of items
             options.maxItems?.let { maxItems ->
                 if (value.size > maxItems) {
                     errors.add(FormTr.Validation.maximumItems(maxItems))
                 }
             }
 
-            // Sprawdź walidację pojedynczych elementów
+            // Validation of individual items
             options.itemValidation?.let { itemValidation ->
                 value.forEachIndexed { index, item ->
                     val tempErrors = mutableListOf<String>()
                     val itemState = ControlState<String>()
                     itemState.value.value = item
 
-                    // Sprawdź walidację elementu bez używania ErrorManagera (tymczasowo)
+                    // Validate the item without the ErrorManager (for now)
                     if (item.isNotBlank()) {
                         itemValidation.minLength?.let { minLength ->
                             if (item.length < minLength) {
