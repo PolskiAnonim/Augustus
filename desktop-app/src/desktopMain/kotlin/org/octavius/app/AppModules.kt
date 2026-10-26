@@ -10,6 +10,7 @@ import org.koin.dsl.module
 import org.koin.dsl.onClose
 import org.octavius.app.settings.AppSettingsManager
 import javax.sql.DataSource
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Moduł Koin konfigurujący zależności związane z bazą danych.
@@ -37,6 +38,14 @@ fun databaseModule(featureSchemas: List<String>) = module {
             dataSource = HikariDataSource(HikariConfig().apply {
                 this.dataSource = octavius
                 poolName = "octavius-app"
+                // Aplikacja ma jednego użytkownika, więc w spoczynku wystarcza jedno połączenie. Kolejne pula
+                // otwiera przy równoległych zapytaniach (najwyżej 10) i zamyka po 10 minutach bezczynności.
+                minimumIdle = 1
+                // Tyle czeka zarówno pożyczenie połączenia z puli, jak i handshake nowego (Hikari przekazuje
+                // to sterownikowi jako loginTimeout). Lokalna baza odpowiada w milisekundach, więc limit
+                // dotyczy w praktyce tylko wyłączonego serwera albo złego adresu w ustawieniach: wtedy dialog
+                // błędu pojawia się po 5 s.
+                connectionTimeout = 5.seconds.inWholeMilliseconds
             })
         } catch (e: Exception) {
             throw e.findOctaviusCause() ?: e
