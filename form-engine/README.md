@@ -118,9 +118,9 @@ class BookFormDataManager : FormDataManager() {
 
         val result = if (loadedId != null) {
             db.update("books").setValues(params).where("id = @id")
-                .asResult().update(params + ("id" to loadedId))
+                .asResult().executeUpdate(params + ("id" to loadedId))
         } else {
-            db.insertInto("books").values(params).asResult().update(params)
+            db.insertInto("books").values(params).asResult().executeUpdate(params)
         }
 
         return when (result) {

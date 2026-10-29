@@ -80,7 +80,7 @@ class BookFormDataManager : FormDataManager() {
                     .setExpression("updated_at", "NOW()")
                     .where("id = @id")
                     .asStep()
-                    .update(bookData + mapOf("id" to bookIdRef))
+                    .executeUpdate(bookData + mapOf("id" to bookIdRef))
             )
         } else {
             bookIdRef = plan.add(
@@ -110,7 +110,7 @@ class BookFormDataManager : FormDataManager() {
                     .using("UNNEST(@ids_to_delete) AS t(id)")
                     .where("bta.author_id = t.id AND bta.book_id = @book_id")
                     .asStep()
-                    .update(
+                    .executeUpdate(
                         "ids_to_delete" to deletedAuthors.withPgType(PgStandardType.INT4_ARRAY),
                         "book_id" to bookIdRef
                     )
@@ -133,7 +133,7 @@ class BookFormDataManager : FormDataManager() {
                             .toSql()
                     )
                     .asStep()
-                    .update(
+                    .executeUpdate(
                         "ids_to_insert" to insertedAuthors.withPgType(PgStandardType.INT4_ARRAY),
                         "book_id" to bookIdRef
                     )
@@ -157,7 +157,7 @@ class BookFormDataManager : FormDataManager() {
         // CASCADE usunie powiązania w book_to_authors
         val result = db.deleteFrom("books.books")
             .where("id = @id")
-            .asResult().update(mapOf("id" to loadedId))
+            .asResult().executeUpdate(mapOf("id" to loadedId))
 
         return when (result) {
             is DataResult.Failure -> {

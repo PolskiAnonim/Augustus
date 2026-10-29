@@ -37,11 +37,11 @@ class GameSeriesFormDataManager : FormDataManager() {
         if (loadedId != null) {
             plan.add(
                 db.update("games.series").setValues(listOf("name")).where("id = @id").asStep()
-                    .update("name" to name, "id" to loadedId)
+                    .executeUpdate("name" to name, "id" to loadedId)
             )
         } else {
             plan.add(
-                db.insertInto("games.series").values(listOf("name")).asStep().update("name" to name)
+                db.insertInto("games.series").values(listOf("name")).asStep().executeUpdate("name" to name)
             )
         }
         return when (val result = dbResult { db.executeTransactionPlan(plan) }) {

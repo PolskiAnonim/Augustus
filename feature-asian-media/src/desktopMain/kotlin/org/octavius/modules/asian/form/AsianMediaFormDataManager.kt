@@ -70,7 +70,7 @@ class AsianMediaFormDataManager : FormDataManager() {
             db.deleteFrom("asian_media.titles")
                 .where("id = @id")
                 .asStep()
-                .update("id" to formResultData.getInitial("id"))
+                .executeUpdate("id" to formResultData.getInitial("id"))
         )
 
         return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
@@ -103,7 +103,7 @@ class AsianMediaFormDataManager : FormDataManager() {
                     .setValues(titleData)
                     .where("id = @id")
                     .asStep()
-                    .update(titleData + mapOf("id" to titleIdRef))
+                    .executeUpdate(titleData + mapOf("id" to titleIdRef))
             )
         } else {
             titleIdRef = plan.add(
@@ -129,7 +129,7 @@ class AsianMediaFormDataManager : FormDataManager() {
                     db.deleteFrom("asian_media.publications")
                         .where("id = @id")
                         .asStep()
-                        .update("id" to pubId)
+                        .executeUpdate("id" to pubId)
                 )
             }
 
@@ -148,7 +148,7 @@ class AsianMediaFormDataManager : FormDataManager() {
                         .setValues(publicationData)
                         .where("id = @id")
                         .asStep()
-                        .update(publicationData + mapOf("id" to publicationIdRef))
+                        .executeUpdate(publicationData + mapOf("id" to publicationIdRef))
                 )
 
                 // Warunkowo zaktualizuj powiązane 'publication_volumes'
@@ -208,7 +208,7 @@ class AsianMediaFormDataManager : FormDataManager() {
                     .setValues(volumesData)
                     .where("publication_id = @publication_id")
                     .asStep()
-                    .update(volumesData + mapOf("publication_id" to publicationIdRef))
+                    .executeUpdate(volumesData + mapOf("publication_id" to publicationIdRef))
             )
         }
     }

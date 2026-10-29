@@ -26,7 +26,7 @@ class ReportConfigurationManager : KoinComponent {
                     "is_default" to "EXCLUDED.is_default",
                     "filters" to "EXCLUDED.filters"
                 )
-            }.asResult().update(flatValueMap)
+            }.asResult().executeUpdate(flatValueMap)
 
         return when (result) {
             is DataResult.Failure -> {
@@ -75,7 +75,7 @@ class ReportConfigurationManager : KoinComponent {
     fun deleteConfiguration(name: String, reportName: String): Boolean {
 
         val result = db.deleteFrom("report_configurations")
-            .where("name = @name AND report_name = @report_name").asResult().update("name" to name, "report_name" to reportName)
+            .where("name = @name AND report_name = @report_name").asResult().executeUpdate("name" to name, "report_name" to reportName)
 
         return when (result) {
             is DataResult.Failure -> {

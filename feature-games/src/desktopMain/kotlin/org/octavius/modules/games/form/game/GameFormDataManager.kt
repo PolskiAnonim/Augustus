@@ -100,7 +100,7 @@ class GameFormDataManager : FormDataManager() {
             db.deleteFrom("games.games")
                 .where("id = @id")
                 .asStep()
-                .update("id" to formResultData.getInitial("id"))
+                .executeUpdate("id" to formResultData.getInitial("id"))
         )
 
         return when (val result = dbResult { db.executeTransactionPlan(plan) }) {
@@ -140,7 +140,7 @@ class GameFormDataManager : FormDataManager() {
                     .setValues(gameData)
                     .where("id = @id")
                     .asStep()
-                    .update(gameData + mapOf("id" to gameIdRef))
+                    .executeUpdate(gameData + mapOf("id" to gameIdRef))
             )
         } else {
             // Wstaw nową grę i pobierz jej ID jako referencję
@@ -216,7 +216,7 @@ class GameFormDataManager : FormDataManager() {
             db.deleteFrom("games.categories_to_games ctg")
                 .using("UNNEST(@ids_to_delete) AS t(id)")
                 .where("ctg.category_id = t.id AND ctg.game_id = @game_id")
-                .asStep().update("ids_to_delete" to deletedCategories.withPgType(PgStandardType.INT4_ARRAY), "game_id" to gameIdRef)
+                .asStep().executeUpdate("ids_to_delete" to deletedCategories.withPgType(PgStandardType.INT4_ARRAY), "game_id" to gameIdRef)
         )
 
         val insertedCategories = categoriesResult.addedRows.map { rowData ->
@@ -228,7 +228,7 @@ class GameFormDataManager : FormDataManager() {
         plan.add(
             db.insertInto("games.categories_to_games")
                 .fromSelect(db.select("category_id", "@game_id").from("UNNEST(@ids_to_insert) AS category_id").toSql())
-                .asStep().update("ids_to_insert" to insertedCategories.withPgType(PgStandardType.INT4_ARRAY), "game_id" to gameIdRef)
+                .asStep().executeUpdate("ids_to_insert" to insertedCategories.withPgType(PgStandardType.INT4_ARRAY), "game_id" to gameIdRef)
         )
 
         // Wykonanie całego planu
@@ -262,14 +262,14 @@ class GameFormDataManager : FormDataManager() {
                         .setValues(data)
                         .where("game_id = @game_id")
                         .asStep()
-                        .update(allParams)
+                        .executeUpdate(allParams)
                 )
             } else { // DELETE
                 plan.add(
                     db.deleteFrom(tableName)
                         .where("game_id = @game_id")
                         .asStep()
-                        .update("game_id" to gameIdRef)
+                        .executeUpdate("game_id" to gameIdRef)
                 )
             }
         } else if (conditionMet) { // INSERT
@@ -278,7 +278,7 @@ class GameFormDataManager : FormDataManager() {
                 db.insertInto(tableName)
                     .values(allParams)
                     .asStep()
-                    .update(allParams)
+                    .executeUpdate(allParams)
             )
         }
     }

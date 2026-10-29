@@ -35,10 +35,10 @@ class GameCategoryDataManager : FormDataManager() {
         val loadedId = formResultData.getInitial("id")
         val result = if (loadedId != null) {
             db.update("games.categories").setValue("name").where("id = @id")
-                .asResult().update(mapOf("name" to formResultData.getCurrent("name"), "id" to loadedId))
+                .asResult().executeUpdate(mapOf("name" to formResultData.getCurrent("name"), "id" to loadedId))
         } else {
             db.insertInto("games.categories").value("name")
-                .asResult().update(mapOf("name" to formResultData.getCurrent("name")))
+                .asResult().executeUpdate(mapOf("name" to formResultData.getCurrent("name")))
         }
         return when (result) {
             is DataResult.Failure -> {

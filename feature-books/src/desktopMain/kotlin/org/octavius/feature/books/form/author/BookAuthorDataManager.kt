@@ -42,11 +42,11 @@ class BookAuthorDataManager : FormDataManager() {
             db.update("books.authors")
                 .setValues(params)
                 .where("id = @id")
-                .asResult().update(params + ("id" to loadedId))
+                .asResult().executeUpdate(params + ("id" to loadedId))
         } else {
             db.insertInto("books.authors")
                 .values(params)
-                .asResult().update(params)
+                .asResult().executeUpdate(params)
         }
 
         return when (result) {
@@ -65,7 +65,7 @@ class BookAuthorDataManager : FormDataManager() {
 
         val result = db.deleteFrom("books.authors")
             .where("id = @id")
-            .asResult().update(mapOf("id" to loadedId))
+            .asResult().executeUpdate(mapOf("id" to loadedId))
 
         return when (result) {
             is DataResult.Failure -> {

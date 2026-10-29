@@ -173,7 +173,7 @@ class AsianMediaApi : ApiModule, KoinComponent {
                 db.insertInto("asian_media.publications")
                     .values(publicationData)
                     .asStep()
-                    .update(publicationData)
+                    .executeUpdate(publicationData)
             )
 
             // Krok 3: Identyfikator serii na stronie, z której dodajemy - po nim popup rozpozna ją następnym razem
@@ -187,7 +187,7 @@ class AsianMediaApi : ApiModule, KoinComponent {
                     db.insertInto("asian_media.title_external_ids")
                         .values(externalIdData)
                         .asStep()
-                        .update(externalIdData)
+                        .executeUpdate(externalIdData)
                 )
             }
 
@@ -293,7 +293,7 @@ class AsianMediaApi : ApiModule, KoinComponent {
                     }
                     if (linkedTo == null) {
                         rawQuery("INSERT INTO asian_media.title_external_ids (title_id, site, external_id) VALUES (@titleId, @site, @id)")
-                            .asResult().update("titleId" to request.titleId, "site" to externalId.site, "id" to externalId.id)
+                            .asResult().executeUpdate("titleId" to request.titleId, "site" to externalId.site, "id" to externalId.id)
                             .getOrElse { return@transactionResult it }
                     }
                 }
@@ -304,7 +304,7 @@ class AsianMediaApi : ApiModule, KoinComponent {
                     VALUES (@titleId, @type, @status, false)
                     ON CONFLICT (title_id, publication_type) DO NOTHING
                     """
-                ).asResult().update("titleId" to request.titleId, "type" to request.type, "status" to PublicationStatus.Trash)
+                ).asResult().executeUpdate("titleId" to request.titleId, "type" to request.type, "status" to PublicationStatus.Trash)
                     .getOrElse { return@transactionResult it }
 
                 val addedTitles = appendTitles(request.titleId, titles).getOrElse { return@transactionResult it }
