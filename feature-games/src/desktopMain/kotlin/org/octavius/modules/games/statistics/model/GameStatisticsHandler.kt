@@ -88,37 +88,31 @@ class GameStatisticsHandler(val scope: CoroutineScope) : KoinComponent {
 
         // --- CTE 5: highest_rated_games ---
         val avgRatingCalculation = """
-        (
-            (COALESCE(story_rating, 0) + COALESCE(gameplay_rating, 0) + COALESCE(atmosphere_rating, 0))
-            /
-            NULLIF(
-                (CASE WHEN story_rating IS NOT NULL THEN 1 ELSE 0 END +
-                 CASE WHEN gameplay_rating IS NOT NULL THEN 1 ELSE 0 END +
-                 CASE WHEN atmosphere_rating IS NOT NULL THEN 1 ELSE 0 END), 0
-            )
-        )::numeric(10, 2)
+        (SELECT avg(v) FROM (VALUES (story_rating), (gameplay_rating), (atmosphere_rating)) t(v))::numeric(10, 2)
     """.trimIndent()
+        val ratingCount = "num_nonnulls(story_rating, gameplay_rating, atmosphere_rating)"
 
+        // Przy równej średniej wyżej gra oceniona w większej liczbie kategorii, potem alfabetycznie
         val highestRatedGamesQuery = db.select(
             """
             array_agg(
                 dynamic_dto('game_dashboard_rating', jsonb_build_object(
-                    'id', g.id,
-                    'name', g.name,
+                    'id', r.id,
+                    'name', r.name,
                     'averageRating', r.avg_rating)
-                ) ORDER BY r.avg_rating DESC
+                ) ORDER BY r.avg_rating DESC, r.rating_count DESC, r.name
             ) AS games
         """
         )
             .from(
                 "(${
-                    db.select("game_id, $avgRatingCalculation AS avg_rating")
-                        .from("games.ratings")
-                        .where("$avgRatingCalculation IS NOT NULL") // Wyrzucamy gry bez ocen od razu
-                        .orderBy("avg_rating DESC")
+                    db.select("g.id, g.name, $avgRatingCalculation AS avg_rating, $ratingCount AS rating_count")
+                        .from("games.ratings rt JOIN games.games g ON rt.game_id = g.id")
+                        .where("$ratingCount > 0") // Wyrzucamy gry bez ocen od razu
+                        .orderBy("avg_rating DESC, rating_count DESC, name")
                         .limit(5)
                         .toSql()
-                }) r JOIN games.games g ON r.game_id = g.id"
+                }) r"
             )
             .toSql()
 
